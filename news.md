@@ -1,8 +1,7 @@
-The papers database is large. It seems like the prompt was invoked without any new paper data. The JSON block at the end of your message is empty — no papers were provided for analysis.
+The new papers JSON block is empty — no papers were provided for this run. Per the instructions, here's the appropriate bulletin:
 
-This prompt is meant to be called by `scan.sh` with the scored papers appended after the ` ```json` block. Without that data, there's nothing to summarize.
+# Inference Ecosystem — Flash News
 
-Would you like me to:
-1. **Run `scan.sh`** to do a full scan (fetch new papers, score them, and generate news)?
-2. **Generate news from the most recent papers** already in `data/papers.json`?
-3. Something else?
+**2026-02-25**
+
+Quiet day on the wire — no new papers scored in this run. Check back next cycle.
