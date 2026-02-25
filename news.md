@@ -1,66 +1,47 @@
 # Inference Ecosystem — Flash News
 **2026-02-25**
 
-## Today's Highlights
+## Highlights
 
-A strong batch today with **four high-relevance papers** tackling different layers of the inference stack — from KV cache management and multi-GPU SSM parallelism to edge hardware and production MoE reliability.
+### CHESS: KV Cache Pruning That Actually Works
+[CHESS](https://arxiv.org/abs/2602.20732v1) — Score: 95 | Hype: 65
 
----
+The KV cache remains *the* bottleneck for long-context LLM inference, and CHESS attacks it with an algorithm-system co-design that's hard to ignore. Their context-aware hierarchical selection policy dynamically reconstructs a coherent context during decoding — using just **1% of the KV cache** while *surpassing* full-KV quality. The system-level trick: coarse-granularity selection eliminates expensive data movement, translating theoretical sparsity into real wall-clock gains of up to **4.56x throughput**. If you're running long-context workloads, this is the paper to read this week. Code available.
 
-### KV Cache Cracked: 1% is All You Need
+### FAST-Prefill: FPGAs Strike Back for Long-Context Prefill
+[FAST-Prefill](https://arxiv.org/abs/2602.20515v1) — Score: 94 | Hype: 55
 
-**[CHESS: Context-aware Hierarchical Efficient Semantic Selection for Long-Context LLM Inference](https://arxiv.org/abs/2602.20732)** (Score: 95)
+A bold bet on FPGA acceleration for the prefill stage — the compute-dominant phase in long-context inference. Dynamic sparse attention patterns make prefill memory-bound on GPUs, and this paper argues FPGAs are a better fit. The design features a fused pipeline with memory-aware execution, a liveness-driven dual-tier KV cache, and a hybrid MPU mixing DSPs with LUT-based bit-plane decomposition. Results on Llama and Qwen (4K–128K context): **2.5x TTFT speedup** and **4.5x energy efficiency** over an A5000 GPU. Niche but provocative — especially as long-context inference costs become untenable.
 
-The standout paper of the day. CHESS proposes an algorithm-system co-design for KV cache pruning that dynamically reconstructs a coherent context window per decoding step. The headline number: **4.56x throughput improvement using only 1% of the KV cache** while *surpassing* full-KV quality. The key insight is that prior pruning methods are context-agnostic — they don't consider step-wise relevance or local semantics, leading to quality degradation. CHESS fixes this with hierarchical selection at coarse granularity, eliminating expensive data movement. If these numbers hold up in production workloads, this could meaningfully change how long-context serving is deployed.
+### TOM: ROM-Based Edge Inference for Ternary LLMs
+[TOM](https://arxiv.org/abs/2602.20662v1) — Score: 93 | Hype: 55
 
----
+An unconventional take on the memory wall: co-design ternary quantization with **read-only memory**. TOM synthesizes ternary weights as standard-cell logic in ROM, achieving extreme density while keeping QLoRA adapters in SRAM for on-device tunability. The sparsity-aware ROM eliminates area overhead from zero-valued bits, and dynamic power gating exploits ROM's logic nature. Result: **3,306 tokens/sec** with BitNet-2B on edge hardware. As ternary models like BitNet gain traction, this hardware-quantization co-design points toward a different future for edge LLM deployment.
 
-### FPGA Takes on Long-Context Prefill
+### Tensor Parallelism for SSMs — Filling the Gap
+[Scaling SSMs on Multiple GPUs](https://arxiv.org/abs/2602.21144v1) — Score: 92 | Hype: 55
 
-**[FAST-Prefill: FPGA Accelerated Sparse Attention for Long Context LLM Prefill](https://arxiv.org/abs/2602.20515)** (Score: 94)
+Everyone's been asking how to scale Mamba/SSM inference beyond a single GPU, and this paper delivers the first serious answer. The challenge: SSM mixer blocks couple large projections with recurrent state updates whose efficiency depends on locality — you can't just naively apply Transformer TP patterns. Their solution introduces an SSM state cache (the SSM equivalent of a KV cache), partitions the mixer's packed parameter tensor to keep recurrent updates local, and adds quantized AllReduce to cut synchronization overhead. Throughput gains: **1.6–2.1x on 2 GPUs, 2.6–4.0x on 4 GPUs** for Mamba, with largest benefits at long context. Evaluated across Mamba, Falcon-Mamba, and Zamba on A6000/A100 clusters.
 
-An FPGA accelerator specifically targeting the prefill bottleneck with dynamic sparse attention. The design is thoughtful: a fused pipeline with memory-aware execution order for sparse index generation, a dual-tier KV cache exploiting the memory hierarchy, and a hybrid MPU combining DSPs with LUT-based bit-plane decomposition. Results on Llama and Qwen (4K–128K context): **2.5x TTFT speedup and 4.5x energy efficiency** over an A5000 GPU. FPGA inference remains niche, but as long-context workloads push GPU memory and power budgets, this kind of heterogeneous approach deserves attention — especially for latency-sensitive edge deployments.
+### ReviveMoE: No-Restart Failure Recovery for MoE Serving
+[ReviveMoE](https://arxiv.org/abs/2602.21140v1) — Score: 90 | Hype: 60
 
----
-
-### ROM Meets Ternary: Edge Inference Gets Dense
-
-**[TOM: A Ternary Read-only Memory Accelerator for LLM-powered Edge Intelligence](https://arxiv.org/abs/2602.20662)** (Score: 93)
-
-A creative hardware-quantization co-design: store ternary LLM weights as synthesized standard-cell ROM logic, achieving extreme memory density without the area overhead of zero-valued bits. A hybrid ROM-SRAM architecture preserves QLoRA tunability. The result: **3,306 tokens/sec with BitNet-2B** on a custom accelerator. The sparsity-aware ROM and workload-aware power gating are clever engineering choices. As 1-bit/ternary models gain traction (BitNet, etc.), dedicated hardware like this could define the edge inference tier.
-
----
-
-### Tensor Parallelism for SSMs Finally Gets Serious
-
-**[Scaling State-Space Models on Multiple GPUs with Tensor Parallelism](https://arxiv.org/abs/2602.21144)** (Score: 92)
-
-SSMs (Mamba, Falcon-Mamba, Zamba) are compelling for long-context workloads, but multi-GPU inference has been an open problem — the recurrent state update couples sequence-wise computation in ways that resist naive TP partitioning. This paper presents a communication-efficient TP design that keeps recurrent updates local while introducing an SSM state cache (the SSM equivalent of KV caching) and quantized AllReduce. Results on A6000/A100 clusters: **1.6–2.1x throughput on 2 GPUs, 2.6–4.0x on 4 GPUs**, with an extra 10–18% from quantized all-reduce. As hybrid SSM-Transformer architectures proliferate, this fills a critical gap.
+From Huawei Cloud's production MaaS platform: when your MoE serving instance hits a hardware failure, reloading weights and recompiling graphs is devastating to SLAs. ReviveMoE recovers **without restarting** — supporting both collocated and disaggregated MoE/attention architectures. Built on Huawei's xDeepServe platform and XCCL communications library. The practical engineering here matters: at scale, hardware failures are *when*, not *if*, and recovery latency directly impacts revenue.
 
 ---
 
-### Production MoE Fault Recovery Without Restarts
+## Also Noteworthy
 
-**[ReviveMoE: Fast Recovery for Hardware Failures in Large-Scale MoE LLM Inference Deployments](https://arxiv.org/abs/2602.21140)** (Score: 90)
+**OptiLeak** ([arxiv](https://arxiv.org/abs/2602.20595v1)) — Score: 75 | Hype: 55 — Exposes a real security vulnerability in multi-tenant LLM serving: shared KV caches enable prompt reconstruction attacks with **12.48x** efficiency improvement via RL-enhanced exploitation. If you're deploying shared KV cache optimizations (looking at you, vLLM prefix caching), the threat model just got more concrete.
 
-From Huawei Cloud's production MaaS platform. When you're running MoE models across hundreds of accelerators, hardware failures are *when*, not *if*. ReviveMoE recovers without restarting the serving instance — avoiding the costly weight reload and graph recompilation that kills SLAs. Supports both collocated and disaggregated MoE/attention architectures. Not glamorous, but this is the kind of production reliability engineering that separates real inference platforms from research demos.
-
----
-
-### Shared KV Cache = Shared Secrets?
-
-**[OptiLeak: Efficient Prompt Reconstruction via Reinforcement Learning in Multi-tenant LLM Serving](https://arxiv.org/abs/2602.20595)** (Score: 75)
-
-A security wake-up call for multi-tenant serving. OptiLeak demonstrates that shared KV caches create exploitable side-channels for prompt leakage, achieving **up to 12.48x efficiency improvement** over prior attacks via RL-based fine-tuning that targets domain-specific "hard tokens." Tested across 3B–14B parameter models on medical and financial benchmarks. If you're running vLLM or similar with shared prefix caching in multi-tenant settings, this paper argues the privacy risk is worse than previously thought. Cache isolation may need to become a first-class serving concern.
+**Lagom** ([arxiv](https://arxiv.org/abs/2602.20656v1)) — Score: 72 | Hype: 45 — Communication-computation overlap optimizer for distributed LLM workloads. Co-tunes communication parameters with a unified cost model, reducing optimization complexity from exponential to linear. **1.07–1.33x speedup** over NCCL across diverse parallelizations. The techniques apply to both training and inference clusters.
 
 ---
 
 ## Cross-Cutting Themes
 
-- **The memory wall dominates**: Three of the top papers (CHESS, FAST-Prefill, TOM) attack inference memory bottlenecks from different angles — algorithmic pruning, FPGA hardware, and ROM density. The message is clear: memory bandwidth and capacity remain *the* constraint for inference at scale.
-- **Beyond Transformers**: SSM inference scaling and ternary/1-bit model hardware are maturing, signaling the inference stack is diversifying beyond vanilla Transformer assumptions.
-- **Production reality**: ReviveMoE and OptiLeak both address concerns that only matter at deployment scale — fault tolerance and security in shared infrastructure. The inference ecosystem is growing up.
+**The memory wall is being attacked from every angle.** This batch shows three distinct strategies: algorithmic (CHESS pruning KV cache to 1%), architectural (TOM using ROM for ternary weights), and hardware (FAST-Prefill exploiting FPGA memory hierarchies). The inference community is converging on a consensus that memory bandwidth — not compute — is the binding constraint, and the solution space is broadening well beyond "just quantize harder."
 
----
+**SSMs are graduating from research curiosity to systems challenge.** The tensor parallelism paper for Mamba/SSM models signals that these architectures are hitting real deployment scale. The SSM state cache concept mirrors the KV cache evolution in Transformers — expect more systems work in this space as hybrid architectures proliferate.
 
-*Notably absent this batch: nothing on speculative decoding, continuous batching improvements, or the major inference frameworks (vLLM, SGLang, TensorRT-LLM). Most remaining papers focused on training methodology, agents, or domain applications.*
+**Reliability joins the inference systems stack.** ReviveMoE and OptiLeak both highlight that inference at scale requires more than throughput optimization — fault tolerance and security are first-class concerns for production serving infrastructure.
