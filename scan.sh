@@ -22,6 +22,12 @@ fi
 
 # Invoke Claude Code non-interactively to score and report
 echo "Scoring papers with Claude Code..."
-cat prompt.md | claude --print \
-  --allowedTools "Read,Write,Edit,Bash(git *)" \
-  --input-file /tmp/inf-eco-papers.json
+{
+  cat prompt.md
+  echo ""
+  echo "## Papers JSON"
+  echo '```json'
+  cat /tmp/inf-eco-papers.json
+  echo '```'
+} | claude --print \
+  --allowedTools "Read,Write,Edit,Bash(git *)"
