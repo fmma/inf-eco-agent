@@ -1,47 +1,63 @@
 # Inference Ecosystem — Flash News
 **2026-02-25**
 
-## Highlights
+---
 
-### CHESS: KV Cache Pruning That Actually Works
-[CHESS](https://arxiv.org/abs/2602.20732v1) — Score: 95 | Hype: 65
+## Top Story: KnapSpec — Speculative Decoding as a Knapsack Problem
 
-The KV cache remains *the* bottleneck for long-context LLM inference, and CHESS attacks it with an algorithm-system co-design that's hard to ignore. Their context-aware hierarchical selection policy dynamically reconstructs a coherent context during decoding — using just **1% of the KV cache** while *surpassing* full-KV quality. The system-level trick: coarse-granularity selection eliminates expensive data movement, translating theoretical sparsity into real wall-clock gains of up to **4.56x throughput**. If you're running long-context workloads, this is the paper to read this week. Code available.
+**[KnapSpec: Self-Speculative Decoding via Adaptive Layer Selection as a Knapsack Problem](https://arxiv.org/abs/2602.20217v1)** — Score: 95 | Hype: 70
 
-### FAST-Prefill: FPGAs Strike Back for Long-Context Prefill
-[FAST-Prefill](https://arxiv.org/abs/2602.20515v1) — Score: 94 | Hype: 55
+The most inference-relevant paper this cycle. KnapSpec reformulates draft model selection in self-speculative decoding as a knapsack optimization: decouple Attention and MLP layers, model their hardware-specific latencies as functions of context length, and solve for the throughput-maximizing draft configuration on the fly via parallel dynamic programming. The key insight is that static layer-skipping heuristics ignore how attention cost shifts with sequence length — KnapSpec adapts in real time. First rigorous theoretical analysis connecting cosine similarity between hidden states to token acceptance rate. **Up to 1.47x wall-clock speedup** on Qwen3 and Llama3, training-free and plug-and-play. This is the kind of work that could ship in serving frameworks quickly.
 
-A bold bet on FPGA acceleration for the prefill stage — the compute-dominant phase in long-context inference. Dynamic sparse attention patterns make prefill memory-bound on GPUs, and this paper argues FPGAs are a better fit. The design features a fused pipeline with memory-aware execution, a liveness-driven dual-tier KV cache, and a hybrid MPU mixing DSPs with LUT-based bit-plane decomposition. Results on Llama and Qwen (4K–128K context): **2.5x TTFT speedup** and **4.5x energy efficiency** over an A5000 GPU. Niche but provocative — especially as long-context inference costs become untenable.
+---
 
-### TOM: ROM-Based Edge Inference for Ternary LLMs
-[TOM](https://arxiv.org/abs/2602.20662v1) — Score: 93 | Hype: 55
+## ISO-Bench: Can Agents Actually Optimize vLLM and SGLang?
 
-An unconventional take on the memory wall: co-design ternary quantization with **read-only memory**. TOM synthesizes ternary weights as standard-cell logic in ROM, achieving extreme density while keeping QLoRA adapters in SRAM for on-device tunability. The sparsity-aware ROM eliminates area overhead from zero-valued bits, and dynamic power gating exploits ROM's logic nature. Result: **3,306 tokens/sec** with BitNet-2B on edge hardware. As ternary models like BitNet gain traction, this hardware-quantization co-design points toward a different future for edge LLM deployment.
+**[ISO-Bench: A Benchmark for Coding Agents on Real-World Inference Optimization](https://arxiv.org/abs/2602.19594v1)** — Score: 92 | Hype: 70
 
-### Tensor Parallelism for SSMs — Filling the Gap
-[Scaling SSMs on Multiple GPUs](https://arxiv.org/abs/2602.21144v1) — Score: 92 | Hype: 55
+A benchmark that goes straight at the heart of this community: 54 tasks pulled from merged PRs in vLLM and SGLang, each with a bottleneck description and a ground-truth optimization patch from a human expert. Agents must produce working optimization patches, evaluated with both execution-based and LLM-based metrics. Key finding: agents often correctly *identify* bottlenecks but fail to *execute* working solutions. No single agent dominates across both codebases, and scaffolding matters as much as the underlying model. A wake-up call for anyone assuming coding agents will auto-optimize inference stacks.
 
-Everyone's been asking how to scale Mamba/SSM inference beyond a single GPU, and this paper delivers the first serious answer. The challenge: SSM mixer blocks couple large projections with recurrent state updates whose efficiency depends on locality — you can't just naively apply Transformer TP patterns. Their solution introduces an SSM state cache (the SSM equivalent of a KV cache), partitions the mixer's packed parameter tensor to keep recurrent updates local, and adds quantized AllReduce to cut synchronization overhead. Throughput gains: **1.6–2.1x on 2 GPUs, 2.6–4.0x on 4 GPUs** for Mamba, with largest benefits at long context. Evaluated across Mamba, Falcon-Mamba, and Zamba on A6000/A100 clusters.
+---
 
-### ReviveMoE: No-Restart Failure Recovery for MoE Serving
-[ReviveMoE](https://arxiv.org/abs/2602.21140v1) — Score: 90 | Hype: 60
+## Replicate-and-Quantize: Training-Free MoE Load Balancing
 
-From Huawei Cloud's production MaaS platform: when your MoE serving instance hits a hardware failure, reloading weights and recompiling graphs is devastating to SLAs. ReviveMoE recovers **without restarting** — supporting both collocated and disaggregated MoE/attention architectures. Built on Huawei's xDeepServe platform and XCCL communications library. The practical engineering here matters: at scale, hardware failures are *when*, not *if*, and recovery latency directly impacts revenue.
+**[A Replicate-and-Quantize Strategy for Plug-and-Play Load Balancing of Sparse MoE LLMs](https://arxiv.org/abs/2602.19938v1)** — Score: 85 | Hype: 60
+
+MoE models suffer from severe expert load imbalance at inference time — a handful of "hot" experts get hammered while others idle. Prior work focused on training-time fixes. R&Q attacks this at inference: replicate heavy-hitter experts for parallel capacity, quantize less critical experts and replicas to stay within the original memory budget. Three useful empirical findings: (1) imbalance worsens with larger batches, (2) selection frequency ≠ expert importance, (3) workload can be estimated from a small calibration set. **Up to 1.4x imbalance reduction** with accuracy within ±0.6%. Practical for anyone deploying Mixtral-class models.
+
+---
+
+## Pyramid MoA: Route Cheap, Escalate Expensive
+
+**[Pyramid MoA: A Probabilistic Framework for Cost-Optimized Anytime Inference](https://arxiv.org/abs/2602.19509v1)** — Score: 72 | Hype: 45
+
+A hierarchical Mixture-of-Agents where a lightweight router uses semantic agreement and confidence calibration among small models to decide whether a query needs the expensive "Oracle" model. On GSM8K: **93% accuracy at 61% cost reduction** vs. the 70B Oracle baseline, with negligible latency overhead (+0.82s). The tunable accuracy-budget tradeoff makes this attractive for high-volume production endpoints.
 
 ---
 
 ## Also Noteworthy
 
-**OptiLeak** ([arxiv](https://arxiv.org/abs/2602.20595v1)) — Score: 75 | Hype: 55 — Exposes a real security vulnerability in multi-tenant LLM serving: shared KV caches enable prompt reconstruction attacks with **12.48x** efficiency improvement via RL-enhanced exploitation. If you're deploying shared KV cache optimizations (looking at you, vLLM prefix caching), the threat model just got more concrete.
+**[Adaptation to Intrinsic Dependence in Diffusion Language Models](https://arxiv.org/abs/2602.20126v1)** — Score: 65 | Hype: 50
+Adaptive unmasking schedule for discrete diffusion LMs with convergence guarantees scaling as O(TC/K). As dLLMs emerge as AR alternatives, this is the first serious theoretical treatment of how schedule design affects sampling quality. Randomized unmasking sizes beat deterministic schedules.
 
-**Lagom** ([arxiv](https://arxiv.org/abs/2602.20656v1)) — Score: 72 | Hype: 45 — Communication-computation overlap optimizer for distributed LLM workloads. Co-tunes communication parameters with a unified cost model, reducing optimization complexity from exponential to linear. **1.07–1.33x speedup** over NCCL across diverse parallelizations. The techniques apply to both training and inference clusters.
+**[QuantVLA: Scale-Calibrated PTQ for Vision-Language-Action Models](https://arxiv.org/abs/2602.20309v1)** — Score: 60 | Hype: 45
+First post-training quantization framework for VLA systems, including the first successful quantization of a diffusion transformer action head. ~70% memory savings, 1.22x speedup. Matters for anyone pushing embodied AI to the edge.
+
+**[Ada-RS: Adaptive Rejection Sampling for Selective Thinking](https://arxiv.org/abs/2602.19519v1)** — Score: 55 | Hype: 50
+Selective CoT that learns when *not* to think. Up to **80% output token reduction and 95% thinking rate reduction** while maintaining tool-call accuracy. Uses adaptive length-penalized rejection sampling — plugs into DPO or DAPO. Directly relevant to inference cost in production tool-using LLMs.
+
+**[Selective CoT for Medical QA](https://arxiv.org/abs/2602.20130v1)** — Score: 55 | Hype: 40
+Same selective-reasoning idea applied to medical QA: 13–45% inference time reduction, 8–47% token savings, minimal accuracy loss. Simple, model-agnostic.
+
+**[Is Your Diffusion Sampler Actually Correct?](https://arxiv.org/abs/2602.19619v1)** — Score: 55 | Hype: 45
+Oracle framework showing few-step dLLM samplers are **not distributionally correct** — improvements in perplexity/MAUVE don't imply correct sampling. Important negative result for anyone building on discrete diffusion inference.
 
 ---
 
 ## Cross-Cutting Themes
 
-**The memory wall is being attacked from every angle.** This batch shows three distinct strategies: algorithmic (CHESS pruning KV cache to 1%), architectural (TOM using ROM for ternary weights), and hardware (FAST-Prefill exploiting FPGA memory hierarchies). The inference community is converging on a consensus that memory bandwidth — not compute — is the binding constraint, and the solution space is broadening well beyond "just quantize harder."
+**Selective reasoning is having a moment.** Multiple papers (Ada-RS, Selective CoT, Pyramid MoA) converge on the same insight: most queries don't need full-blast reasoning, and learning *when* to skip thinking can slash inference cost by 50–80% with negligible accuracy loss. Expect this to become standard in production serving.
 
-**SSMs are graduating from research curiosity to systems challenge.** The tensor parallelism paper for Mamba/SSM models signals that these architectures are hitting real deployment scale. The SSM state cache concept mirrors the KV cache evolution in Transformers — expect more systems work in this space as hybrid architectures proliferate.
+**Diffusion LMs are getting serious theoretical attention.** Three papers this cycle tackle dLLM inference from different angles — adaptive schedules, sampler correctness, and AR vs. NAR planning tradeoffs. The inference community should be watching this space as dLLMs mature.
 
-**Reliability joins the inference systems stack.** ReviveMoE and OptiLeak both highlight that inference at scale requires more than throughput optimization — fault tolerance and security are first-class concerns for production serving infrastructure.
+**MoE inference remains unsolved.** R&Q shows that load imbalance is a deployment-time problem, not just a training-time one, and that simple replicate-and-quantize strategies can help without retraining. But the fundamental routing problem at scale still needs work.
