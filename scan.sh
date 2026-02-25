@@ -21,6 +21,8 @@ if [ "$count" -eq 0 ]; then
 fi
 
 # Invoke Claude Code non-interactively to score and report
+# Unset to allow running from within a Claude Code session or hook
+unset CLAUDECODE
 echo "Scoring papers with Claude Code..."
 {
   cat prompt.md
