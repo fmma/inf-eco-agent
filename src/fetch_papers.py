@@ -24,14 +24,33 @@ def normalize_arxiv_id(entry_id: str) -> str:
     return re.sub(r"v\d+$", "", bare)
 
 
-def load_seen_ids() -> set[str]:
-    """Load the set of already-scored paper IDs from data/papers.json."""
+def load_paper_db() -> list[dict]:
+    """Load all papers from data/papers.json."""
     papers_path = ROOT / "data" / "papers.json"
     if not papers_path.exists():
-        return set()
+        return []
     with open(papers_path) as f:
-        papers = json.load(f)
-    return {normalize_arxiv_id(p["id"]) for p in papers}
+        return json.load(f)
+
+
+def get_cutoff(papers: list[dict], min_days: int = 3) -> datetime:
+    """Compute the fetch cutoff from the most recent scored_date.
+
+    Uses the latest scored_date in the database as the anchor, with a 1-day
+    overlap buffer to catch papers published near the boundary. Falls back to
+    min_days if the database is empty or has no scored_date fields.
+    """
+    scored_dates = [p["scored_date"] for p in papers if "scored_date" in p]
+    if not scored_dates:
+        days = min_days
+    else:
+        last_run = datetime.fromisoformat(max(scored_dates)).replace(tzinfo=timezone.utc)
+        days_since = (datetime.now(timezone.utc) - last_run).days + 1  # +1 overlap buffer
+        days = max(days_since, min_days)
+
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    print(f"Fetching papers from the last {days} days (cutoff: {cutoff.date()})", file=sys.stderr)
+    return cutoff
 
 
 def keyword_matches(text: str, keywords: list[str]) -> bool:
@@ -42,24 +61,24 @@ def keyword_matches(text: str, keywords: list[str]) -> bool:
 def fetch_papers(config: dict) -> list[dict]:
     categories = config["arxiv_categories"]
     keywords = config["keywords"]
-    max_papers = config.get("max_papers", 100)
 
     # Build query: search across categories with keyword terms
     cat_query = " OR ".join(f"cat:{cat}" for cat in categories)
     keyword_query = " OR ".join(f'all:"{kw}"' for kw in keywords[:8])  # arXiv limits query length
     query = f"({cat_query}) AND ({keyword_query})"
 
-    seen_ids = load_seen_ids()
+    paper_db = load_paper_db()
+    seen_ids = {normalize_arxiv_id(p["id"]) for p in paper_db}
+    cutoff = get_cutoff(paper_db)
 
     client = arxiv.Client()
     search = arxiv.Search(
         query=query,
-        max_results=max_papers * 3,  # fetch extra, we'll filter down
+        max_results=2000,
         sort_by=arxiv.SortCriterion.SubmittedDate,
         sort_order=arxiv.SortOrder.Descending,
     )
 
-    cutoff = datetime.now(timezone.utc) - timedelta(days=3)
     papers = []
 
     for result in client.results(search):
@@ -84,9 +103,6 @@ def fetch_papers(config: dict) -> list[dict]:
             "published": result.published.isoformat(),
             "pdf_url": result.pdf_url,
         })
-
-        if len(papers) >= max_papers:
-            break
 
     return papers
 
