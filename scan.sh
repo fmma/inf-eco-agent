@@ -9,8 +9,8 @@ fi
 
 if [ "$1" = "--post" ]; then
   echo "Skipping fetch and score, reusing /tmp/inf-eco-{papers,scores}.json..."
-  if [ ! -f /tmp/inf-eco-papers.json ] || [ ! -f /tmp/inf-eco-scores.json ]; then
-    echo "Error: temp files from previous run not found." >&2
+  if [ ! -s /tmp/inf-eco-papers.json ] || [ ! -s /tmp/inf-eco-scores.json ]; then
+    echo "Error: temp files from previous run not found or empty." >&2
     exit 1
   fi
 else
@@ -42,7 +42,11 @@ else
 fi
 
 # Count papers (needed for commit message, and when --post skips the fetch step)
-count=$(python -c "import json; print(len(json.load(open('/tmp/inf-eco-papers.json'))))")
+count=$(python -c "
+import sys; sys.path.insert(0, 'src')
+from parse_scores import parse_scores
+print(len(parse_scores('/tmp/inf-eco-scores.json')))
+")
 
 # Merge scores into data/papers.json
 echo "Merging scores..."
