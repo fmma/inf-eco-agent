@@ -1,18 +1,22 @@
 # Inference Ecosystem Paper Scanner
 
-Automated agent that discovers new arXiv papers about LLM inference systems. A Python script fetches papers from arXiv, then [Claude Code](https://claude.com/claude-code) scores each paper for relevance and generates a daily markdown report.
+Automated agent that discovers new arXiv papers about LLM inference systems. A Python script fetches papers from arXiv, then [Claude Code](https://claude.com/claude-code) scores each paper for relevance. Results accumulate in a single living list (`papers.md`), sorted by score.
 
 ## How it works
 
 ```
-Python fetcher (arXiv API)  →  JSON  →  Claude Code scores & writes report  →  git commit & push
+fetch_papers.py (skip seen IDs) → new papers JSON → Claude scores (JSON) →
+  merge_papers.py (append to data/papers.json) → render.py (write papers.md) → git commit & push
 ```
 
-1. `src/fetch_papers.py` queries arXiv for recent papers across relevant categories, pre-filtered by keywords
-2. `scan.sh` invokes Claude Code non-interactively (`claude --print`) with the fetched papers as input
-3. Claude Code scores each paper 1–10 for relevance and writes a report to `reports/YYYY-MM-DD.md`
-4. Papers scoring above the configured threshold (default: 7) are included in the report
-5. The report is committed and pushed
+1. `src/fetch_papers.py` queries arXiv for recent papers, skipping papers already in `data/papers.json`
+2. `scan.sh` invokes Claude Code non-interactively (`claude --print`) to score the new papers
+3. Claude scores each paper 0–100 and outputs a JSON array
+4. `src/merge_papers.py` merges scores with paper metadata into `data/papers.json`
+5. `src/render.py` regenerates `papers.md` — the living list sorted by score
+6. `scan.sh` commits and pushes
+
+Papers accumulate across runs — no rescanning. The list grows over time.
 
 ## Topics covered
 
@@ -42,15 +46,20 @@ To run on a schedule (e.g. daily at 8am):
 
 ## Configuration
 
-Edit `config.json` to change the topic, arXiv categories, keywords, relevance threshold, or max papers fetched.
+Edit `config.json` to change the topic, arXiv categories, keywords, relevance threshold (0–100 scale), or max papers fetched.
 
 ## Project structure
 
 ```
-├── src/fetch_papers.py   # Fetches papers from arXiv, outputs JSON
-├── prompt.md             # Prompt for Claude Code scoring
-├── scan.sh               # Entry point script
-├── config.json           # Topic, categories, keywords, threshold
-├── reports/              # Generated daily reports
-└── requirements.txt      # Python dependencies
+├── src/
+│   ├── fetch_papers.py    # Fetch from arXiv, skip already-seen IDs
+│   ├── merge_papers.py    # Merge Claude's scores into data/papers.json
+│   └── render.py          # Generate papers.md from data/papers.json
+├── data/
+│   └── papers.json        # Source of truth: all scored papers
+├── papers.md              # Generated output: the living list
+├── scan.sh                # Orchestrates the pipeline
+├── prompt.md              # Claude prompt (score only, output JSON)
+├── config.json            # Topic, categories, keywords, threshold
+└── requirements.txt       # Python dependencies
 ```
