@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eo pipefail
 cd "$(dirname "$0")"
 
 # Activate venv if it exists
@@ -8,9 +8,9 @@ if [ -d .venv ]; then
 fi
 
 if [ "$1" = "--post" ]; then
-  echo "Skipping fetch and score, reusing /tmp/inf-eco-{papers,scores}.json..."
-  if [ ! -s /tmp/inf-eco-papers.json ] || [ ! -s /tmp/inf-eco-scores.json ]; then
-    echo "Error: temp files from previous run not found or empty." >&2
+  echo "Retrying post-processing (render + news) from previous run..."
+  if [ ! -s /tmp/inf-eco-scores.json ]; then
+    echo "Error: /tmp/inf-eco-scores.json not found or empty." >&2
     exit 1
   fi
 else
@@ -39,18 +39,18 @@ else
     cat /tmp/inf-eco-papers.json
     echo '```'
   } | claude --print > /tmp/inf-eco-scores.json
+
+  # Merge scores into data/papers.json
+  echo "Merging scores..."
+  python src/merge_papers.py /tmp/inf-eco-papers.json /tmp/inf-eco-scores.json
 fi
 
-# Count papers (needed for commit message, and when --post skips the fetch step)
+# Count papers (from scores file, which survives across runs)
 count=$(python -c "
 import sys; sys.path.insert(0, 'src')
 from parse_scores import parse_scores
 print(len(parse_scores('/tmp/inf-eco-scores.json')))
 ")
-
-# Merge scores into data/papers.json
-echo "Merging scores..."
-python src/merge_papers.py /tmp/inf-eco-papers.json /tmp/inf-eco-scores.json
 
 # Render the living paper list
 echo "Rendering papers.md..."
@@ -66,11 +66,12 @@ echo "Generating news.md..."
   python -c "
 import json, sys; sys.path.insert(0, 'src')
 from parse_scores import parse_scores
-papers = {p['id']: p for p in json.load(open('/tmp/inf-eco-papers.json'))}
 scores = {s['id']: s for s in parse_scores('/tmp/inf-eco-scores.json')}
+papers = {p['id']: p for p in json.load(open('data/papers.json'))}
 merged = []
-for pid, p in papers.items():
-    s = scores.get(pid, {})
+for sid in scores:
+    p = papers.get(sid, {})
+    s = scores[sid]
     merged.append({
         **p,
         'score': s.get('score', 0),
