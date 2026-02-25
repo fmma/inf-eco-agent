@@ -16,7 +16,7 @@ Python fetcher (arXiv API)  →  JSON  →  Claude Code scores & writes report  
 
 ## Topics covered
 
-LLM serving, KV cache management, speculative decoding, continuous batching, PagedAttention, model quantization for inference, inference frameworks (vLLM, TensorRT-LLM, SGLang, TGI, llama.cpp), throughput/latency optimization, distributed inference, and inference hardware.
+LLM serving, KV cache management, speculative decoding, continuous batching, PagedAttention, model quantization for inference, inference frameworks (vLLM, TensorRT-LLM, SGLang, TGI, llama.cpp), throughput/latency optimization, distributed inference, inference hardware, and I/O (memory bandwidth, NVMe, RDMA, interconnects, disk/network I/O).
 
 ## Setup
 
