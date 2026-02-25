@@ -10,6 +10,42 @@ fi
 # Allow running from within a Claude Code session or hook
 unset CLAUDECODE
 
+DISCORD_TARGET="${DISCORD_CHANNEL:-}"
+
+# --- Error handling ---
+
+notify_error() {
+  local msg="$1"
+  if [ -n "$DISCORD_TARGET" ] && command -v openclaw &>/dev/null; then
+    openclaw message send --channel discord --target "$DISCORD_TARGET" \
+      --message "<@231463543449321474> **inf-eco-agent failed:**
+\`\`\`
+$msg
+\`\`\`" 2>/dev/null || true
+  fi
+}
+
+has_internet() {
+  curl -sf --max-time 5 https://arxiv.org > /dev/null 2>&1
+}
+
+on_error() {
+  local exit_code=$?
+  local failed_line=$1
+  # If no internet, exit silently and let systemd retry
+  if ! has_internet; then
+    echo "No internet connectivity, exiting for systemd retry." >&2
+    exit 1
+  fi
+  # Real error — notify
+  local msg="Exit code $exit_code at line $failed_line. Check: journalctl --user -u inf-eco-scan.service -n 50"
+  echo "Error: $msg" >&2
+  notify_error "$msg"
+  exit "$exit_code"
+}
+
+trap 'on_error $LINENO' ERR
+
 # --- Scan: discover and score new papers ---
 
 echo "Fetching papers from arXiv..."
@@ -75,4 +111,11 @@ else
   echo "Committing..."
   git commit -m "$msg"
   git push
+
+  # --- Notify via Discord ---
+  if [ -f news.md ] && [ -n "$DISCORD_TARGET" ] && command -v openclaw &>/dev/null; then
+    echo "Posting news to Discord..."
+    openclaw message send --channel discord --target "$DISCORD_TARGET" --message "<@231463543449321474>
+$(cat news.md)" || echo "Warning: Discord notification failed." >&2
+  fi
 fi
