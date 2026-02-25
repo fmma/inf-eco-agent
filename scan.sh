@@ -7,29 +7,18 @@ if [ -d .venv ]; then
   source .venv/bin/activate
 fi
 
-if [ "$1" = "--post" ]; then
-  echo "Retrying post-processing (render + news) from previous run..."
-  if [ ! -s /tmp/inf-eco-scores.json ]; then
-    echo "Error: /tmp/inf-eco-scores.json not found or empty." >&2
-    exit 1
-  fi
-else
-  # Fetch papers from arXiv (skips already-scored IDs)
-  echo "Fetching papers from arXiv..."
-  python src/fetch_papers.py > /tmp/inf-eco-papers.json
+# Allow running from within a Claude Code session or hook
+unset CLAUDECODE
 
-  # Count results
-  count=$(python -c "import json; print(len(json.load(open('/tmp/inf-eco-papers.json'))))")
-  echo "Fetched $count new papers from arXiv"
+# --- Scan: discover and score new papers ---
 
-  if [ "$count" -eq 0 ]; then
-    echo "No new papers, skipping."
-    exit 0
-  fi
+echo "Fetching papers from arXiv..."
+python src/fetch_papers.py > /tmp/inf-eco-papers.json
 
-  # Invoke Claude Code non-interactively to score papers (JSON output only)
-  # Unset to allow running from within a Claude Code session or hook
-  unset CLAUDECODE
+new_count=$(python -c "import json; print(len(json.load(open('/tmp/inf-eco-papers.json'))))")
+echo "Fetched $new_count new papers from arXiv"
+
+if [ "$new_count" -gt 0 ]; then
   echo "Scoring papers with Claude Code..."
   {
     cat prompt.md
@@ -40,52 +29,50 @@ else
     echo '```'
   } | claude --print > /tmp/inf-eco-scores.json
 
-  # Merge scores into data/papers.json
   echo "Merging scores..."
   python src/merge_papers.py /tmp/inf-eco-papers.json /tmp/inf-eco-scores.json
+else
+  # Clear stale scores so news doesn't re-report old papers
+  rm -f /tmp/inf-eco-scores.json
 fi
 
-# Count papers (from scores file, which survives across runs)
-count=$(python -c "
-import sys; sys.path.insert(0, 'src')
-from parse_scores import parse_scores
-print(len(parse_scores('/tmp/inf-eco-scores.json')))
-")
+# --- Rescore: update hype from external signals ---
 
-# Render the living paper list
+echo "Fetching hype signals..."
+python src/fetch_hype_signals.py
+
+echo "Re-scoring hype..."
+python src/rescore_hype.py
+
+surge_count=$(python -c "import json; print(len(json.load(open('/tmp/inf-eco-hype-surges.json'))))")
+echo "Found $surge_count hype surges"
+
+# --- Render + News ---
+
 echo "Rendering papers.md..."
 python src/render.py
 
-# Generate news.md — flash news for noteworthy new papers
-echo "Generating news.md..."
-{
-  cat news-prompt.md
-  echo ""
-  echo "## New Papers"
-  echo '```json'
-  python -c "
-import json, sys; sys.path.insert(0, 'src')
-from parse_scores import parse_scores
-scores = {s['id']: s for s in parse_scores('/tmp/inf-eco-scores.json')}
-papers = {p['id']: p for p in json.load(open('data/papers.json'))}
-merged = []
-for sid in scores:
-    p = papers.get(sid, {})
-    s = scores[sid]
-    merged.append({
-        **p,
-        'score': s.get('score', 0),
-        'justification': s.get('justification', ''),
-        'hype': s.get('hype', 0),
-        'hype_justification': s.get('hype_justification', ''),
-    })
-print(json.dumps(merged, indent=2))
-"
-  echo '```'
-} | claude --print > news.md
+if [ "$new_count" -gt 0 ] || [ "$surge_count" -gt 0 ]; then
+  echo "Generating news.md..."
+  python src/build_news_prompt.py | claude --print > news.md
+  git add data/papers.json papers.md news.md
+else
+  echo "Nothing newsworthy, skipping news generation."
+  git add data/papers.json papers.md
+fi
 
-# Commit and push
-echo "Committing..."
-git add data/papers.json papers.md news.md
-git commit -m "scan: $(date +%Y-%m-%d) — $count new papers scored"
-git push
+# --- Commit and push ---
+
+if git diff --cached --quiet; then
+  echo "Nothing changed, skipping commit."
+else
+  msg="scan: $(date +%Y-%m-%d)"
+  parts=()
+  [ "$new_count" -gt 0 ] && parts+=("$new_count new papers scored")
+  [ "$surge_count" -gt 0 ] && parts+=("$surge_count hype surges")
+  [ ${#parts[@]} -eq 0 ] && parts+=("hype updated from external signals")
+  msg="$msg — $(IFS=', '; echo "${parts[*]}")"
+  echo "Committing..."
+  git commit -m "$msg"
+  git push
+fi
