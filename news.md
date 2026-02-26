@@ -1,16 +1,19 @@
 # Inference Ecosystem — Flash News
-**2026-02-25**
+**2026-02-26**
 
-Huge batch today — the arXiv firehose delivered several papers directly targeting inference system bottlenecks.
+**DualPath** smashes the KV-cache I/O wall in agentic LLM serving. By opening a second storage→decode loading path over RDMA and balancing with a global scheduler, it squeezes up to 1.87× offline throughput and 1.96× online throughput out of disaggregated inference clusters — a direct answer to the storage NIC bottleneck everyone running multi-turn workloads hits.
+[arXiv](https://arxiv.org/abs/2602.21548v1) · Score: 95 | Hype: 75
 
-**KV cache is the new battleground.** [CHESS](https://arxiv.org/abs/2602.20732) proposes a context-aware hierarchical KV cache pruning system that matches full-KV quality using only **1% of the cache** and delivers up to **4.56x throughput** — algorithm-system co-design at its best. Score: 95 | Hype: 65
+**Multi-Layer Scheduling for MoE LLM Serving** tackles vLLM head-on with a three-tier scheduler (request / engine / expert) tailored for Mixture-of-Experts. SJF + load-aware dispatching + expert hotspot balancing yields up to 17.8% TTFT and 13.3% TPOT reductions across 100+ experiments.
+[arXiv](https://arxiv.org/abs/2602.21626v1) · Score: 92 | Hype: 60
 
-**Speculative decoding gets smarter.** [KnapSpec](https://arxiv.org/abs/2602.20217) reformulates draft model selection as a knapsack problem, adaptively skipping attention vs MLP layers based on real-time hardware latency. Training-free, plug-and-play, up to **1.47x wall-clock speedup** on Qwen3 and Llama3. Score: 95 | Hype: 70
+**DySCO** from Princeton NLP dynamically rescales attention weights at decode time using retrieval heads — training-free, works on any off-the-shelf model. Up to 25% relative gains on 128K-context reasoning benchmarks with modest extra compute. Long-context inference just got cheaper.
+[arXiv](https://arxiv.org/abs/2602.22175v1) · Score: 78 | Hype: 72
 
-**FPGAs enter the long-context arena.** [FAST-Prefill](https://arxiv.org/abs/2602.20515) is the first FPGA accelerator targeting long-context prefill with dynamic sparse attention — **2.5x TTFT speedup** and **4.5x energy efficiency** over A5000 GPU on sequences up to 128K tokens. Score: 94 | Hype: 55
+**Confidence-Driven Multi-Scale Model Selection** routes queries between small and large LLMs based on confidence estimates, cutting GPT-4o token usage ~60% while matching top-model accuracy on MMLU. Simple idea, big savings for API-heavy deployments.
+[arXiv](https://arxiv.org/abs/2602.22090v1) · Score: 75 | Hype: 50
 
-**Edge inference goes ROM.** [TOM](https://arxiv.org/abs/2602.20662) co-designs ternary quantization with read-only memory to hit **3,306 TPS** on BitNet-2B using ~500 MB weights and ~1.2 GB VRAM — the memory wall meets the ROM wall. Score: 93 | Hype: 55
+**Sparsity Induction** pushes post-training pruning further by promoting sparsity at both distribution and feature levels *before* cutting weights — scaling transforms + spectral norm loss, zero inference overhead. Better pruning performance across architectures.
+[arXiv](https://arxiv.org/abs/2602.21652v1) · Score: 72 | Hype: 50
 
-**MoE serving gets resilient.** [ReviveMoE](https://arxiv.org/abs/2602.21140) from Huawei Cloud enables fast failure recovery in large-scale MoE deployments without restarting serving instances, supporting both collocated and disaggregated architectures. Already deployed in production MaaS. Score: 90 | Hype: 60
-
-Also notable: [ISO-Bench](https://arxiv.org/abs/2602.19594) drops a benchmark of 54 real vLLM/SGLang optimization tasks from merged PRs — no agent dominates, and surprisingly they identify bottlenecks correctly but fail to produce working patches. The [R&Q framework](https://arxiv.org/abs/2602.19938) tackles MoE expert load imbalance at inference time via replicate-and-quantize, cutting imbalance 1.4x within the original memory budget.
+Also worth watching: **Interleaved Head Attention** (Dhillon, Zaheer) adds cross-head mixing to MHA with O(H²P) params, boosting multi-key retrieval 10-20% and reasoning benchmarks ~3-6%. A fundamental attention architecture tweak. [arXiv](https://arxiv.org/abs/2602.21371v1) · Score: 72 | Hype: 60

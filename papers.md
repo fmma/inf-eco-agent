@@ -2,7 +2,17 @@
 
 Automatically discovered papers scored for relevance to: Serving, optimizing, and scaling large language model inference. Includes KV cache management, speculative decoding, continuous batching, PagedAttention, model quantization for inference, inference frameworks (vLLM, TensorRT-LLM, SGLang, TGI, llama.cpp), inference throughput/latency optimization, distributed inference, inference hardware, and I/O optimization (disk I/O, network I/O, memory bandwidth, data loading, storage systems, NVMe, RDMA, interconnects) as it relates to LLM inference and serving.
 
-**18** papers above threshold (70/100) out of **345** total scanned.
+**24** papers above threshold (70/100) out of **465** total scanned.
+
+---
+
+### DualPath: Breaking the Storage Bandwidth Bottleneck in Agentic LLM Inference
+**Relevance: 95/100 | Hype: 75/100** — DualPath directly addresses KV-Cache storage I/O bottleneck in agentic LLM inference with disaggregated architecture, dual-path loading via RDMA, 1.87x throughput improvement.
+*Authors: Yongtong Wu, Shaoyuan Chen, Yinmin Zhong et al.*
+*Published: 2026-02-25*
+[arXiv](https://arxiv.org/abs/2602.21548v1) | [PDF](https://arxiv.org/pdf/2602.21548v1)
+
+> The performance of multi-turn, agentic LLM inference is increasingly dominated by KV-Cache storage I/O rather than computation. In prevalent disaggregated architectures, loading the massive KV-Cache f...
 
 ---
 
@@ -86,6 +96,16 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 
 ---
 
+### Multi-Layer Scheduling for MoE-Based LLM Reasoning
+**Relevance: 92/100 | Hype: 60/100** — Directly about multi-layer scheduling for MoE-based LLM serving/inference, addressing request-level, engine-level, and expert-level scheduling with vLLM comparisons, TTFT/TPOT latency optimization.
+*Authors: Yifan Sun, Gholamreza Haffar, Minxian Xu et al.*
+*Published: 2026-02-25*
+[arXiv](https://arxiv.org/abs/2602.21626v1) | [PDF](https://arxiv.org/pdf/2602.21626v1)
+
+> Large Language Models (LLMs) have achieved remarkable success across a wide range of tasks, but serving them efficiently at scale remains a critical challenge due to their substantial computational an...
+
+---
+
 ### Scaling State-Space Models on Multiple GPUs with Tensor Parallelism
 **Relevance: 92/100 | Hype: 55/100** — Directly about tensor parallelism for SSM-based LLM inference across multiple GPUs, with KV cache equivalent (SSM state cache), quantized AllReduce, and throughput/latency benchmarks.
 *Authors: Anurag Dutt, Nimit Shah, Hazem Masarani et al.*
@@ -136,6 +156,16 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 
 ---
 
+### DySCO: Dynamic Attention-Scaling Decoding for Long-Context LMs
+**Relevance: 78/100 | Hype: 72/100** — DySCO is a training-free decoding algorithm that dynamically rescales attention weights during inference using retrieval heads, directly optimizing long-context inference quality.
+*Authors: Xi Ye, Wuwei Zhang, Fangcong Yin et al.*
+*Published: 2026-02-25*
+[arXiv](https://arxiv.org/abs/2602.22175v1) | [PDF](https://arxiv.org/pdf/2602.22175v1)
+
+> Understanding and reasoning over long contexts is a crucial capability for language models (LMs). Although recent models support increasingly long context windows, their accuracy often deteriorates as...
+
+---
+
 ### OptiLeak: Efficient Prompt Reconstruction via Reinforcement Learning in Multi-tenant LLM Services
 **Relevance: 75/100 | Hype: 55/100** — Directly about security vulnerabilities in multi-tenant LLM serving: exploits shared KV caches for prompt leakage. Demonstrates practical attack on production LLM serving infrastructure with up to 12.48x efficiency improvement.
 *Authors: Longxiang Wang, Xiang Zheng, Xuhao Zhang et al.*
@@ -153,6 +183,36 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 [arXiv](https://arxiv.org/abs/2602.20595v1) | [PDF](https://arxiv.org/pdf/2602.20595v1)
 
 > Multi-tenant LLM serving frameworks widely adopt shared Key-Value caches to enhance efficiency. However, this creates side-channel vulnerabilities enabling prompt leakage attacks. Prior studies identi...
+
+---
+
+### Confidence-Driven Multi-Scale Model Selection for Cost-Efficient Inference
+**Relevance: 75/100 | Hype: 50/100** — Directly about cost-efficient LLM inference via confidence-driven dynamic model selection, routing between smaller and larger models to reduce compute costs.
+*Authors: Bo-Wei Chen, Chung-Chi Chen, An-Zi Yen*
+*Published: 2026-02-25*
+[arXiv](https://arxiv.org/abs/2602.22090v1) | [PDF](https://arxiv.org/pdf/2602.22090v1)
+
+> Large Language Models (LLMs) have revolutionized inference across diverse natural language tasks, with larger models performing better but at higher computational costs. We propose a confidence-driven...
+
+---
+
+### Interleaved Head Attention
+**Relevance: 72/100 | Hype: 60/100** — Interleaved Head Attention proposes cross-head mixing in MHA to improve multi-step reasoning, directly modifying the attention mechanism used during inference with modest parameter overhead.
+*Authors: Sai Surya Duvvuri, Chanakya Ekbote, Rachit Bansal et al.*
+*Published: 2026-02-24*
+[arXiv](https://arxiv.org/abs/2602.21371v1) | [PDF](https://arxiv.org/pdf/2602.21371v1)
+
+> Multi-Head Attention (MHA) is the core computational primitive underlying modern Large Language Models (LLMs). However, MHA suffers from a fundamental linear scaling limitation: $H$ attention heads pr...
+
+---
+
+### Sparsity Induction for Accurate Post-Training Pruning of Large Language Models
+**Relevance: 72/100 | Hype: 50/100** — Post-training pruning/sparsity for LLMs to reduce computational and memory costs at inference time, directly relevant to inference efficiency.
+*Authors: Minhao Jiang, Zhikai Li, Xuewen Liu et al.*
+*Published: 2026-02-25*
+[arXiv](https://arxiv.org/abs/2602.21652v1) | [PDF](https://arxiv.org/pdf/2602.21652v1)
+
+> Large language models have demonstrated capabilities in text generation, while their increasing parameter scales present challenges in computational and memory efficiency. Post-training sparsity (PTS)...
 
 ---
 
