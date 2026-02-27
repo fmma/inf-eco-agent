@@ -86,6 +86,11 @@ def main():
         print(section)
         print()
 
+    if not surges:
+        print("## Hype Surges")
+        print("No hype surges detected this cycle — no previously known papers saw significant signal jumps.")
+        print()
+
 
 if __name__ == "__main__":
     main()
