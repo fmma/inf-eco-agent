@@ -36,13 +36,20 @@ def main():
         all_papers = []
 
     today = date.today().isoformat()
+    existing_ids = {p["id"] for p in all_papers}
 
-    # Merge: join new papers with their scores
+    # Merge: join new papers with their scores, skipping duplicates
+    added = 0
     for paper in new_papers:
         score_info = score_by_id.get(paper["id"])
         if score_info is None:
             continue
 
+        if paper["id"] in existing_ids:
+            continue
+
+        added += 1
+        existing_ids.add(paper["id"])
         all_papers.append({
             "id": paper["id"],
             "title": paper["title"],
@@ -62,7 +69,10 @@ def main():
         json.dump(all_papers, f, indent=2)
         f.write("\n")
 
-    print(f"Merged {len(new_papers)} papers. Total: {len(all_papers)}")
+    skipped = len(new_papers) - added
+    if skipped:
+        print(f"Skipped {skipped} duplicate papers.", file=sys.stderr)
+    print(f"Merged {added} new papers. Total: {len(all_papers)}")
 
 
 if __name__ == "__main__":
