@@ -1,19 +1,25 @@
+Here's the flash news bulletin I've drafted:
+
+---
+
 # Inference Ecosystem — Flash News
-**2026-02-26**
 
-**DualPath** smashes the KV-cache I/O wall in agentic LLM serving. By opening a second storage→decode loading path over RDMA and balancing with a global scheduler, it squeezes up to 1.87× offline throughput and 1.96× online throughput out of disaggregated inference clusters — a direct answer to the storage NIC bottleneck everyone running multi-turn workloads hits.
-[arXiv](https://arxiv.org/abs/2602.21548v1) · Score: 95 | Hype: 75
+**2026-02-27**
 
-**Multi-Layer Scheduling for MoE LLM Serving** tackles vLLM head-on with a three-tier scheduler (request / engine / expert) tailored for Mixture-of-Experts. SJF + load-aware dispatching + expert hotspot balancing yields up to 17.8% TTFT and 13.3% TPOT reductions across 100+ experiments.
-[arXiv](https://arxiv.org/abs/2602.21626v1) · Score: 92 | Hype: 60
+Big day for LLM serving infrastructure — five papers pushing real production bottlenecks.
 
-**DySCO** from Princeton NLP dynamically rescales attention weights at decode time using retrieval heads — training-free, works on any off-the-shelf model. Up to 25% relative gains on 128K-context reasoning benchmarks with modest extra compute. Long-context inference just got cheaper.
-[arXiv](https://arxiv.org/abs/2602.22175v1) · Score: 78 | Hype: 72
+**FLYING SERVING** dynamically switches between data and tensor parallelism *while the engine is running*, no restarts needed. Zero-copy weight views, KV cache preservation across layouts, and a deadlock-free scheduler yield up to 4.79x improvement under high load. Built on vLLM. [arXiv](https://arxiv.org/abs/2602.22593) — Score: 95 | Hype: 70
 
-**Confidence-Driven Multi-Scale Model Selection** routes queries between small and large LLMs based on confidence estimates, cutting GPT-4o token usage ~60% while matching top-model accuracy on MMLU. Simple idea, big savings for API-heavy deployments.
-[arXiv](https://arxiv.org/abs/2602.22090v1) · Score: 75 | Hype: 50
+**S2O** breaks the sparsity ceiling for long-context attention by factorizing FlashAttention execution and loading non-contiguous tokens via an online permutation policy inspired by virtual memory. Early stopping on importance-sorted blocks delivers 7.51x attention speedup and 3.81x end-to-end on Llama-3.1-8B at 128K context. [arXiv](https://arxiv.org/abs/2602.22575) — Score: 93 | Hype: 65
 
-**Sparsity Induction** pushes post-training pruning further by promoting sparsity at both distribution and feature levels *before* cutting weights — scaling transforms + spectral norm loss, zero inference overhead. Better pruning performance across architectures.
-[arXiv](https://arxiv.org/abs/2602.21652v1) · Score: 72 | Hype: 50
+**STATIC** from Google/YouTube flattens prefix trees into CSR sparse matrices for constrained decoding on TPUs/GPUs — 948x faster than CPU trie, 0.25% of inference time overhead. First production-scale deployment of strictly constrained generative retrieval, now open-sourced. [arXiv](https://arxiv.org/abs/2602.22647) — Score: 88 | Hype: 75
 
-Also worth watching: **Interleaved Head Attention** (Dhillon, Zaheer) adds cross-head mixing to MHA with O(H²P) params, boosting multi-key retrieval 10-20% and reasoning benchmarks ~3-6%. A fundamental attention architecture tweak. [arXiv](https://arxiv.org/abs/2602.21371v1) · Score: 72 | Hype: 60
+**InnerQ** regroups KV cache quantization along the inner dimension so dequantization aligns with the vector-matrix multiply, enabling scale factor reuse across GPU compute units. Up to 22% speedup over prior KV quantization and 88% over FP16, with no accuracy loss on Llama. [arXiv](https://arxiv.org/abs/2602.22200) — Score: 92 | Hype: 60
+
+**SideQuest** (Meta) uses the reasoning model itself to compress its own KV cache as a parallel side-task — 65% peak token reduction on agentic workloads with minimal accuracy loss, outperforming all heuristic baselines. Trained with just 215 samples. [arXiv](https://arxiv.org/abs/2602.22603) — Score: 92 | Hype: 60
+
+Also notable: **ReMix** introduces continuous mixing states for diffusion LLM decoding (2-8x speedup, training-free) and **LLMServingSim 2.0** provides a unified simulator for heterogeneous/disaggregated serving stacks with <1% error vs real deployments.
+
+---
+
+It looks like write permission was denied. Would you like me to try writing it again, or would you prefer to copy the content above?
