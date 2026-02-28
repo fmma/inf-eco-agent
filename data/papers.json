@@ -3582,7 +3582,7 @@
     "hype_signals": {
       "citations": 0,
       "influential_citations": 0,
-      "hf_upvotes": 1,
+      "hf_upvotes": 2,
       "github_stars": 0
     }
   },
@@ -6256,7 +6256,7 @@
     "hype_signals": {
       "citations": 0,
       "influential_citations": 0,
-      "hf_upvotes": 16,
+      "hf_upvotes": 23,
       "github_stars": 0
     }
   },
@@ -7484,7 +7484,13 @@
     "published": "2026-02-26T17:04:57+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.23225v1",
     "abstract": "Diffusion Language Models (DLMs) are often advertised as enabling parallel token generation, yet practical fast DLMs frequently converge to left-to-right, autoregressive (AR)-like decoding dynamics. In contrast, genuinely non-AR generation is promising because it removes AR's sequential bottleneck, better exploiting parallel hardware to reduce synchronization/communication overhead and improve latency scaling with output length. We argue that a primary driver of AR-like decoding is a mismatch between DLM objectives and the highly sequential structure of widely used training data, including standard pretraining corpora and long chain-of-thought (CoT) supervision. Motivated by this diagnosis, we propose NAP (Non-Autoregressive Parallel DLMs), a proof-of-concept, data-centric approach that better aligns supervision with non-AR parallel decoding. NAP curates examples as multiple independent reasoning trajectories and couples them with a parallel-forced decoding strategy that encourages multi-token parallel updates. Across math reasoning benchmarks, NAP yields stronger performance under parallel decoding than DLMs trained on standard long CoT data, with gains growing as parallelism increases. Our results suggest that revisiting data and supervision is a principled direction for mitigating AR-like behavior and moving toward genuinely non-autoregressive parallel generation in DLMs. Our code is available at https://github.com/pixeli99/NAP.",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.23220v1",
@@ -7520,7 +7526,13 @@
     "published": "2026-02-26T16:50:36+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.23200v1",
     "abstract": "Reducing the hardware footprint of large language models (LLMs) during decoding is critical for efficient long-sequence generation. A key bottleneck is the key-value (KV) cache, whose size scales with sequence length and easily dominates the memory footprint of the model. Previous work proposed quantization methods that are focused on compressing the KV cache while maintaining its information. We introduce InnerQ, a hardware-aware KV-cache quantization scheme that lowers decode latency without sacrificing accuracy. InnerQ applies group-wise quantization while grouping the cache matrices over their inner dimension. Unlike previous work that group over the outer dimension, InnerQ aligns dequantization with the vector-matrix multiplication and enables scale factor reuse across GPU compute units. This reduces memory accesses and accelerates dequantization, yielding up to $22\\%$ speedup over previous work and up to $88\\%$ over half-precision vector-matrix multiplication. To preserve fidelity under aggressive compression, InnerQ incorporates (i) hybrid quantization, selecting symmetric or asymmetric quantization per group based on local statistics; (ii) high-precision windows for both the most recent tokens and the attention sink tokens to mitigate outlier leakage; and (iii) per-channel normalization of the key cache, computed once during prefill and folded into the query to avoid runtime overhead. Our evaluation experiments on Llama models shows that InnerQ maintains a few-shot GSM8K performance comparable to non-quantized KV caches and surpasses prior KV cache quantization methods.",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.23199v1",
@@ -7978,7 +7990,13 @@
     "published": "2026-02-26T14:22:17+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.23036v1",
     "abstract": "Large language model (LLM) serving infrastructures are undergoing a shift toward heterogeneity and disaggregation. Modern deployments increasingly integrate diverse accelerators and near-memory processing technologies, introducing significant hardware heterogeneity, while system software increasingly separates computation, memory, and model components across distributed resources to improve scalability and efficiency. As a result, LLM serving performance is no longer determined by hardware or software choices in isolation, but by their runtime interaction through scheduling, data movement, and interconnect behavior. However, understanding these interactions remains challenging, as existing simulators lack the ability to jointly model heterogeneous hardware and disaggregated serving techniques within a unified, runtime-driven framework. This paper presents LLMServingSim 2.0, a unified system-level simulator designed to make runtime-driven hardware-software interactions in heterogeneous and disaggregated LLM serving infrastructures explicit and analyzable. LLMServingSim 2.0 embeds serving decisions and hardware behavior into a single runtime loop, enabling interaction-aware modeling of batching, routing, offloading, memory, and power. The simulator supports extensible integration of emerging accelerators and memory systems through profile-based modeling, while capturing dynamic serving behavior and system-level effects. We validate LLMServingSim 2.0 against real deployments, showing that it reproduces key performance, memory, and power metrics with an average error of 0.97%, while maintaining simulation times of around 10 minutes even for complex configurations. These results demonstrate that LLMServingSim 2.0 provides a practical bridge between hardware innovation and serving-system design, enabling systematic exploration and co-design for next-generation LLM serving infrastructures.",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.23035v1",
@@ -8341,7 +8359,13 @@
     "published": "2026-02-26T11:08:39+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.22871v1",
     "abstract": "Reasoning with large language models often benefits from generating multiple chains-of-thought, but existing aggregation strategies are typically trajectory-level (e.g., selecting the best trace or voting on the final answer), discarding useful intermediate work from partial or \"nearly correct\" attempts. We propose Stitching Noisy Diffusion Thoughts, a self-consistency framework that turns cheap diffusion-sampled reasoning into a reusable pool of step-level candidates. Given a problem, we (i) sample many diverse, low-cost reasoning trajectories using a masked diffusion language model, (ii) score every intermediate step with an off-the-shelf process reward model (PRM), and (iii) stitch these highest-quality steps across trajectories into a composite rationale. This rationale then conditions an autoregressive (AR) model (solver) to recompute only the final answer. This modular pipeline separates exploration (diffusion) from evaluation and solution synthesis, avoiding monolithic unified hybrids while preserving broad search. Across math reasoning benchmarks, we find that step-level recombination is most beneficial on harder problems, and ablations highlight the importance of the final AR solver in converting stitched but imperfect rationales into accurate answers. Using low-confidence diffusion sampling with parallel, independent rollouts, our training-free framework improves average accuracy by up to 23.8% across six math and coding tasks. At the same time, it achieves up to a 1.8x latency reduction relative to both traditional diffusion models (e.g., Dream, LLaDA) and unified architectures (e.g., TiDAR). Code is available at https://github.com/roymiles/diffusion-stitching.",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.22868v1",
@@ -8362,7 +8386,13 @@
     "published": "2026-02-26T11:08:11+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.22868v1",
     "abstract": "Diffusion Large Language Models (DLLMs) promise fast non-autoregressive inference but suffer a severe quality-speed trade-off in parallel decoding. This stems from the ''combinatorial contradiction'' phenomenon, where parallel tokens form semantically inconsistent combinations. We address this by integrating continuous representations into the discrete decoding process, as they preserve rich inter-position dependency. We propose ReMix (Rejection Mixing), a framework that introduces a novel Continuous Mixing State as an intermediate between the initial masked state and the final decoded token state. This intermediate state allows a token's representation to be iteratively refined in a continuous space, resolving mutual conflicts with other tokens before collapsing into a final discrete sample. Furthermore, a rejection rule reverts uncertain representations from the continuous state back to the masked state for reprocessing, ensuring stability and preventing error propagation. ReMix thus mitigates combinatorial contradictions by enabling continuous-space refinement during discrete diffusion decoding. Extensive experiments demonstrate that ReMix, as a training-free method, achieves a $2-8 \\times$ inference speedup without any quality degradation.",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.22865v1",
@@ -8499,7 +8529,13 @@
     "published": "2026-02-26T09:53:17+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.22812v1",
     "abstract": "Since local LLM inference on resource-constrained edge devices imposes a severe performance bottleneck, this paper proposes distributed prompt caching to enhance inference performance by cooperatively sharing intermediate processing states across multiple low-end edge devices. To fully utilize prompt similarity, our distributed caching mechanism also supports partial matching. As this approach introduces communication overhead associated with state sharing over a wireless network, we introduce a Bloom-filter-based data structure, referred to as a catalog, to determine whether a remote server possesses the desired internal states, thereby suppressing unnecessary communication. Experiments using the Gemma-3 270M model and the MMLU dataset on the Raspberry Pi Zero 2W platform demonstrate that the proposed approach reduces TTFT (Time to First Token) and TTLT (Time to Last Token) by 93.12% and 50.07% on average, respectively.",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.22808v1",
@@ -9152,7 +9188,13 @@
     "published": "2026-02-26T06:00:56+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.22647v1",
     "abstract": "Generative retrieval has emerged as a powerful paradigm for LLM-based recommendation. However, industrial recommender systems often benefit from restricting the output space to a constrained subset of items based on business logic (e.g. enforcing content freshness or product category), which standard autoregressive decoding cannot natively support. Moreover, existing constrained decoding methods that make use of prefix trees (Tries) incur severe latency penalties on hardware accelerators (TPUs/GPUs). In this work, we introduce STATIC (Sparse Transition Matrix-Accelerated Trie Index for Constrained Decoding), an efficient and scalable constrained decoding technique designed specifically for high-throughput LLM-based generative retrieval on TPUs/GPUs. By flattening the prefix tree into a static Compressed Sparse Row (CSR) matrix, we transform irregular tree traversals into fully vectorized sparse matrix operations, unlocking massive efficiency gains on hardware accelerators. We deploy STATIC on a large-scale industrial video recommendation platform serving billions of users. STATIC produces significant product metric impact with minimal latency overhead (0.033 ms per step and 0.25% of inference time), achieving a 948x speedup over a CPU trie implementation and a 47-1033x speedup over a hardware-accelerated binary-search baseline. Furthermore, the runtime overhead of STATIC remains extremely low across a wide range of practical configurations. To the best of our knowledge, STATIC enables the first production-scale deployment of strictly constrained generative retrieval. In addition, evaluation on academic benchmarks demonstrates that STATIC can considerably improve cold-start performance for generative retrieval. Our code is available at https://github.com/youtube/static-constraint-decoding.",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.22642v1",
@@ -9265,7 +9307,13 @@
     "published": "2026-02-26T04:20:44+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.22603v1",
     "abstract": "Long-running agentic tasks, such as deep research, require multi-hop reasoning over information distributed across multiple webpages and documents. In such tasks, the LLM context is dominated by tokens from external retrieval, causing memory usage to grow rapidly and limiting decode performance. While several KV cache compression techniques exist for long-context inputs, we find that existing heuristics fail to support multi-step reasoning models effectively. We address this challenge with SideQuest -- a novel approach that leverages the Large Reasoning Model (LRM) itself to perform KV cache compression by reasoning about the usefulness of tokens in its context. To prevent the tokens associated with this management process from polluting the model's memory, we frame KV cache compression as an auxiliary task executed in parallel to the main reasoning task. Our evaluations, using a model trained with just 215 samples, show that SideQuest reduces peak token usage by up to 65% on agentic tasks with minimal degradation in accuracy, outperforming heuristic-based KV cache compression techniques.",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.22600v1",
@@ -9317,7 +9365,13 @@
     "published": "2026-02-26T03:55:51+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.22593v1",
     "abstract": "Production LLM serving must simultaneously deliver high throughput, low latency, and sufficient context capacity under non-stationary traffic and mixed request requirements. Data parallelism (DP) maximizes throughput by running independent replicas, while tensor parallelism (TP) reduces per-request latency and pools memory for long-context inference. However, existing serving stacks typically commit to a static parallelism configuration at deployment; adapting to bursts, priorities, or long-context requests is often disruptive and slow. We present Flying Serving, a vLLM-based system that enables online DP-TP switching without restarting engine workers. Flying Serving makes reconfiguration practical by virtualizing the state that would otherwise force data movement: (i) a zero-copy Model Weights Manager that exposes TP shard views on demand, (ii) a KV Cache Adaptor that preserves request KV state across DP/TP layouts, (iii) an eagerly initialized Communicator Pool to amortize collective setup, and (iv) a deadlock-free scheduler that coordinates safe transitions under execution skew. Across three popular LLMs and realistic serving scenarios, Flying Serving improves performance by up to $4.79\\times$ under high load and $3.47\\times$ under low load while supporting latency- and memory-driven requests.",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.22592v1",
@@ -9337,7 +9391,13 @@
     "published": "2026-02-26T03:51:58+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.22592v1",
     "abstract": "Quantization-Aware Training from scratch has emerged as a promising approach for building efficient large language models (LLMs) with extremely low-bit weights (sub 2-bit), which can offer substantial advantages for edge deployment. However, existing methods still fail to achieve satisfactory accuracy and scalability. In this work, we identify a parameter democratization effect as a key bottleneck: the sensitivity of all parameters becomes homogenized, severely limiting expressivity. To address this, we propose pQuant, a method that decouples parameters by splitting linear layers into two specialized branches: a dominant 1-bit branch for efficient computation and a compact high-precision branch dedicated to preserving the most sensitive parameters. Through tailored feature scaling, we explicitly guide the model to allocate sensitive parameters to the high-precision branch. Furthermore, we extend this branch into multiple, sparsely-activated experts, enabling efficient capacity scaling. Extensive experiments indicate our pQuant achieves state-of-the-art performance in extremely low-bit quantization.",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.22586v1",
@@ -9446,7 +9506,13 @@
     "published": "2026-02-26T03:30:28+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.22575v1",
     "abstract": "Attention scales quadratically with sequence length, fundamentally limiting long-context inference. Existing block-granularity sparsification can reduce latency, but coarse blocks impose an intrinsic sparsity ceiling, making further improvements difficult even with carefully engineered designs. We present S2O, which performs early stopping for sparse attention via online permutation. Inspired by virtual-to-physical address mapping in memory systems, S2O revisits and factorizes FlashAttention execution, enabling inference to load non-contiguous tokens rather than a contiguous span in the original order. Motivated by fine-grained structures in attention heatmaps, we transform explicit permutation into an online, index-guided, discrete loading policy; with extremely lightweight preprocessing and index-remapping overhead, it concentrates importance on a small set of high-priority blocks. Building on this importance-guided online permutation for loading, S2O further introduces an early-stopping rule: computation proceeds from high to low importance; once the current block score falls below a threshold, S2O terminates early and skips the remaining low-contribution blocks, thereby increasing effective sparsity and reducing computation under a controlled error budget. As a result, S2O substantially raises the practical sparsity ceiling. On Llama-3.1-8B under a 128K context, S2O reduces single-operator MSE by 3.82$\\times$ at matched sparsity, and reduces prefill compute density by 3.31$\\times$ at matched MSE; meanwhile, it preserves end-to-end accuracy and achieves 7.51$\\times$ attention and 3.81$\\times$ end-to-end speedups.",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.22564v1",
@@ -9565,7 +9631,13 @@
     "published": "2026-02-26T02:34:49+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.22543v1",
     "abstract": "Large Language Models (LLMs) face significant challenges regarding deployment costs and latency, necessitating adaptive computing strategies. Building upon the AI Flow framework, we introduce Ruyi2 as an evolution of our adaptive model series designed for efficient variable-depth computation. While early-exit architectures offer a viable efficiency-performance balance, the Ruyi model and existing methods often struggle with optimization complexity and compatibility with large-scale distributed training. To bridge this gap, Ruyi2 introduces a stable \"Familial Model\" based on Megatron-LM. By using 3D parallel training, it achieves a 2-3 times speedup over Ruyi, while performing comparably to same-sized Qwen3 models. These results confirm that family-based parameter sharing is a highly effective strategy, establishing a new \"Train Once, Deploy Many\" paradigm and providing a key reference for balancing architectural efficiency with high-performance capabilities.",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.22539v1",
@@ -9937,7 +10009,13 @@
     "published": "2026-02-25T22:38:46+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.22457v1",
     "abstract": "Large language models (LLMs) training or inference across multiple nodes introduces significant pressure on GPU memory and interconnect bandwidth. The Compute Express Link (CXL) shared memory pool offers a scalable solution by enabling memory sharing across nodes, reducing over-provisioning and improving resource utilization. We propose \\name, a collective communication library, leveraging the CXL shared memory pool to support cross-node GPU operations without relying on traditional RDMA-based networking. Our design addresses the challenges on synchronization, data interleaving, and communication parallelization faced by using the CXL shared memory pool for collective communications. Evaluating on multiple nodes with a TITAN-II CXL switch and six Micron CZ120 memory cards, we show that \\name achieves highly efficient collective operations across hosts, demonstrating CXL's potential for scalable, memory-centric GPU communication. Our evaluation demonstrates that \\name achieves average performance improvements of 1.34$\\times$ for AllGather, 1.84$\\times$ for Broadcast, 1.94$\\times$ for Gather, and 1.04$\\times$ for Scatter, compared to the original RDMA-based implementation over 200 Gbps InfiniBand. \\textcolor{dong}{In addition, the evaluation with a case of LLM training shows 1.11$\\times$ speedup compared with the InfiniBand while saving production cost by $2.75\\times$ in hardware.}",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.22456v1",
@@ -10610,7 +10688,13 @@
     "published": "2026-02-25T03:42:12+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.22261v1",
     "abstract": "Large language models have become central to many AI applications, but their growing energy consumption raises serious sustainability concerns. A key limitation in current AI deployments is the reliance on a one-size-fits-all inference strategy where most systems route every request to the same large model, regardless of task complexity, leading to substantial and unnecessary energy waste. To address this issue, we propose a context-aware model switching approach that dynamically selects an appropriate language model based on query complexity. The proposed system uses a Context-Aware Model Switching for Energy-Efficient LLM Inference that combines caching for repeated queries, rulebased complexity scoring for fast and explainable decisions, machine learning classification to capture semantic intent, and a user-adaptive component that learns from interaction patterns over time. The proposed architecture was evaluated using real conversation workloads and three open-source language models (Gemma3 1B, Gemma3 4B and Qwen3 4B) with different computational costs, measuring energy consumption (via NVML GPU power telemetry), response latency, routing accuracy, and output quality (BERTScore F1) to reflect real-world usage conditions. Experimental results show that the model switching approach can reduce energy consumption by up to 67.5% compared to always using the largest model while maintaining a response quality of 93.6%. In addition, the response time for simple queries also improved significantly by approximately 68%. These results show that model switching inference offers a practical and scalable path toward more energy-efficient and sustainable AI systems, demonstrating that significant efficiency gains can be achieved without major sacrifices in response quality.",
-    "scored_date": "2026-02-27"
+    "scored_date": "2026-02-27",
+    "hype_signals": {
+      "citations": 0,
+      "influential_citations": 0,
+      "hf_upvotes": 0,
+      "github_stars": 0
+    }
   },
   {
     "id": "http://arxiv.org/abs/2602.22260v1",
