@@ -67,6 +67,9 @@ if [ "$new_count" -gt 0 ]; then
 
   echo "Merging scores..."
   python src/merge_papers.py /tmp/inf-eco-papers.json /tmp/inf-eco-scores.json
+
+  echo "Full-text rescoring high-relevance papers..."
+  python src/rescore_fulltext.py
 else
   # Clear stale scores so news doesn't re-report old papers
   rm -f /tmp/inf-eco-scores.json

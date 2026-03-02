@@ -1,14 +1,19 @@
 # Inference Ecosystem — Flash News
-**2 March 2026**
 
-**KEEP** scores highest this cycle: a KV-cache-centric memory system that slashes TTFT by 1.9x and overall latency by 2.68x for memory-augmented LLM serving, using static-dynamic cache partitioning and layer-balanced loading. Builds on CacheBlend (EuroSys'25). Score: 95 | Hype: 60 — [arXiv](https://arxiv.org/abs/2602.23592v1)
+**2026-03-02**
 
-**LK Losses** directly optimize speculative decoding acceptance rate instead of using KL divergence as a proxy. Tested across 4 draft architectures and targets up to 685B params, gaining 8–10% in average acceptance length with zero overhead. Drop-in replacement for any speculator training loop. Score: 92 | Hype: 70 — [arXiv](https://arxiv.org/abs/2602.23881v1)
+## Top Papers
 
-**GPU-efficient LLM adapter serving** gets a data-driven treatment: a digital twin + ML pipeline finds minimum-GPU adapter placements under throughput constraints, with <5% estimation error at 90x less cost than live benchmarking. Practical for multi-adapter deployments at scale. Score: 90 | Hype: 55 — [arXiv](https://arxiv.org/abs/2602.24044v1)
+**[LK Losses](https://arxiv.org/abs/2602.23881v1)** — Nebius drops a deceptively simple idea: stop training speculative decoding drafters with KL divergence and directly optimize acceptance rate instead. Their LK losses exploit the fact that at suboptimal convergence (where every real drafter lives), minimizing KL ≠ maximizing acceptance. Drop-in replacement, zero overhead, 8–10% gains in average acceptance length across EAGLE-3, MEDUSA, MLP speculators, and DeepSeek MTP on targets up to 685B. Larger gains at temperature=1 and for capacity-constrained drafters. Score: 95 | Hype: 75
 
-**SLA-Aware Distributed LLM Inference** brings real measurements from a 5G AI-RAN testbed. Quantized models clear sub-500ms SLAs at the RAN edge; unquantized ones stall. MIG isolation keeps baseband safe under 20 concurrent inference clients. First empirical data on where LLM inference actually fits in the device→RAN→cloud stack. Score: 88 | Hype: 60 — [arXiv](https://arxiv.org/abs/2602.23722v1)
+**[GPU Efficiency for LLM Adapter Serving](https://arxiv.org/abs/2602.24044v1)** — BSC/IBM build a Digital Twin of vLLM's continuous batching + KV-cache dynamics for LoRA serving, achieving <5% throughput error at 90x speedup over real benchmarking. A greedy placement algorithm on top finds the minimum GPU count to serve a workload without starvation — the "Maxpack" sweet spot where one more adapter tips you into queue explosion. Tested on H100s with Llama-3.1-8B and Qwen-2.5-7B. Score: 92 | Hype: 55
 
-**DiCo** tackles the parallelism gap in diffusion-based LLMs with adaptive divide-and-conquer decoding — cluster masked tokens, decode clusters in parallel, converge, then finalize. Significant speedups without quality loss. Score: 85 | Hype: 60 — [arXiv](https://arxiv.org/abs/2602.23792v1)
+**[KEEP](https://arxiv.org/abs/2602.23592v1)** — KV-cache management for embodied planning agents, where memory updates constantly invalidate cached states. Groups memory by update frequency (static vs dynamic), uses attention-based importance propagation to selectively recompute cross-segment interactions, and balances KV loading across transformer layers to eliminate pipeline bubbles. 2.68x TTFT speedup over text-based memory on ALFRED; 1.90x over CacheBlend. Built on vLLM. Score: 88 | Hype: 52
 
-**No hype surges** this cycle.
+**[DiCo](https://arxiv.org/abs/2602.23792v1)** — Training-free parallel decoding for diffusion LLMs (LLaDA, Dream). Identifies clusters of conditionally independent masked tokens via seed expansion, decodes them in parallel, and finishes stragglers with compound decoding using logit margins. 3.4–7.9x speedup on GSM8K/MBPP/HumanEval while often *improving* accuracy over vanilla sequential decoding. Score: 82 | Hype: 62
+
+**[CUDA Agent](https://arxiv.org/abs/2602.24286v1)** — RL-trained agent that generates optimized CUDA kernels, hitting 100% faster-than-torch.compile rate on KernelBench L1/L2 and 92% on L3 — outperforming Claude Opus 4.5 and Gemini 3 Pro by ~40% on the hardest split. If this generalizes, hand-tuned kernel work just got a lot less necessary. Score: 65 | Hype: 80
+
+## Hype Surges
+
+No hype surges this cycle.

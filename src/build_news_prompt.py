@@ -18,6 +18,9 @@ from parse_scores import parse_scores
 ROOT = Path(__file__).resolve().parent.parent
 SCORES_PATH = Path("/tmp/inf-eco-scores.json")
 SURGES_PATH = Path("/tmp/inf-eco-hype-surges.json")
+FULLTEXT_PATH = Path("/tmp/inf-eco-fulltexts.json")
+
+MAX_NEWS_TEXT_CHARS = 15_000
 
 
 def build_new_papers_section() -> str | None:
@@ -25,19 +28,11 @@ def build_new_papers_section() -> str | None:
     if not SCORES_PATH.exists() or SCORES_PATH.stat().st_size == 0:
         return None
 
-    scores = {s["id"]: s for s in parse_scores(str(SCORES_PATH))}
+    new_ids = {s["id"] for s in parse_scores(str(SCORES_PATH))}
     papers = {p["id"]: p for p in json.load(open(ROOT / "data" / "papers.json"))}
 
-    merged = []
-    for sid, s in scores.items():
-        p = papers.get(sid, {})
-        merged.append({
-            **p,
-            "score": s.get("score", 0),
-            "justification": s.get("justification", ""),
-            "hype": s.get("hype", 0),
-            "hype_justification": s.get("hype_justification", ""),
-        })
+    # Use papers.json as source of truth (has full-text rescored scores + descriptions)
+    merged = [papers[sid] for sid in new_ids if sid in papers]
 
     return (
         "## New Papers\n"
@@ -45,6 +40,33 @@ def build_new_papers_section() -> str | None:
         f"{json.dumps(merged, indent=2)}\n"
         "```"
     )
+
+
+def build_fulltexts_section() -> str | None:
+    """Build the Full Texts section from saved extractions."""
+    if not FULLTEXT_PATH.exists() or FULLTEXT_PATH.stat().st_size == 0:
+        return None
+
+    fulltexts = json.load(open(FULLTEXT_PATH))
+    if not fulltexts:
+        return None
+
+    # Include texts for the top papers (by score in papers.json), truncated for context
+    papers = {p["id"]: p for p in json.load(open(ROOT / "data" / "papers.json"))}
+    ranked = sorted(fulltexts.keys(), key=lambda pid: papers.get(pid, {}).get("score", 0), reverse=True)
+
+    parts = ["## Full Paper Texts", "Use these to write more insightful summaries than the abstract alone allows.", ""]
+    for pid in ranked[:5]:
+        p = papers.get(pid, {})
+        text = fulltexts[pid][:MAX_NEWS_TEXT_CHARS]
+        parts.append(f"### {p.get('title', pid)}")
+        parts.append(f"ID: {pid}")
+        parts.append("```")
+        parts.append(text)
+        parts.append("```")
+        parts.append("")
+
+    return "\n".join(parts)
 
 
 def build_surges_section() -> str | None:
@@ -89,6 +111,11 @@ def main():
     if not surges:
         print("## Hype Surges")
         print("No hype surges detected this cycle — no previously known papers saw significant signal jumps.")
+        print()
+
+    fulltexts = build_fulltexts_section()
+    if fulltexts:
+        print(fulltexts)
         print()
 
 

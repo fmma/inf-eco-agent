@@ -9192,7 +9192,7 @@
     "hype_signals": {
       "citations": 0,
       "influential_citations": 0,
-      "hf_upvotes": 0,
+      "hf_upvotes": 1,
       "github_stars": 0
     }
   },
@@ -11077,10 +11077,10 @@
   {
     "id": "http://arxiv.org/abs/2602.24174v1",
     "title": "Task-Centric Acceleration of Small-Language Models",
-    "score": 82,
-    "justification": "Proposes TASC for SLM inference acceleration including speculative decoding with n-gram draft models and vocabulary expansion for faster token generation.",
-    "hype": 55,
-    "hype_justification": "Directly addresses inference speedup for small LMs with practical speculative decoding approach, but from less prominent group.",
+    "score": 80,
+    "justification": "Directly addresses LLM/SLM inference acceleration with two concrete methods: tokenizer augmentation (TASC-ft) reducing decoding steps, and n-gram speculative decoding (TASC-spec) achieving up to 3.15x speedup \u2014 both squarely in inference optimization territory.",
+    "hype": 52,
+    "hype_justification": "From Amazon researchers but not a major lab flagship paper; practical speedups on SLMs are useful but the niche focus on low-output-variability tasks limits broad adoption appeal.",
     "authors": [
       "Dor Tsur",
       "Sharon Adar",
@@ -11089,7 +11089,9 @@
     "published": "2026-02-27T16:55:22+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.24174v1",
     "abstract": "Small language models (SLMs) have emerged as efficient alternatives to large language models for task-specific applications. However, they are often employed in high-volume, low-latency settings, where efficiency is crucial. We propose TASC, Task-Adaptive Sequence Compression, a framework for SLM acceleration comprising two use-cases: When performing SLM fine-tuning, we propose TASC-ft, which iteratively enriches the tokenizer vocabulary with high-frequency output n-grams and then fine-tunes the model to utilize the expanded vocabulary. Next, we propose an inference-time method, termed TASC-spec. TASC-spec is a lightweight, training-free speculative decoding method that constructs an n-gram draft model from the task's output corpus, mixing task and context n-gram information.TASC-spec avoids any additional training, while bypassing draft-target vocabulary alignment constraints. We demonstrate the effectiveness of both methods across multiple low output-variability generation tasks. Our methods show consistent improvements in inference efficiency while maintaining task performance.",
-    "scored_date": "2026-03-02"
+    "scored_date": "2026-03-02",
+    "description": "Proposes TASC, a two-pronged framework for accelerating small language model inference on task-specific workloads. TASC-ft enriches the tokenizer with high-frequency output n-grams during fine-tuning to reduce decoding steps (up to 2.1x speedup), while TASC-spec constructs a training-free n-gram draft model mixing corpus and prompt statistics for speculative decoding (up to 3.15x speedup). Evaluated on medical QA, multi-label classification, and slot-filling tasks using Qwen2.5 and Llama-3-8B models.",
+    "fulltext_rescored": true
   },
   {
     "id": "http://arxiv.org/abs/2602.24173v1",
@@ -11269,10 +11271,10 @@
   {
     "id": "http://arxiv.org/abs/2602.24059v1",
     "title": "Quant Experts: Token-aware Adaptive Error Reconstruction with Mixture of Experts for Large Vision-Language Models Quantization",
-    "score": 72,
-    "justification": "Post-training quantization for Vision-Language Models with token-aware adaptive error compensation using MoE; directly addresses quantization for inference efficiency across 2B-70B parameters.",
+    "score": 58,
+    "justification": "Quantization method for Vision-Language Models, not LLM inference systems. Focuses on VLM-specific multimodal quantization error compensation with MoE adapters, not on serving/inference system optimization.",
     "hype": 45,
-    "hype_justification": "Practical quantization work scaling to 70B but focused on VLMs rather than pure LLMs.",
+    "hype_justification": "Solid work from a Chinese university group on VLM quantization; incremental over LQER/ASER with MoE twist, unlikely to generate broad attention outside the VLM quantization niche.",
     "authors": [
       "Chenwei Jia",
       "Baoting Li",
@@ -11284,15 +11286,17 @@
     "published": "2026-02-27T14:47:48+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.24059v1",
     "abstract": "Post-Training Quantization (PTQ) has emerged as an effective technique for alleviating the substantial computational and memory overheads of Vision-Language Models (VLMs) by compressing both weights and activations without retraining the full model. Existing PTQ methods primarily rely on static identification and global compensation of sensitive or outlier channels, yet they often overlook the distributional differences of these important channels across inputs, leading to unsatisfactory quantization. In this work, we observe that the distributions and occurrence frequencies of important channels vary significantly both across modalities and among tokens, even within the same modality. Accordingly, we propose \\textbf{Quant Experts (QE)}, a token-aware adaptive error compensation with mixture-of-experts for VLMs quantization. QE divides the important channels into token-independent and token-dependent groups. For the former, a shared expert is designed for most tokens to compensate for global quantization error using a low-rank adapter. For the latter, routed experts including multiple routed low-rank adapters are elaborated to compensate for local quantization error related to specific tokens. Extensive experiments demonstrate that QE consistently enhances task accuracy across various quantization settings and model scales, ranging from 2B to 70B parameters, while maintaining performance comparable to full-precision models.",
-    "scored_date": "2026-03-02"
+    "scored_date": "2026-03-02",
+    "description": "Quant Experts (QE) proposes a token-aware post-training quantization method for Vision-Language Models that uses mixture-of-experts low-rank adapters to compensate quantization errors. It splits important channels into token-independent (handled by a shared expert) and token-dependent (handled by routed experts selected via a lightweight router). On Qwen2VL and InternVL2 models (2B\u201372B), QE achieves up to 5.09% accuracy improvement over baselines under W4A6 quantization while adding minimal overhead.",
+    "fulltext_rescored": true
   },
   {
     "id": "http://arxiv.org/abs/2602.24044v1",
     "title": "Data Driven Optimization of GPU efficiency for Distributed LLM Adapter Serving",
-    "score": 90,
-    "justification": "Directly addresses distributed LLM adapter serving efficiency: GPU throughput maximization, adapter placement, digital twin for serving, and ML-based performance estimation for LLM serving.",
-    "hype": 60,
-    "hype_justification": "Practical LLM serving optimization from IBM/BSC researchers, addresses real deployment challenges with multi-adapter serving.",
+    "score": 92,
+    "justification": "Directly addresses GPU efficiency optimization for distributed LLM adapter serving, with detailed analysis of KV cache, continuous batching, vLLM internals, and throughput/latency tradeoffs.",
+    "hype": 55,
+    "hype_justification": "Solid work from BSC/IBM Research on a practical problem, but incremental in scope (adapter placement optimization) and unlikely to attract broad attention beyond the LLM serving community.",
     "authors": [
       "Ferran Agullo",
       "Joan Oliveras",
@@ -11306,7 +11310,9 @@
     "published": "2026-02-27T14:22:51+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.24044v1",
     "abstract": "Large Language Model (LLM) adapters enable low-cost model specialization, but introduce complex caching and scheduling challenges in distributed serving systems where hundreds of adapters must be hosted concurrently. While prior work has largely focused on latency minimization, resource efficiency through throughput maximization remains underexplored. This paper presents a data-driven pipeline that, for a given workload, computes an adapter placement that serves the workload with the minimum number of GPUs while avoiding request starvation and GPU memory errors. To that end, the approach identifies the maximum feasible throughput attainable on each GPU by leveraging accurate performance predictions learned from real serving behavior. The proposed pipeline integrates three components: (i) a Digital Twin (DT) tailored to LLM-adapter serving, (ii) a distilled machine learning (ML) model trained on DT-generated data, and (iii) a greedy placement algorithm that exploits ML-based performance estimates to maximize GPU efficiency. The DT emulates real system dynamics with high fidelity, achieving below 5% throughput estimation error while executing up to 90 times faster than full LLM benchmarking across both predictable and unpredictable workloads. The learned ML models further accelerate performance estimation with marginal accuracy degradation, enabling scalable optimization. Experimental results demonstrate that the pipeline substantially improves GPU efficiency by reducing the number of GPUs required to sustain target workloads. Beyond GPU efficiency, the pipeline can be adapted to alternative objectives, such as latency minimization, highlighting its versatility for future large-scale LLM serving infrastructures.",
-    "scored_date": "2026-03-02"
+    "scored_date": "2026-03-02",
+    "description": "Proposes a data-driven pipeline for optimizing GPU utilization in distributed LLM-adapter (LoRA) serving. The system combines a Digital Twin that emulates vLLM's continuous batching and KV-cache dynamics (achieving <5% throughput error at 90x speedup over real benchmarking), distilled ML models for throughput/starvation prediction, and a greedy placement algorithm that minimizes GPU count while avoiding memory errors. Evaluated on H100 GPUs with Llama-3.1-8B and Qwen-2.5-7B, the pipeline consistently finds optimal adapter packing points and outperforms baselines including dLoRA.",
+    "fulltext_rescored": true
   },
   {
     "id": "http://arxiv.org/abs/2602.24040v1",
@@ -11589,9 +11595,9 @@
     "id": "http://arxiv.org/abs/2602.23881v1",
     "title": "LK Losses: Direct Acceptance Rate Optimization for Speculative Decoding",
     "score": 95,
-    "justification": "Proposes LK losses to directly optimize acceptance rate for speculative decoding draft models, tested across 4 draft architectures and 6 target models (8B-685B), achieving 8-10% gains in acceptance length.",
-    "hype": 70,
-    "hype_justification": "Directly improves speculative decoding, a hot inference optimization technique, easy to implement with no overhead, tested at scale up to 685B parameters.",
+    "justification": "Directly proposes novel training losses (LK losses) for speculative decoding draft models that directly optimize acceptance rate instead of KL divergence, a core LLM inference acceleration technique.",
+    "hype": 75,
+    "hype_justification": "From Nebius (known inference infra company), addresses the hot speculative decoding topic with practical gains on widely-used models (Llama, Qwen3, DeepSeek-V3), released weights and datasets, but authors are not yet widely prominent.",
     "authors": [
       "Alexander Samarin",
       "Sergei Krutikov",
@@ -11603,7 +11609,9 @@
     "published": "2026-02-27T10:20:11+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.23881v1",
     "abstract": "Speculative decoding accelerates autoregressive large language model (LLM) inference by using a lightweight draft model to propose candidate tokens that are then verified in parallel by the target model. The speedup is significantly determined by the acceptance rate, yet standard training minimizes Kullback-Leibler (KL) divergence as a proxy objective. While KL divergence and acceptance rate share the same global optimum, small draft models, having limited capacity, typically converge to suboptimal solutions where minimizing KL does not guarantee maximizing acceptance rate. To address this issue, we propose LK losses, special training objectives that directly target acceptance rate. Comprehensive experiments across four draft architectures and six target models, ranging from 8B to 685B parameters, demonstrate consistent improvements in acceptance metrics across all configurations compared to the standard KL-based training. We evaluate our approach on general, coding and math domains and report gains of up to 8-10% in average acceptance length. LK losses are easy to implement, introduce no computational overhead and can be directly integrated into any existing speculator training framework, making them a compelling alternative to the existing draft training objectives.",
-    "scored_date": "2026-03-02"
+    "scored_date": "2026-03-02",
+    "description": "Proposes LK losses \u2014 a likelihood-based loss and a hybrid KL+TV loss with adaptive blending \u2014 for training speculative decoding draft models to directly maximize token acceptance rate instead of using KL divergence as a proxy. Experiments across four draft architectures (EAGLE-3, MEDUSA, MLP speculator, DeepSeek MTP) and six target models (8B\u2013685B) show consistent gains of up to 8\u201310% in average acceptance length, with larger improvements for capacity-constrained drafters and stochastic sampling (T=1). The method is a drop-in replacement requiring no extra compute.",
+    "fulltext_rescored": true
   },
   {
     "id": "http://arxiv.org/abs/2602.23876v1",
@@ -11853,10 +11861,10 @@
   {
     "id": "http://arxiv.org/abs/2602.23792v1",
     "title": "Divide and Conquer: Accelerating Diffusion-Based Large Language Models via Adaptive Parallel Decoding",
-    "score": 85,
-    "justification": "Adaptive parallel decoding for diffusion-based LLMs with divide-and-conquer approach to accelerate inference while maintaining generation quality.",
-    "hype": 60,
-    "hype_justification": "Addresses inference speedup for emerging diffusion LLM paradigm, practical parallel decoding framework.",
+    "score": 82,
+    "justification": "Directly addresses inference acceleration for diffusion-based LLMs via a training-free parallel decoding method (DiCo), with detailed throughput measurements and latency reduction results.",
+    "hype": 62,
+    "hype_justification": "From a less prominent group (Southeast University/NTU), but addresses the trending topic of accelerating diffusion LLMs which is gaining attention with LLaDA and Dream; practical training-free method with strong speedups.",
     "authors": [
       "Xiangzhong Luo",
       "Yilin An",
@@ -11867,7 +11875,9 @@
     "published": "2026-02-27T08:36:06+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.23792v1",
     "abstract": "Diffusion-based large language models (dLLMs) have shown promising performance across various reasoning tasks, establishing themselves as an alternative to autoregressive large language models (LLMs). Unlike autoregressive LLMs that generate one token per step based on all previous tokens, dLLMs theoretically enable parallel generation of multiple tokens at each decoding step. However, recent dLLMs still favor one-token-per-step generation in practice, as directly decoding multiple masked tokens often leads to degraded generation quality and stability. This reveals a substantial gap between the theoretical parallelism and practical performance of dLLMs. To bridge this gap, we introduce an adaptive parallel decoding approach, namely DiCo, which features a three-phase divide-and-conquer paradigm to unleash the inherent parallelism of dLLMs. During the Divide phase, DiCo first explores the input masked sequence and identifies masked tokens as seed tokens, which are then expanded to construct a set of local clusters. During the Conquer phase, DiCo performs parallel decoding across different local clusters constructed in the Divide phase. The divide-and-conquer process repeatedly alternates between the Divide and Conquer phases until convergence. During the Finalize phase, DiCo decodes the remaining few masked tokens using an effective fine-grained compound decoding scheme to finalize the generation. Extensive experiments demonstrate that DiCo can achieve significant inference speedups while maintaining competitive generation quality.",
-    "scored_date": "2026-03-02"
+    "scored_date": "2026-03-02",
+    "description": "Proposes DiCo, a training-free adaptive parallel decoding approach for diffusion-based LLMs (dLLMs) like LLaDA and Dream. It uses a three-phase divide-and-conquer paradigm: identifying seed tokens and forming local clusters of conditionally independent masked tokens, performing adaptive parallel decoding within clusters, and finalizing with compound decoding using logit margins. Achieves 3.4-7.9x inference speedups over vanilla decoding on GSM8K, Math-500, MBPP, and HumanEval while often improving accuracy, evaluated on NVIDIA RTX 4090.",
+    "fulltext_rescored": true
   },
   {
     "id": "http://arxiv.org/abs/2602.23777v1",
@@ -11980,10 +11990,10 @@
   {
     "id": "http://arxiv.org/abs/2602.23722v1",
     "title": "SLA-Aware Distributed LLM Inference Across Device-RAN-Cloud",
-    "score": 88,
-    "justification": "Measures distributed LLM inference across device-RAN-cloud tiers in 5G testbed, evaluating latency, quantized models, MIG isolation for co-location; directly about LLM inference deployment and serving.",
+    "score": 82,
+    "justification": "Empirical study of distributed LLM/VLM inference across device-edge-cloud tiers using vLLM on a 5G AI-RAN testbed, with detailed latency/SLA measurements for quantized model variants and MIG GPU isolation.",
     "hype": 55,
-    "hype_justification": "Practical 5G edge LLM inference measurements, relevant to deployment but from telecom perspective.",
+    "hype_justification": "From SUTD, accepted at INFOCOM workshop (not main conference); practical testbed results but narrow 5G/RAN focus limits broad ML community interest.",
     "authors": [
       "Hariz Yet",
       "Nguyen Thanh Tam",
@@ -11997,7 +12007,9 @@
     "published": "2026-02-27T06:43:47+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.23722v1",
     "abstract": "Embodied AI requires sub-second inference near the Radio Access Network (RAN), but deployments span heterogeneous tiers (on-device, RAN-edge, cloud) and must not disrupt real-time baseband processing. We report measurements from a 5G Standalone (SA) AI-RAN testbed using a fixed baseline policy for repeatability. The setup includes an on-device tier, a three-node RAN-edge cluster co-hosting a containerized 5G RAN, and a cloud tier. We find that on-device execution remains multi-second and fails to meet sub-second budgets. At the RAN edge, SLA feasibility is primarily determined by model variant choice: quantized models concentrate below 0.5\\,s, while unquantized and some larger quantized models incur deadline misses due to stalls and queuing. In the cloud tier, meeting a 0.5\\,s deadline is challenging on the measured WAN path (up to 32.9\\% of requests complete within 0.5\\,s), but all evaluated variants meet a 1.0\\,s deadline (100\\% within 1.0\\,s). Under saturated downlink traffic and up to $N{=}20$ concurrent inference clients, Multi-Instance GPU (MIG) isolation preserves baseband timing-health proxies, supporting safe co-location under fixed partitioning.",
-    "scored_date": "2026-03-02"
+    "scored_date": "2026-03-02",
+    "description": "Presents end-to-end measurements of SLA-aware VLM inference (Qwen2.5-VL 3B/7B) across on-device (Jetson Orin NX), RAN-edge (GH200 with MIG), and cloud (H100) tiers on a 5G SA testbed. Shows that quantized variants (AWQ, W4A16, W8A8) achieve sub-0.5s edge latency with 97-99% hit-rate, while on-device remains multi-second and cloud is unreliable under strict SLAs due to WAN tail latency. Demonstrates that MIG isolation preserves RAN baseband timing health under up to 20 concurrent inference clients.",
+    "fulltext_rescored": true
   },
   {
     "id": "http://arxiv.org/abs/2602.23720v1",
@@ -12080,10 +12092,10 @@
   {
     "id": "http://arxiv.org/abs/2602.23699v1",
     "title": "HiDrop: Hierarchical Vision Token Reduction in MLLMs via Late Injection, Concave Pyramid Pruning, and Early Exit",
-    "score": 78,
-    "justification": "Hierarchical vision token reduction for MLLMs via late injection and pruning, achieving ~90% token compression with 1.72x training speedup and maintained performance; directly optimizes inference efficiency.",
-    "hype": 55,
-    "hype_justification": "Practical token reduction for MLLM inference with strong results, open-source code available.",
+    "score": 52,
+    "justification": "Focuses on vision token pruning in multimodal LLMs (MLLMs) to reduce quadratic attention cost of visual tokens; tangentially related to LLM inference efficiency but specific to the vision-language multimodal setting, not LLM text inference/serving systems.",
+    "hype": 62,
+    "hype_justification": "Published at ICLR 2026 with code released; addresses the hot topic of efficient multimodal LLMs with strong empirical results, but authors are from less prominent labs and the scope is limited to vision-language models rather than broader LLM inference.",
     "authors": [
       "Hao Wu",
       "Yingqi Fan",
@@ -12095,7 +12107,9 @@
     "published": "2026-02-27T05:55:57+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.23699v1",
     "abstract": "The quadratic computational cost of processing vision tokens in Multimodal Large Language Models (MLLMs) hinders their widespread adoption. While progressive vision token pruning offers a promising solution, current methods misinterpret shallow layer functions and use rigid schedules, which fail to unlock the full efficiency potential. To address these issues, we propose HiDrop, a framework that aligns token pruning with the true hierarchical function of MLLM layers. HiDrop features two key innovations: (1) Late Injection, which bypasses passive shallow layers to introduce visual tokens exactly where active fusion begins; and (2) Concave Pyramid Pruning with an Early Exit mechanism to dynamically adjust pruning rates across middle and deep layers. This process is optimized via an inter-layer similarity measure and a differentiable top-k operator. To ensure practical efficiency, HiDrop further incorporates persistent positional encoding, FlashAttention-compatible token selection, and parallel decoupling of vision computation to eliminate hidden overhead associated with dynamic token reduction. Extensive experiments show that HiDrop compresses about 90% visual tokens while matching the original performance and accelerating training by 1.72 times. Our work not only sets a new state-of-the-art for efficient MLLM training and inference but also provides valuable insights into the hierarchical nature of multimodal fusion. The code is released at https://github.com/EIT-NLP/HiDrop.",
-    "scored_date": "2026-03-02"
+    "scored_date": "2026-03-02",
+    "description": "HiDrop proposes hierarchical vision token reduction for Multimodal LLMs via three mechanisms: Late Injection (bypassing shallow layers for visual tokens), Concave Pyramid Pruning (aggressive non-uniform token reduction in middle layers using a differentiable top-k operator), and Early Exit (discarding visual tokens before deep language-dominant layers). On LLaVA-1.5-7B it compresses ~90% of visual tokens while retaining 98.3% performance, reduces inference FLOPs by 88.9% (3.82T to 0.42T), cuts prefill latency from 63.6ms to 28.8ms, and accelerates training by 1.72x.",
+    "fulltext_rescored": true
   },
   {
     "id": "http://arxiv.org/abs/2602.23681v1",
@@ -12323,10 +12337,10 @@
   {
     "id": "http://arxiv.org/abs/2602.23592v1",
     "title": "KEEP: A KV-Cache-Centric Memory Management System for Efficient Embodied Planning",
-    "score": 92,
-    "justification": "KV-cache-centric memory management for efficient embodied planning with 2.68x speedup, featuring static-dynamic memory construction, multi-hop memory re-computation, and layer-balanced KV cache loading.",
-    "hype": 60,
-    "hype_justification": "Directly addresses KV cache management for LLM inference efficiency, published at systems venue (references EuroSys'25), PKU lab with open-source code.",
+    "score": 88,
+    "justification": "Directly addresses KV cache management and inference latency optimization (TTFT reduction) for LLM serving, with a novel static-dynamic memory construction, multi-hop KV recomputation, and layer-balanced loading pipeline \u2014 all core inference systems concerns. Built on vLLM. Docked slightly because the application domain is embodied planning rather than general LLM serving.",
+    "hype": 52,
+    "hype_justification": "Solid systems work from Peking University with practical results, but the narrow embodied-planning focus and less prominent venue/author profile limit broad community attention compared to general-purpose KV cache papers.",
     "authors": [
       "Zebin Yang",
       "Tong Xie",
@@ -12338,7 +12352,9 @@
     "published": "2026-02-27T01:48:07+00:00",
     "pdf_url": "https://arxiv.org/pdf/2602.23592v1",
     "abstract": "Memory-augmented Large Language Models (LLMs) have demonstrated remarkable capability for complex and long-horizon embodied planning. By keeping track of past experiences and environmental states, memory enables LLMs to maintain a global view, thereby avoiding repetitive exploration. However, existing approaches often store the memory as raw text, leading to excessively long prompts and high prefill latency. While it is possible to store and reuse the KV caches, the efficiency benefits are greatly undermined due to frequent KV cache updates. In this paper, we propose KEEP, a KV-cache-centric memory management system for efficient embodied planning. KEEP features 3 key innovations: (1) a Static-Dynamic Memory Construction algorithm that reduces KV cache recomputation by mixed-granularity memory group; (2) a Multi-hop Memory Re-computation algorithm that dynamically identifies important cross-attention among different memory groups and reconstructs memory interactions iteratively; (3) a Layer-balanced Memory Loading that eliminates unbalanced KV cache loading and cross-attention computation across different layers. Extensive experimental results have demonstrated that KEEP achieves 2.68x speedup with negligible accuracy loss compared with text-based memory methods on ALFRED dataset. Compared with the KV re-computation method CacheBlend (EuroSys'25), KEEP shows 4.13% success rate improvement and 1.90x time-to-first-token (TTFT) reduction. Our code is available on https://github.com/PKU-SEC-Lab/KEEP_Embodied_Memory.",
-    "scored_date": "2026-03-02"
+    "scored_date": "2026-03-02",
+    "description": "KEEP is a KV-cache-centric memory management system that accelerates LLM inference for embodied planning agents. It introduces three techniques: (1) static-dynamic memory construction that groups memory segments by update frequency to minimize KV cache invalidation, (2) multi-hop memory recomputation that uses attention-based importance propagation to selectively recompute KV states for critical memory segments, and (3) layer-balanced memory loading that redistributes KV loading across transformer layers to eliminate pipeline bubbles. Evaluated on ALFRED and WAH-NL benchmarks using Qwen-2.5 models atop vLLM, KEEP achieves up to 2.68x TTFT speedup over full recomputation and 1.90x TTFT reduction over CacheBlend with negligible accuracy loss.",
+    "fulltext_rescored": true
   },
   {
     "id": "http://arxiv.org/abs/2602.23589v1",

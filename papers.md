@@ -2,7 +2,19 @@
 
 Automatically discovered papers scored for relevance to: Serving, optimizing, and scaling large language model inference. Includes KV cache management, speculative decoding, continuous batching, PagedAttention, model quantization for inference, inference frameworks (vLLM, TensorRT-LLM, SGLang, TGI, llama.cpp), inference throughput/latency optimization, distributed inference, inference hardware, and I/O optimization (disk I/O, network I/O, memory bandwidth, data loading, storage systems, NVMe, RDMA, interconnects) as it relates to LLM inference and serving.
 
-**40** papers above threshold (70/100) out of **654** total scanned.
+**38** papers above threshold (70/100) out of **654** total scanned.
+
+---
+
+### LK Losses: Direct Acceptance Rate Optimization for Speculative Decoding
+**Relevance: 95/100 | Hype: 75/100** — Directly proposes novel training losses (LK losses) for speculative decoding draft models that directly optimize acceptance rate instead of KL divergence, a core LLM inference acceleration technique.
+*Authors: Alexander Samarin, Sergei Krutikov, Anton Shevtsov et al.*
+*Published: 2026-02-27*
+[arXiv](https://arxiv.org/abs/2602.23881v1) | [PDF](https://arxiv.org/pdf/2602.23881v1)
+
+Proposes LK losses — a likelihood-based loss and a hybrid KL+TV loss with adaptive blending — for training speculative decoding draft models to directly maximize token acceptance rate instead of using KL divergence as a proxy. Experiments across four draft architectures (EAGLE-3, MEDUSA, MLP speculator, DeepSeek MTP) and six target models (8B–685B) show consistent gains of up to 8–10% in average acceptance length, with larger improvements for capacity-constrained drafters and stochastic sampling (T=1). The method is a drop-in replacement requiring no extra compute.
+
+> Speculative decoding accelerates autoregressive large language model (LLM) inference by using a lightweight draft model to propose candidate tokens that are then verified in parallel by the target mod...
 
 ---
 
@@ -13,16 +25,6 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 [arXiv](https://arxiv.org/abs/2602.21548v1) | [PDF](https://arxiv.org/pdf/2602.21548v1)
 
 > The performance of multi-turn, agentic LLM inference is increasingly dominated by KV-Cache storage I/O rather than computation. In prevalent disaggregated architectures, loading the massive KV-Cache f...
-
----
-
-### LK Losses: Direct Acceptance Rate Optimization for Speculative Decoding
-**Relevance: 95/100 | Hype: 70/100** — Proposes LK losses to directly optimize acceptance rate for speculative decoding draft models, tested across 4 draft architectures and 6 target models (8B-685B), achieving 8-10% gains in acceptance length.
-*Authors: Alexander Samarin, Sergei Krutikov, Anton Shevtsov et al.*
-*Published: 2026-02-27*
-[arXiv](https://arxiv.org/abs/2602.23881v1) | [PDF](https://arxiv.org/pdf/2602.23881v1)
-
-> Speculative decoding accelerates autoregressive large language model (LLM) inference by using a lightweight draft model to propose candidate tokens that are then verified in parallel by the target mod...
 
 ---
 
@@ -106,16 +108,6 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 
 ---
 
-### KEEP: A KV-Cache-Centric Memory Management System for Efficient Embodied Planning
-**Relevance: 92/100 | Hype: 60/100** — KV-cache-centric memory management for efficient embodied planning with 2.68x speedup, featuring static-dynamic memory construction, multi-hop memory re-computation, and layer-balanced KV cache loading.
-*Authors: Zebin Yang, Tong Xie, Baotong Lu et al.*
-*Published: 2026-02-27*
-[arXiv](https://arxiv.org/abs/2602.23592v1) | [PDF](https://arxiv.org/pdf/2602.23592v1)
-
-> Memory-augmented Large Language Models (LLMs) have demonstrated remarkable capability for complex and long-horizon embodied planning. By keeping track of past experiences and environmental states, mem...
-
----
-
 ### InnerQ: Hardware-aware Tuning-free Quantization of KV Cache for Large Language Models
 **Relevance: 92/100 | Hype: 60/100** — Hardware-aware KV cache quantization for LLM inference with inner-dimension grouping, up to 22% speedup over prior work and 88% over FP16; directly about LLM inference optimization.
 *Authors: Sayed Mohammadreza Tayaranian Hosseini, Amir Ardakani, Warren J. Gross*
@@ -146,6 +138,18 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 
 ---
 
+### Data Driven Optimization of GPU efficiency for Distributed LLM Adapter Serving
+**Relevance: 92/100 | Hype: 55/100** — Directly addresses GPU efficiency optimization for distributed LLM adapter serving, with detailed analysis of KV cache, continuous batching, vLLM internals, and throughput/latency tradeoffs.
+*Authors: Ferran Agullo, Joan Oliveras, Chen Wang et al.*
+*Published: 2026-02-27*
+[arXiv](https://arxiv.org/abs/2602.24044v1) | [PDF](https://arxiv.org/pdf/2602.24044v1)
+
+Proposes a data-driven pipeline for optimizing GPU utilization in distributed LLM-adapter (LoRA) serving. The system combines a Digital Twin that emulates vLLM's continuous batching and KV-cache dynamics (achieving <5% throughput error at 90x speedup over real benchmarking), distilled ML models for throughput/starvation prediction, and a greedy placement algorithm that minimizes GPU count while avoiding memory errors. Evaluated on H100 GPUs with Llama-3.1-8B and Qwen-2.5-7B, the pipeline consistently finds optimal adapter packing points and outperforms baselines including dLoRA.
+
+> Large Language Model (LLM) adapters enable low-cost model specialization, but introduce complex caching and scheduling challenges in distributed serving systems where hundreds of adapters must be host...
+
+---
+
 ### Scaling State-Space Models on Multiple GPUs with Tensor Parallelism
 **Relevance: 92/100 | Hype: 55/100** — Directly about tensor parallelism for SSM-based LLM inference across multiple GPUs, with KV cache equivalent (SSM state cache), quantized AllReduce, and throughput/latency benchmarks.
 *Authors: Anurag Dutt, Nimit Shah, Hazem Masarani et al.*
@@ -153,16 +157,6 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 [arXiv](https://arxiv.org/abs/2602.21144v1) | [PDF](https://arxiv.org/pdf/2602.21144v1)
 
 > Selective state space models (SSMs) have rapidly become a compelling backbone for large language models, especially for long-context workloads. Yet in deployment, their inference performance is often ...
-
----
-
-### Data Driven Optimization of GPU efficiency for Distributed LLM Adapter Serving
-**Relevance: 90/100 | Hype: 60/100** — Directly addresses distributed LLM adapter serving efficiency: GPU throughput maximization, adapter placement, digital twin for serving, and ML-based performance estimation for LLM serving.
-*Authors: Ferran Agullo, Joan Oliveras, Chen Wang et al.*
-*Published: 2026-02-27*
-[arXiv](https://arxiv.org/abs/2602.24044v1) | [PDF](https://arxiv.org/pdf/2602.24044v1)
-
-> Large Language Model (LLM) adapters enable low-cost model specialization, but introduce complex caching and scheduling challenges in distributed serving systems where hundreds of adapters must be host...
 
 ---
 
@@ -196,23 +190,15 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 
 ---
 
-### SLA-Aware Distributed LLM Inference Across Device-RAN-Cloud
-**Relevance: 88/100 | Hype: 55/100** — Measures distributed LLM inference across device-RAN-cloud tiers in 5G testbed, evaluating latency, quantized models, MIG isolation for co-location; directly about LLM inference deployment and serving.
-*Authors: Hariz Yet, Nguyen Thanh Tam, Mao V. Ngo et al.*
+### KEEP: A KV-Cache-Centric Memory Management System for Efficient Embodied Planning
+**Relevance: 88/100 | Hype: 52/100** — Directly addresses KV cache management and inference latency optimization (TTFT reduction) for LLM serving, with a novel static-dynamic memory construction, multi-hop KV recomputation, and layer-balanced loading pipeline — all core inference systems concerns. Built on vLLM. Docked slightly because the application domain is embodied planning rather than general LLM serving.
+*Authors: Zebin Yang, Tong Xie, Baotong Lu et al.*
 *Published: 2026-02-27*
-[arXiv](https://arxiv.org/abs/2602.23722v1) | [PDF](https://arxiv.org/pdf/2602.23722v1)
+[arXiv](https://arxiv.org/abs/2602.23592v1) | [PDF](https://arxiv.org/pdf/2602.23592v1)
 
-> Embodied AI requires sub-second inference near the Radio Access Network (RAN), but deployments span heterogeneous tiers (on-device, RAN-edge, cloud) and must not disrupt real-time baseband processing....
+KEEP is a KV-cache-centric memory management system that accelerates LLM inference for embodied planning agents. It introduces three techniques: (1) static-dynamic memory construction that groups memory segments by update frequency to minimize KV cache invalidation, (2) multi-hop memory recomputation that uses attention-based importance propagation to selectively recompute KV states for critical memory segments, and (3) layer-balanced memory loading that redistributes KV loading across transformer layers to eliminate pipeline bubbles. Evaluated on ALFRED and WAH-NL benchmarks using Qwen-2.5 models atop vLLM, KEEP achieves up to 2.68x TTFT speedup over full recomputation and 1.90x TTFT reduction over CacheBlend with negligible accuracy loss.
 
----
-
-### Divide and Conquer: Accelerating Diffusion-Based Large Language Models via Adaptive Parallel Decoding
-**Relevance: 85/100 | Hype: 60/100** — Adaptive parallel decoding for diffusion-based LLMs with divide-and-conquer approach to accelerate inference while maintaining generation quality.
-*Authors: Xiangzhong Luo, Yilin An, Zhicheng Yu et al.*
-*Published: 2026-02-27*
-[arXiv](https://arxiv.org/abs/2602.23792v1) | [PDF](https://arxiv.org/pdf/2602.23792v1)
-
-> Diffusion-based large language models (dLLMs) have shown promising performance across various reasoning tasks, establishing themselves as an alternative to autoregressive large language models (LLMs)....
+> Memory-augmented Large Language Models (LLMs) have demonstrated remarkable capability for complex and long-horizon embodied planning. By keeping track of past experiences and environmental states, mem...
 
 ---
 
@@ -236,13 +222,27 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 
 ---
 
-### Task-Centric Acceleration of Small-Language Models
-**Relevance: 82/100 | Hype: 55/100** — Proposes TASC for SLM inference acceleration including speculative decoding with n-gram draft models and vocabulary expansion for faster token generation.
-*Authors: Dor Tsur, Sharon Adar, Ran Levy*
+### Divide and Conquer: Accelerating Diffusion-Based Large Language Models via Adaptive Parallel Decoding
+**Relevance: 82/100 | Hype: 62/100** — Directly addresses inference acceleration for diffusion-based LLMs via a training-free parallel decoding method (DiCo), with detailed throughput measurements and latency reduction results.
+*Authors: Xiangzhong Luo, Yilin An, Zhicheng Yu et al.*
 *Published: 2026-02-27*
-[arXiv](https://arxiv.org/abs/2602.24174v1) | [PDF](https://arxiv.org/pdf/2602.24174v1)
+[arXiv](https://arxiv.org/abs/2602.23792v1) | [PDF](https://arxiv.org/pdf/2602.23792v1)
 
-> Small language models (SLMs) have emerged as efficient alternatives to large language models for task-specific applications. However, they are often employed in high-volume, low-latency settings, wher...
+Proposes DiCo, a training-free adaptive parallel decoding approach for diffusion-based LLMs (dLLMs) like LLaDA and Dream. It uses a three-phase divide-and-conquer paradigm: identifying seed tokens and forming local clusters of conditionally independent masked tokens, performing adaptive parallel decoding within clusters, and finalizing with compound decoding using logit margins. Achieves 3.4-7.9x inference speedups over vanilla decoding on GSM8K, Math-500, MBPP, and HumanEval while often improving accuracy, evaluated on NVIDIA RTX 4090.
+
+> Diffusion-based large language models (dLLMs) have shown promising performance across various reasoning tasks, establishing themselves as an alternative to autoregressive large language models (LLMs)....
+
+---
+
+### SLA-Aware Distributed LLM Inference Across Device-RAN-Cloud
+**Relevance: 82/100 | Hype: 55/100** — Empirical study of distributed LLM/VLM inference across device-edge-cloud tiers using vLLM on a 5G AI-RAN testbed, with detailed latency/SLA measurements for quantized model variants and MIG GPU isolation.
+*Authors: Hariz Yet, Nguyen Thanh Tam, Mao V. Ngo et al.*
+*Published: 2026-02-27*
+[arXiv](https://arxiv.org/abs/2602.23722v1) | [PDF](https://arxiv.org/pdf/2602.23722v1)
+
+Presents end-to-end measurements of SLA-aware VLM inference (Qwen2.5-VL 3B/7B) across on-device (Jetson Orin NX), RAN-edge (GH200 with MIG), and cloud (H100) tiers on a 5G SA testbed. Shows that quantized variants (AWQ, W4A16, W8A8) achieve sub-0.5s edge latency with 97-99% hit-rate, while on-device remains multi-second and cloud is unreliable under strict SLAs due to WAN tail latency. Demonstrates that MIG isolation preserves RAN baseband timing health under up to 20 concurrent inference clients.
+
+> Embodied AI requires sub-second inference near the Radio Access Network (RAN), but deployments span heterogeneous tiers (on-device, RAN-edge, cloud) and must not disrupt real-time baseband processing....
 
 ---
 
@@ -253,6 +253,18 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 [arXiv](https://arxiv.org/abs/2602.22592v1) | [PDF](https://arxiv.org/pdf/2602.22592v1)
 
 > Quantization-Aware Training from scratch has emerged as a promising approach for building efficient large language models (LLMs) with extremely low-bit weights (sub 2-bit), which can offer substantial...
+
+---
+
+### Task-Centric Acceleration of Small-Language Models
+**Relevance: 80/100 | Hype: 52/100** — Directly addresses LLM/SLM inference acceleration with two concrete methods: tokenizer augmentation (TASC-ft) reducing decoding steps, and n-gram speculative decoding (TASC-spec) achieving up to 3.15x speedup — both squarely in inference optimization territory.
+*Authors: Dor Tsur, Sharon Adar, Ran Levy*
+*Published: 2026-02-27*
+[arXiv](https://arxiv.org/abs/2602.24174v1) | [PDF](https://arxiv.org/pdf/2602.24174v1)
+
+Proposes TASC, a two-pronged framework for accelerating small language model inference on task-specific workloads. TASC-ft enriches the tokenizer with high-frequency output n-grams during fine-tuning to reduce decoding steps (up to 2.1x speedup), while TASC-spec constructs a training-free n-gram draft model mixing corpus and prompt statistics for speculative decoding (up to 3.15x speedup). Evaluated on medical QA, multi-label classification, and slot-filling tasks using Qwen2.5 and Llama-3-8B models.
+
+> Small language models (SLMs) have emerged as efficient alternatives to large language models for task-specific applications. However, they are often employed in high-volume, low-latency settings, wher...
 
 ---
 
@@ -273,16 +285,6 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 [arXiv](https://arxiv.org/abs/2602.23225v1) | [PDF](https://arxiv.org/pdf/2602.23225v1)
 
 > Diffusion Language Models (DLMs) are often advertised as enabling parallel token generation, yet practical fast DLMs frequently converge to left-to-right, autoregressive (AR)-like decoding dynamics. I...
-
----
-
-### HiDrop: Hierarchical Vision Token Reduction in MLLMs via Late Injection, Concave Pyramid Pruning, and Early Exit
-**Relevance: 78/100 | Hype: 55/100** — Hierarchical vision token reduction for MLLMs via late injection and pruning, achieving ~90% token compression with 1.72x training speedup and maintained performance; directly optimizes inference efficiency.
-*Authors: Hao Wu, Yingqi Fan, Jinyang Dai et al.*
-*Published: 2026-02-27*
-[arXiv](https://arxiv.org/abs/2602.23699v1) | [PDF](https://arxiv.org/pdf/2602.23699v1)
-
-> The quadratic computational cost of processing vision tokens in Multimodal Large Language Models (MLLMs) hinders their widespread adoption. While progressive vision token pruning offers a promising so...
 
 ---
 
@@ -343,16 +345,6 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 [arXiv](https://arxiv.org/abs/2602.21652v1) | [PDF](https://arxiv.org/pdf/2602.21652v1)
 
 > Large language models have demonstrated capabilities in text generation, while their increasing parameter scales present challenges in computational and memory efficiency. Post-training sparsity (PTS)...
-
----
-
-### Quant Experts: Token-aware Adaptive Error Reconstruction with Mixture of Experts for Large Vision-Language Models Quantization
-**Relevance: 72/100 | Hype: 45/100** — Post-training quantization for Vision-Language Models with token-aware adaptive error compensation using MoE; directly addresses quantization for inference efficiency across 2B-70B parameters.
-*Authors: Chenwei Jia, Baoting Li, Xuchong Zhang et al.*
-*Published: 2026-02-27*
-[arXiv](https://arxiv.org/abs/2602.24059v1) | [PDF](https://arxiv.org/pdf/2602.24059v1)
-
-> Post-Training Quantization (PTQ) has emerged as an effective technique for alleviating the substantial computational and memory overheads of Vision-Language Models (VLMs) by compressing both weights a...
 
 ---
 

@@ -58,6 +58,9 @@ def main():
         lines.append(f"*Published: {published_date}*")
         lines.append(f"[arXiv](https://arxiv.org/abs/{arxiv_id}) | [PDF]({p['pdf_url']})")
         lines.append("")
+        if p.get("description"):
+            lines.append(p["description"])
+            lines.append("")
         lines.append(f"> {abstract_excerpt}")
         lines.append("")
         lines.append("---")
