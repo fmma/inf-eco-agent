@@ -2,7 +2,7 @@
 
 Automatically discovered papers scored for relevance to: Serving, optimizing, and scaling large language model inference. Includes KV cache management, speculative decoding, continuous batching, PagedAttention, model quantization for inference, inference frameworks (vLLM, TensorRT-LLM, SGLang, TGI, llama.cpp), inference throughput/latency optimization, distributed inference, inference hardware, and I/O optimization (disk I/O, network I/O, memory bandwidth, data loading, storage systems, NVMe, RDMA, interconnects) as it relates to LLM inference and serving.
 
-**31** papers above threshold (70/100) out of **554** total scanned.
+**40** papers above threshold (70/100) out of **654** total scanned.
 
 ---
 
@@ -13,6 +13,16 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 [arXiv](https://arxiv.org/abs/2602.21548v1) | [PDF](https://arxiv.org/pdf/2602.21548v1)
 
 > The performance of multi-turn, agentic LLM inference is increasingly dominated by KV-Cache storage I/O rather than computation. In prevalent disaggregated architectures, loading the massive KV-Cache f...
+
+---
+
+### LK Losses: Direct Acceptance Rate Optimization for Speculative Decoding
+**Relevance: 95/100 | Hype: 70/100** — Proposes LK losses to directly optimize acceptance rate for speculative decoding draft models, tested across 4 draft architectures and 6 target models (8B-685B), achieving 8-10% gains in acceptance length.
+*Authors: Alexander Samarin, Sergei Krutikov, Anton Shevtsov et al.*
+*Published: 2026-02-27*
+[arXiv](https://arxiv.org/abs/2602.23881v1) | [PDF](https://arxiv.org/pdf/2602.23881v1)
+
+> Speculative decoding accelerates autoregressive large language model (LLM) inference by using a lightweight draft model to propose candidate tokens that are then verified in parallel by the target mod...
 
 ---
 
@@ -96,6 +106,16 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 
 ---
 
+### KEEP: A KV-Cache-Centric Memory Management System for Efficient Embodied Planning
+**Relevance: 92/100 | Hype: 60/100** — KV-cache-centric memory management for efficient embodied planning with 2.68x speedup, featuring static-dynamic memory construction, multi-hop memory re-computation, and layer-balanced KV cache loading.
+*Authors: Zebin Yang, Tong Xie, Baotong Lu et al.*
+*Published: 2026-02-27*
+[arXiv](https://arxiv.org/abs/2602.23592v1) | [PDF](https://arxiv.org/pdf/2602.23592v1)
+
+> Memory-augmented Large Language Models (LLMs) have demonstrated remarkable capability for complex and long-horizon embodied planning. By keeping track of past experiences and environmental states, mem...
+
+---
+
 ### InnerQ: Hardware-aware Tuning-free Quantization of KV Cache for Large Language Models
 **Relevance: 92/100 | Hype: 60/100** — Hardware-aware KV cache quantization for LLM inference with inner-dimension grouping, up to 22% speedup over prior work and 88% over FP16; directly about LLM inference optimization.
 *Authors: Sayed Mohammadreza Tayaranian Hosseini, Amir Ardakani, Warren J. Gross*
@@ -136,6 +156,16 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 
 ---
 
+### Data Driven Optimization of GPU efficiency for Distributed LLM Adapter Serving
+**Relevance: 90/100 | Hype: 60/100** — Directly addresses distributed LLM adapter serving efficiency: GPU throughput maximization, adapter placement, digital twin for serving, and ML-based performance estimation for LLM serving.
+*Authors: Ferran Agullo, Joan Oliveras, Chen Wang et al.*
+*Published: 2026-02-27*
+[arXiv](https://arxiv.org/abs/2602.24044v1) | [PDF](https://arxiv.org/pdf/2602.24044v1)
+
+> Large Language Model (LLM) adapters enable low-cost model specialization, but introduce complex caching and scheduling challenges in distributed serving systems where hundreds of adapters must be host...
+
+---
+
 ### ReviveMoE: Fast Recovery for Hardware Failures in Large-Scale MoE LLM Inference Deployments
 **Relevance: 90/100 | Hype: 60/100** — Directly about fast failure recovery in large-scale MoE LLM inference deployments without restarting serving instances, deployed on Huawei Cloud's MaaS platform with disaggregated MoE/attention architectures.
 *Authors: Haley Li, Xinglu Wang, Cong Feng et al.*
@@ -166,6 +196,26 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 
 ---
 
+### SLA-Aware Distributed LLM Inference Across Device-RAN-Cloud
+**Relevance: 88/100 | Hype: 55/100** — Measures distributed LLM inference across device-RAN-cloud tiers in 5G testbed, evaluating latency, quantized models, MIG isolation for co-location; directly about LLM inference deployment and serving.
+*Authors: Hariz Yet, Nguyen Thanh Tam, Mao V. Ngo et al.*
+*Published: 2026-02-27*
+[arXiv](https://arxiv.org/abs/2602.23722v1) | [PDF](https://arxiv.org/pdf/2602.23722v1)
+
+> Embodied AI requires sub-second inference near the Radio Access Network (RAN), but deployments span heterogeneous tiers (on-device, RAN-edge, cloud) and must not disrupt real-time baseband processing....
+
+---
+
+### Divide and Conquer: Accelerating Diffusion-Based Large Language Models via Adaptive Parallel Decoding
+**Relevance: 85/100 | Hype: 60/100** — Adaptive parallel decoding for diffusion-based LLMs with divide-and-conquer approach to accelerate inference while maintaining generation quality.
+*Authors: Xiangzhong Luo, Yilin An, Zhicheng Yu et al.*
+*Published: 2026-02-27*
+[arXiv](https://arxiv.org/abs/2602.23792v1) | [PDF](https://arxiv.org/pdf/2602.23792v1)
+
+> Diffusion-based large language models (dLLMs) have shown promising performance across various reasoning tasks, establishing themselves as an alternative to autoregressive large language models (LLMs)....
+
+---
+
 ### A Replicate-and-Quantize Strategy for Plug-and-Play Load Balancing of Sparse Mixture-of-Experts LLMs
 **Relevance: 85/100 | Hype: 60/100** — Directly addresses inference-time load balancing for Sparse MoE LLMs via replication and quantization; training-free framework achieving 1.4x imbalance reduction within original memory budget.
 *Authors: Zijie Liu, Jie Peng, Jinhao Duan et al.*
@@ -183,6 +233,16 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 [arXiv](https://arxiv.org/abs/2602.22868v1) | [PDF](https://arxiv.org/pdf/2602.22868v1)
 
 > Diffusion Large Language Models (DLLMs) promise fast non-autoregressive inference but suffer a severe quality-speed trade-off in parallel decoding. This stems from the ''combinatorial contradiction'' ...
+
+---
+
+### Task-Centric Acceleration of Small-Language Models
+**Relevance: 82/100 | Hype: 55/100** — Proposes TASC for SLM inference acceleration including speculative decoding with n-gram draft models and vocabulary expansion for faster token generation.
+*Authors: Dor Tsur, Sharon Adar, Ran Levy*
+*Published: 2026-02-27*
+[arXiv](https://arxiv.org/abs/2602.24174v1) | [PDF](https://arxiv.org/pdf/2602.24174v1)
+
+> Small language models (SLMs) have emerged as efficient alternatives to large language models for task-specific applications. However, they are often employed in high-volume, low-latency settings, wher...
 
 ---
 
@@ -213,6 +273,16 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 [arXiv](https://arxiv.org/abs/2602.23225v1) | [PDF](https://arxiv.org/pdf/2602.23225v1)
 
 > Diffusion Language Models (DLMs) are often advertised as enabling parallel token generation, yet practical fast DLMs frequently converge to left-to-right, autoregressive (AR)-like decoding dynamics. I...
+
+---
+
+### HiDrop: Hierarchical Vision Token Reduction in MLLMs via Late Injection, Concave Pyramid Pruning, and Early Exit
+**Relevance: 78/100 | Hype: 55/100** — Hierarchical vision token reduction for MLLMs via late injection and pruning, achieving ~90% token compression with 1.72x training speedup and maintained performance; directly optimizes inference efficiency.
+*Authors: Hao Wu, Yingqi Fan, Jinyang Dai et al.*
+*Published: 2026-02-27*
+[arXiv](https://arxiv.org/abs/2602.23699v1) | [PDF](https://arxiv.org/pdf/2602.23699v1)
+
+> The quadratic computational cost of processing vision tokens in Multimodal Large Language Models (MLLMs) hinders their widespread adoption. While progressive vision token pruning offers a promising so...
 
 ---
 
@@ -276,6 +346,16 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 
 ---
 
+### Quant Experts: Token-aware Adaptive Error Reconstruction with Mixture of Experts for Large Vision-Language Models Quantization
+**Relevance: 72/100 | Hype: 45/100** — Post-training quantization for Vision-Language Models with token-aware adaptive error compensation using MoE; directly addresses quantization for inference efficiency across 2B-70B parameters.
+*Authors: Chenwei Jia, Baoting Li, Xuchong Zhang et al.*
+*Published: 2026-02-27*
+[arXiv](https://arxiv.org/abs/2602.24059v1) | [PDF](https://arxiv.org/pdf/2602.24059v1)
+
+> Post-Training Quantization (PTQ) has emerged as an effective technique for alleviating the substantial computational and memory overheads of Vision-Language Models (VLMs) by compressing both weights a...
+
+---
+
 ### Lagom: Unleashing the Power of Communication and Computation Overlapping for Distributed LLM Training
 **Relevance: 72/100 | Hype: 45/100** — Optimizes communication-computation overlap for distributed LLM training with a unified cost model. While focused on training, the communication optimization techniques (co-tuning communication parameters, priority-based search) directly apply to distributed inference as well.
 *Authors: Guanbin Xu, ZhenGuo Xu, Yuzhe Li et al.*
@@ -313,5 +393,15 @@ Automatically discovered papers scored for relevance to: Serving, optimizing, an
 [arXiv](https://arxiv.org/abs/2602.22457v1) | [PDF](https://arxiv.org/pdf/2602.22457v1)
 
 > Large language models (LLMs) training or inference across multiple nodes introduces significant pressure on GPU memory and interconnect bandwidth. The Compute Express Link (CXL) shared memory pool off...
+
+---
+
+### Learning Generation Orders for Masked Discrete Diffusion Models via Variational Inference
+**Relevance: 70/100 | Hype: 45/100** — Variational inference for learning parallel generation orders in masked diffusion LLMs, achieving competitive accuracy with only 4 generation steps; directly relevant to parallel token generation efficiency.
+*Authors: David Fox, Sam Bowyer, Song Liu et al.*
+*Published: 2026-02-27*
+[arXiv](https://arxiv.org/abs/2602.23968v1) | [PDF](https://arxiv.org/pdf/2602.23968v1)
+
+> Masked discrete diffusion models (MDMs) are a promising new approach to generative modelling, offering the ability for parallel token generation and therefore greater efficiency than autoregressive co...
 
 ---
