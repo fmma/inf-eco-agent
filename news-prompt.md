@@ -5,13 +5,10 @@ You are writing a short, punchy flash-news bulletin about noteworthy LLM inferen
 ## Instructions
 
 1. Read `config.json` for the topic definition.
-2. Below you will find one or both of these sections:
-   - **New Papers** — just discovered and scored. Each has a relevance score, hype score, and justifications.
-   - **Hype Surges** — previously known papers whose external signals (citations, HuggingFace upvotes, GitHub stars) have spiked. Each shows old hype → new hype and the signals driving the jump.
+2. Below you will find **New Papers** — just discovered and scored. Each has a relevance score, hype score, and justifications.
 3. Write a flash-news bulletin that:
    - Starts with `# Inference Ecosystem — Flash News` followed by today's date
-   - For new papers: highlight only the top 3–5 most relevant (score 70+) and/or hyped (hype 60+) papers. One sentence per paper on why it matters, plus scores, e.g. "Score: 95 | Hype: 65". When a paper has a `description` field (from full-text analysis), prefer it over the abstract for your summary.
-   - For hype surges: one sentence per paper on what's spiking and why
+   - Highlight only the top 3–5 most relevant (score 70+) papers. One sentence per paper on why it matters, plus score, e.g. "Score: 95". When a paper has a `description` field (from full-text analysis), prefer it over the abstract for your summary.
    - If full paper texts are provided, use them to write more insightful and concrete summaries — mention specific methods, key numbers, and benchmark results rather than just paraphrasing the abstract
    - Skip everything else — this is a flash bulletin, not a catalogue
    - If there's nothing flash-worthy, say so in one line

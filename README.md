@@ -6,17 +6,18 @@ Automated agent that discovers new arXiv papers about LLM inference systems. [Cl
 
 ```
 fetch_papers.py → Claude scores → merge_papers.py → fetch_hype_signals.py →
-  rescore_hype.py → render.py → build_news_prompt.py → Claude news → Discord
+  rescore_hype.py → generate_news.py + build_hype_prompt.py → Discord
 ```
 
 1. `src/fetch_papers.py` queries arXiv for recent papers, skipping papers already scored. Lookback window adapts to time since last run (minimum 3 days).
 2. Claude Code scores each paper 0–100 for relevance and 0–100 for predicted hype.
 3. `src/merge_papers.py` merges scores into `data/papers.json`.
 4. `src/fetch_hype_signals.py` queries Semantic Scholar + HuggingFace for citations, upvotes, and GitHub stars.
-5. `src/rescore_hype.py` updates hype scores from real signals (never downgrades).
-6. `src/render.py` regenerates `papers.md` — a living list sorted by score.
-7. Claude Code generates `news.md` — a short flash-news bulletin covering new papers and hype surges.
-8. Results are committed, pushed, and posted to Discord via [OpenClaw](https://openclaw.ai/).
+5. `src/rescore_hype.py` updates signal snapshots and detects notable activity (new traction or signal surges).
+6. If notable hype activity: Claude generates a "Hype Watch" blurb from raw signal deltas.
+7. If new papers: `src/generate_news.py` downloads PDFs, rescores relevance via Claude, and generates flash news.
+8. `src/render.py` regenerates `papers.md` — a living list sorted by score.
+9. Results are committed, pushed, and posted to Discord via [OpenClaw](https://openclaw.ai/).
 
 ## Topics covered
 
@@ -64,17 +65,21 @@ Edit `config.json` to change the topic, arXiv categories, keywords, or relevance
 │   ├── fetch_papers.py        # Fetch from arXiv, adaptive lookback, dedup
 │   ├── merge_papers.py        # Merge Claude's scores into data/papers.json
 │   ├── fetch_hype_signals.py  # Query Semantic Scholar + HuggingFace
-│   ├── rescore_hype.py        # Update hype from real signals
+│   ├── rescore_hype.py        # Update signals, detect notable activity
+│   ├── build_hype_prompt.py   # Build prompt for Hype Watch blurb
+│   ├── generate_news.py       # PDF rescore + flash news in one Claude call
+│   ├── build_news_prompt.py   # Build news prompt from new papers
 │   ├── render.py              # Generate papers.md from data/papers.json
-│   ├── build_news_prompt.py   # Combine new papers + surges for news prompt
 │   └── parse_scores.py        # Shared JSON parsing with error handling
 ├── data/
 │   └── papers.json            # Source of truth: all scored papers
 ├── papers.md                  # Generated: the living paper list
-├── news.md                    # Generated: flash-news bulletin
+├── news.md                    # Generated: flash-news bulletin (+ Hype Watch)
 ├── scan.sh                    # Orchestrates the full pipeline
 ├── prompt.md                  # Claude prompt for scoring (JSON output)
+├── news-rescore-prompt.md     # Claude prompt for PDF rescore + news
 ├── news-prompt.md             # Claude prompt for news generation
+├── hype-prompt.md             # Claude prompt for Hype Watch blurb
 ├── config.json                # Topic, categories, keywords, threshold
 └── requirements.txt           # Python dependencies
 ```

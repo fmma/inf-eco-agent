@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-"""Build the news prompt by combining news-prompt.md with available data sections.
+"""Build the news prompt by combining news-prompt.md with new paper data.
 
-Outputs the complete prompt to stdout. Includes:
-- New Papers section if /tmp/inf-eco-scores.json exists
-- Hype Surges section if /tmp/inf-eco-hype-surges.json exists
-
-At least one section must be available.
+Outputs the complete prompt to stdout. Requires /tmp/inf-eco-scores.json
+with new paper scores.
 """
 
 import json
@@ -17,7 +14,6 @@ from parse_scores import parse_scores
 
 ROOT = Path(__file__).resolve().parent.parent
 SCORES_PATH = Path("/tmp/inf-eco-scores.json")
-SURGES_PATH = Path("/tmp/inf-eco-hype-surges.json")
 FULLTEXT_PATH = Path("/tmp/inf-eco-fulltexts.json")
 
 MAX_NEWS_TEXT_CHARS = 15_000
@@ -34,10 +30,16 @@ def build_new_papers_section() -> str | None:
     # Use papers.json as source of truth (has full-text rescored scores + descriptions)
     merged = [papers[sid] for sid in new_ids if sid in papers]
 
+    # Only pass top papers to avoid blowing up the context window.
+    # News only highlights top 3-5 anyway.
+    merged.sort(key=lambda p: (p.get("score", 0), p.get("hype", 0)), reverse=True)
+    top = merged[:20]
+
     return (
         "## New Papers\n"
+        f"{len(merged)} papers scanned, top {len(top)} shown below.\n"
         "```json\n"
-        f"{json.dumps(merged, indent=2)}\n"
+        f"{json.dumps(top, indent=2)}\n"
         "```"
     )
 
@@ -69,49 +71,24 @@ def build_fulltexts_section() -> str | None:
     return "\n".join(parts)
 
 
-def build_surges_section() -> str | None:
-    """Build the Hype Surges section from the surges temp file."""
-    if not SURGES_PATH.exists() or SURGES_PATH.stat().st_size == 0:
-        return None
-
-    surges = json.load(open(SURGES_PATH))
-    if not surges:
-        return None
-
-    return (
-        "## Hype Surges\n"
-        "These previously known papers have seen significant jumps in external signals since last check.\n"
-        "```json\n"
-        f"{json.dumps(surges, indent=2)}\n"
-        "```"
-    )
-
-
 def main():
     prompt = (ROOT / "news-prompt.md").read_text()
 
-    sections = []
     new_papers = build_new_papers_section()
-    if new_papers:
-        sections.append(new_papers)
-    surges = build_surges_section()
-    if surges:
-        sections.append(surges)
-
-    if not sections:
-        print("Error: no new papers or hype surges to report on.", file=sys.stderr)
+    if not new_papers:
+        print("Error: no new papers to report on.", file=sys.stderr)
         sys.exit(1)
+
+    # Provide exact count so Claude doesn't hallucinate it
+    new_count = len(parse_scores(str(SCORES_PATH))) if SCORES_PATH.exists() and SCORES_PATH.stat().st_size > 0 else 0
 
     print(prompt)
     print()
-    for section in sections:
-        print(section)
-        print()
-
-    if not surges:
-        print("## Hype Surges")
-        print("No hype surges detected this cycle — no previously known papers saw significant signal jumps.")
-        print()
+    print(f"## Stats")
+    print(f"- New papers scanned: {new_count}")
+    print()
+    print(new_papers)
+    print()
 
     fulltexts = build_fulltexts_section()
     if fulltexts:
