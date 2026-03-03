@@ -1,25 +1,17 @@
 # Inference Ecosystem — Flash News
+**2026-03-03** | 247 new papers scanned
 
-**2026-03-03** — 100 new papers scanned · 0 hype surges
+**RL-optimized speculative decoding beats Eagle3 by 36%.** Microsoft's [Learning to Draft](https://arxiv.org/abs/2603.01639v1) trains co-adaptive draft+verify policies via RL to directly maximize wall-clock throughput—not proxy metrics. Result: 2.24–4.32x speedup across 5 LLMs, establishing a new SOTA for adaptive speculative decoding. Score: 95
 
-## Top Papers
+**MLRA fixes MLA's tensor parallelism blind spot.** DeepSeek's MLA can't shard its single latent head across TP ranks, forcing redundant KV cache loads. [MLRA](https://arxiv.org/abs/2603.02188v1) makes latent states partitionable, delivering 2.8x decoding speedup over MLA with matching perplexity. Pretrained weights on HuggingFace. Score: 94
 
-**Multi-Head Low-Rank Attention (MLRA)** — score 95 · hype 82
-ICLR 2026 work that cracks open DeepSeek's single-latent MLA head into multiple partitionable KV heads, making tensor-parallel decoding actually efficient: 2.8x faster than FlashMLA with no quality loss on Llama-3.1-8B.
-[arXiv:2504.02835](https://arxiv.org/abs/2504.02835)
+**Quasar quantizes the verification bottleneck.** [Quasar](https://arxiv.org/abs/2603.01399v1) applies low-bit quantization to the verification phase of speculative decoding—the part everyone ignored. Halves memory traffic, 1.28x throughput on Qwen3, training-free, orthogonal to any draft strategy. Score: 90
 
-**Learning to Draft (LTD)** — score 95 · hype 82
-Applies RL to jointly learn *which layers to skip* and *which smaller draft model to call* during speculative decoding — the draft policy co-adapts with the target model instead of being frozen. Up to 36.4% speedup over Eagle3 on Qwen3-32B.
-[arXiv:2504.01838](https://arxiv.org/abs/2504.01838)
+**KVSlimmer derives closed-form KV cache compression.** [KVSlimmer](https://arxiv.org/abs/2603.00907v1) grounds asymmetric KV merging in spectral theory and produces a gradient-free, forward-pass-only compression algorithm. On Llama3.1-8B: 29% memory reduction, 28% latency reduction, better LongBench scores than prior methods. Score: 90
 
-**TriMoE** — score 92 · hype 62
-Treats MoE expert placement as a hot/warm/cold tiering problem across GPU, AMX-enabled CPU, and near-DIMM NDP accelerators. A lightweight scheduler routes experts to the right tier each step, yielding 2.1–2.8x decode speedup on DeepSeek-V2/Mixtral without extra GPUs.
-[arXiv:2504.02490](https://arxiv.org/abs/2504.02490)
+**TriMoE adds a third compute tier for MoE offloading.** [TriMoE](https://arxiv.org/abs/2603.01058v1) maps MoE experts to GPU/CPU/NDP by temperature (hot/warm/cold), using AMX-enabled CPUs for the warm experts that fall through the cracks. 2.83x over SOTA. Requires DIMM-NDP hardware, but the scheduling ideas are broadly applicable. Score: 88
 
-**KVSlimmer** — score 92 · hype 62
-Uses exact Hessian-based importance scores to merge KV cache entries *asymmetrically* — keys and values get different budgets per layer. Cuts KV memory 29% and decode latency 28% on LLaMA-3-8B with negligible accuracy loss.
-[arXiv:2504.02840](https://arxiv.org/abs/2504.02840)
+---
 
-**Quasar** — score 92 · hype 62
-Quantizes the *verification* phase of speculative decoding to W8A8, not just the draft model. Custom CUDA kernels for quantized tree attention push throughput 1.28x higher while preserving lossless output quality.
-[arXiv:2504.02300](https://arxiv.org/abs/2504.02300)
+## Hype Watch
+[DynaMoE](http://arxiv.org/abs/2603.01697v1) just picked up its first HuggingFace upvote — early days, but worth flagging. The paper proposes dynamic token-level expert activation with layer-wise adaptive capacity for MoE models, tackling the perennial problem of compute waste in sparse architectures. With MoE deployments scaling up across the industry, anything that promises smarter routing at the token level has a natural audience. One upvote doesn't make a trend, but first traction on a 72-relevance paper about MoE efficiency is the kind of signal that sometimes precedes a wave of interest. Keep an eye on this one.
