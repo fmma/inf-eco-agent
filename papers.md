@@ -2,29 +2,15 @@
 
 Automatically discovered papers scored for relevance to: Serving, optimizing, and scaling large language model inference. Includes KV cache management, speculative decoding, continuous batching, PagedAttention, model quantization for inference, inference frameworks (vLLM, TensorRT-LLM, SGLang, TGI, llama.cpp), inference throughput/latency optimization, distributed inference, inference hardware, and I/O optimization (disk I/O, network I/O, memory bandwidth, data loading, storage systems, NVMe, RDMA, interconnects) as it relates to LLM inference and serving.
 
-**56** papers above threshold (70/100) out of **908** total scanned.
-
----
-
-### Multi-Head Low-Rank Attention
-**Relevance: 95/100 | Hype: 82/100** — Directly addresses KV cache memory bandwidth bottleneck in LLM decoding; proposes a new attention mechanism (MLRA) enabling efficient tensor-parallel inference with 2.8x speedup over MLA.
-*Authors: Songtao Liu, Hongwu Peng, Zhiwei Zhang et al.*
-*Published: 2026-03-02*
-[arXiv](https://arxiv.org/abs/2603.02188v1) | [PDF](https://arxiv.org/pdf/2603.02188v1)
-
-Multi-Head Low-Rank Attention (MLRA) decomposes MLA's single latent KV head into four independently partitionable latent heads, enabling native 4-way tensor parallelism during LLM decoding. This reduces per-device KV cache loading from 4.5dh (MLA) to 1.5dh and shifts decoding from memory-bound to compute-bound. At 2.9B scale, MLRA-4 achieves state-of-the-art perplexity (13.672 vs MLA 13.727) and 58.84% zero-shot accuracy, with 2.8x decoding speedup over FlashMLA and 1.05-1.26x over GQA on sequences up to 2M tokens.
-
-> Long-context inference in large language models is bottlenecked by Key--Value (KV) cache loading during the decoding stage, where the sequential nature of generation requires repeatedly transferring t...
+**56** papers above threshold (70/100) out of **901** total scanned.
 
 ---
 
 ### Learning to Draft: Adaptive Speculative Decoding with Reinforcement Learning
-**Relevance: 95/100 | Hype: 82/100** — Directly about speculative decoding optimization for LLM inference — proposes RL-trained co-adaptive policies (depth + size) to maximize draft-and-verify throughput, a core inference acceleration technique.
+**Relevance: 95/100 | Hype: 75/100** — Directly optimizes speculative decoding throughput via RL, co-adapts draft and verification policies to maximize decoding efficiency, achieving 2.24-4.32x speedup outperforming Eagle3.
 *Authors: Jiebin Zhang, Zhenghan Yu, Liang Wang et al.*
 *Published: 2026-03-02*
 [arXiv](https://arxiv.org/abs/2603.01639v1) | [PDF](https://arxiv.org/pdf/2603.01639v1)
-
-LTD (Learning to Draft) formulates speculative decoding's draft-and-verify cycle as an RL environment, training two co-adaptive MLP policies via PPO: a depth policy (continue/stop drafting) and a size policy (how many candidate tokens to verify). Unlike prior methods that optimize proxy metrics like acceptance length, LTD directly maximizes per-cycle throughput as the reward signal. Built on Eagle3, it achieves 2.24x–4.32x speedups across five LLMs (Llama-3.1-8B, Vicuna-13B, DeepSeek-R1-Distill-8B, Qwen3-14B/32B), outperforming Eagle3 by up to 36.4% on Qwen3-32B, with robust gains even at high temperature sampling.
 
 > Speculative decoding accelerates large language model (LLM) inference by using a small draft model to generate candidate tokens for a larger target model to verify. The efficacy of this technique hing...
 
@@ -122,6 +108,16 @@ Proposes LK losses — a likelihood-based loss and a hybrid KL+TV loss with adap
 
 ---
 
+### Multi-Head Low-Rank Attention
+**Relevance: 92/100 | Hype: 78/100** — Directly addresses KV cache bottleneck in LLM decoding: proposes partitionable latent states for efficient tensor parallel decoding, achieving 2.8x speedup over MLA.
+*Authors: Songtao Liu, Hongwu Peng, Zhiwei Zhang et al.*
+*Published: 2026-03-02*
+[arXiv](https://arxiv.org/abs/2603.02188v1) | [PDF](https://arxiv.org/pdf/2603.02188v1)
+
+> Long-context inference in large language models is bottlenecked by Key--Value (KV) cache loading during the decoding stage, where the sequential nature of generation requires repeatedly transferring t...
+
+---
+
 ### ISO-Bench: Can Coding Agents Optimize Real-World Inference Workloads?
 **Relevance: 92/100 | Hype: 70/100** — Benchmark for coding agents optimizing real-world LLM inference workloads from vLLM and SGLang; directly about LLM inference optimization with 54 tasks from actual serving framework PRs.
 *Authors: Ayush Nangia, Shikhar Mishra, Aman Gokrani et al.*
@@ -133,38 +129,12 @@ Proposes LK losses — a likelihood-based loss and a hybrid KL+TV loss with adap
 ---
 
 ### Quasar: Quantized Self-Speculative Acceleration for Rapid Inference via Memory-Efficient Verification
-**Relevance: 92/100 | Hype: 62/100** — Directly targets LLM inference acceleration by applying W8A8 quantization to the verification phase of speculative decoding, reducing memory bandwidth by ~50%.
+**Relevance: 92/100 | Hype: 65/100** — Directly about accelerating LLM inference via quantized self-speculative decoding, addressing the memory bandwidth bottleneck in verification with 1.28x throughput improvement on OpenPangu and Qwen3.
 *Authors: Guang Huang, Zeyi Wen*
 *Published: 2026-03-02*
 [arXiv](https://arxiv.org/abs/2603.01399v1) | [PDF](https://arxiv.org/pdf/2603.01399v1)
 
-Quasar applies W8A8 quantization specifically to the verification stage of self-speculative decoding, using an enhanced SmoothQuant approach to suppress activation outliers. Tested on Qwen3-8B and OpenPangu-7B with vLLM-Ascend on Ascend 910B2, it achieves up to 1.64x speedup on GSM8K and 1.28x overall end-to-end throughput improvement while maintaining acceptance lengths comparable to full-precision verification. The method is training-free, orthogonal to drafting strategies, and shows that quantization preserves logit fidelity far better than structural pruning for verification.
-
 > Speculative Decoding (SD) has emerged as a premier technique for accelerating Large Language Model (LLM) inference by decoupling token generation into rapid drafting and parallel verification. While r...
-
----
-
-### TriMoE: Augmenting GPU with AMX-Enabled CPU and DIMM-NDP for High-Throughput MoE Inference via Offloading
-**Relevance: 92/100 | Hype: 62/100** — Directly addresses MoE inference offloading with a novel GPU-CPU-NDP heterogeneous architecture, expert scheduling, and memory bandwidth optimization — core LLM inference systems work.
-*Authors: Yudong Pan, Yintao He, Tianhua Han et al.*
-*Published: 2026-03-01*
-[arXiv](https://arxiv.org/abs/2603.01058v1) | [PDF](https://arxiv.org/pdf/2603.01058v1)
-
-TriMoE proposes a three-way heterogeneous architecture (GPU + AMX-CPU + DIMM-NDP) for single-GPU MoE inference that classifies experts into hot/warm/cold tiers and maps each to its optimal compute domain. It introduces a bottleneck-aware greedy makespan scheduler and a prediction-driven dynamic expert relayout/rebalancing scheme using DIMM-Link. Evaluated on DeepSeek-V2, Qwen3-235B, and GLM-4.5-Air, TriMoE achieves 2.12–2.83x decode speedup and 2.09–2.78x end-to-end throughput improvement over state-of-the-art offloading baselines (Klotski, KTransformers, MoNDE).
-
-> To deploy large Mixture-of-Experts (MoE) models cost-effectively, offloading-based single-GPU heterogeneous inference is crucial. While GPU-CPU architectures that offload cold experts are constrained ...
-
----
-
-### KVSlimmer: Theoretical Insights and Practical Optimizations for Asymmetric KV Merging
-**Relevance: 92/100 | Hype: 62/100** — Directly addresses KV cache compression for LLM inference via a novel asymmetric merging algorithm with exact Hessian derivation and gradient-free closed-form solution, yielding 29% memory and 28% latency reductions.
-*Authors: Lianjun Liu, Hongli An, Weiqi Yan et al.*
-*Published: 2026-03-01*
-[arXiv](https://arxiv.org/abs/2603.00907v1) | [PDF](https://arxiv.org/pdf/2603.00907v1)
-
-KVSlimmer introduces a theoretically grounded framework for asymmetric KV cache merging during LLM inference. It explains Key-Value asymmetry through spectral energy analysis of projection weights and derives an exact Hessian formulation that captures off-diagonal Key-Key coupling, yielding a gradient-free closed-form merging solution using only forward-pass variables. On Llama3.1-8B-Instruct with LongBench, it improves the average score by 0.92 over AsymKV while reducing memory by 29% and latency by 28%.
-
-> The growing computational and memory demands of the Key-Value (KV) cache significantly limit the ability of Large Language Models (LLMs). While KV merging has emerged as a promising solution, existing...
 
 ---
 
@@ -198,6 +168,16 @@ KVSlimmer introduces a theoretically grounded framework for asymmetric KV cache 
 
 ---
 
+### KVSlimmer: Theoretical Insights and Practical Optimizations for Asymmetric KV Merging
+**Relevance: 92/100 | Hype: 55/100** — Directly addresses KV cache compression via asymmetric KV merging with theoretical framework and gradient-free approach; reduces memory and latency on Llama3.1-8B.
+*Authors: Lianjun Liu, Hongli An, Weiqi Yan et al.*
+*Published: 2026-03-01*
+[arXiv](https://arxiv.org/abs/2603.00907v1) | [PDF](https://arxiv.org/pdf/2603.00907v1)
+
+> The growing computational and memory demands of the Key-Value (KV) cache significantly limit the ability of Large Language Models (LLMs). While KV merging has emerged as a promising solution, existing...
+
+---
+
 ### Data Driven Optimization of GPU efficiency for Distributed LLM Adapter Serving
 **Relevance: 92/100 | Hype: 55/100** — Directly addresses GPU efficiency optimization for distributed LLM adapter serving, with detailed analysis of KV cache, continuous batching, vLLM internals, and throughput/latency tradeoffs.
 *Authors: Ferran Agullo, Joan Oliveras, Chen Wang et al.*
@@ -217,6 +197,16 @@ Proposes a data-driven pipeline for optimizing GPU utilization in distributed LL
 [arXiv](https://arxiv.org/abs/2602.21144v1) | [PDF](https://arxiv.org/pdf/2602.21144v1)
 
 > Selective state space models (SSMs) have rapidly become a compelling backbone for large language models, especially for long-context workloads. Yet in deployment, their inference performance is often ...
+
+---
+
+### TriMoE: Augmenting GPU with AMX-Enabled CPU and DIMM-NDP for High-Throughput MoE Inference via Offloading
+**Relevance: 90/100 | Hype: 60/100** — GPU-CPU-NDP architecture for MoE inference offloading with expert scheduling across hot/warm/cold tiers, achieving 2.83x speedup over SOTA; directly about MoE model inference serving efficiency.
+*Authors: Yudong Pan, Yintao He, Tianhua Han et al.*
+*Published: 2026-03-01*
+[arXiv](https://arxiv.org/abs/2603.01058v1) | [PDF](https://arxiv.org/pdf/2603.01058v1)
+
+> To deploy large Mixture-of-Experts (MoE) models cost-effectively, offloading-based single-GPU heterogeneous inference is crucial. While GPU-CPU architectures that offload cold experts are constrained ...
 
 ---
 
@@ -250,6 +240,16 @@ Proposes a data-driven pipeline for optimizing GPU utilization in distributed LL
 
 ---
 
+### Understanding the Physics of Key-Value Cache Compression for LLMs through Attention Dynamics
+**Relevance: 88/100 | Hype: 55/100** — Directly studies KV cache compression physics, analyzing attention dynamics, semantic accessibility, and identifying compression tolerance thresholds across LLaMA and Qwen architectures.
+*Authors: Samhruth Ananthanarayanan, Ayan Sengupta, Tanmoy Chakraborty*
+*Published: 2026-03-02*
+[arXiv](https://arxiv.org/abs/2603.01426v1) | [PDF](https://arxiv.org/pdf/2603.01426v1)
+
+> As context windows in LLMs scale to 100K+ tokens, the key-value (KV) cache becomes the dominant memory bottleneck, with recent methods claiming 80-90% savings and minimal benchmark degradation. We arg...
+
+---
+
 ### KEEP: A KV-Cache-Centric Memory Management System for Efficient Embodied Planning
 **Relevance: 88/100 | Hype: 52/100** — Directly addresses KV cache management and inference latency optimization (TTFT reduction) for LLM serving, with a novel static-dynamic memory construction, multi-hop KV recomputation, and layer-balanced loading pipeline — all core inference systems concerns. Built on vLLM. Docked slightly because the application domain is embodied planning rather than general LLM serving.
 *Authors: Zebin Yang, Tong Xie, Baotong Lu et al.*
@@ -272,16 +272,6 @@ KEEP is a KV-cache-centric memory management system that accelerates LLM inferen
 
 ---
 
-### Understanding the Physics of Key-Value Cache Compression for LLMs through Attention Dynamics
-**Relevance: 85/100 | Hype: 55/100** — Directly studies KV cache compression for LLMs through attention dynamics lens; identifies hallucination cliffs and phase transitions at high compression ratios with practical implications for long-context inference.
-*Authors: Samhruth Ananthanarayanan, Ayan Sengupta, Tanmoy Chakraborty*
-*Published: 2026-03-02*
-[arXiv](https://arxiv.org/abs/2603.01426v1) | [PDF](https://arxiv.org/pdf/2603.01426v1)
-
-> As context windows in LLMs scale to 100K+ tokens, the key-value (KV) cache becomes the dominant memory bottleneck, with recent methods claiming 80-90% savings and minimal benchmark degradation. We arg...
-
----
-
 ### Rejection Mixing: Fast Semantic Propagation of Mask Tokens for Efficient DLLM Inference
 **Relevance: 85/100 | Hype: 55/100** — ReMix introduces continuous mixing state for efficient diffusion LLM inference, achieving 2-8x speedup without quality loss; training-free method directly targeting DLLM inference efficiency.
 *Authors: Yushi Ye, Feng Hong, Huangjie Zheng et al.*
@@ -292,8 +282,28 @@ KEEP is a KV-cache-centric memory management system that accelerates LLM inferen
 
 ---
 
+### HAVEN: High-Bandwidth Flash Augmented Vector Engine for Large-Scale Approximate Nearest-Neighbor Search Acceleration
+**Relevance: 85/100 | Hype: 50/100** — GPU architecture augmented with High-Bandwidth Flash for large-scale ANN search acceleration in RAG pipelines, achieving 20x reranking throughput and 40x latency improvement for billion-scale vector databases.
+*Authors: Po-Kai Hsu, Weihong Xu, Qunyou Liu et al.*
+*Published: 2026-03-01*
+[arXiv](https://arxiv.org/abs/2603.01175v1) | [PDF](https://arxiv.org/pdf/2603.01175v1)
+
+> Retrieval-Augmented Generation (RAG) relies on large-scale Approximate Nearest Neighbor Search (ANNS) to retrieve semantically relevant context for large language models. Among ANNS methods, IVF-PQ of...
+
+---
+
+### SageBwd: A Trainable Low-bit Attention
+**Relevance: 82/100 | Hype: 72/100** — INT8 quantized attention (SageBwd) for both training and inference, directly accelerates attention computation in LLMs with low-bit quantization.
+*Authors: Jintao Zhang, Marco Chen, Haoxu Wang et al.*
+*Published: 2026-03-02*
+[arXiv](https://arxiv.org/abs/2603.02170v1) | [PDF](https://arxiv.org/pdf/2603.02170v1)
+
+> Low-bit attention, such as SageAttention, has emerged as an effective approach for accelerating model inference, but its applicability to training remains poorly understood. In prior work, we introduc...
+
+---
+
 ### Towards Privacy-Preserving LLM Inference via Collaborative Obfuscation (Technical Report)
-**Relevance: 82/100 | Hype: 65/100** — Directly about privacy-preserving LLM inference via obfuscation of data and model parameters; evaluated on DeepSeek-V3.1 (671B) with near-zero accuracy loss and plaintext-equivalent efficiency.
+**Relevance: 82/100 | Hype: 65/100** — Directly about privacy-preserving LLM inference via obfuscation of data and model parameters, evaluated on DeepSeek-V3 (671B), with near-zero accuracy loss and plaintext-equivalent efficiency.
 *Authors: Yu Lin, Qizhi Zhang, Wenqiang Ruan et al.*
 *Published: 2026-03-02*
 [arXiv](https://arxiv.org/abs/2603.01499v1) | [PDF](https://arxiv.org/pdf/2603.01499v1)
@@ -314,16 +324,6 @@ Proposes DiCo, a training-free adaptive parallel decoding approach for diffusion
 
 ---
 
-### Boosting Entropy with Bell Box Quantization
-**Relevance: 82/100 | Hype: 55/100** — Quantization-aware pre-training method that is both information-theoretically optimal and compute-efficient, significant perplexity improvements for 1-4 bit models.
-*Authors: Ningfeng Yang, Tor M. Aamodt*
-*Published: 2026-03-02*
-[arXiv](https://arxiv.org/abs/2603.01599v1) | [PDF](https://arxiv.org/pdf/2603.01599v1)
-
-> Quantization-Aware Pre-Training (QAPT) is an effective technique to reduce the compute and memory overhead of Deep Neural Networks while improving their energy efficiency on edge devices. Existing QAP...
-
----
-
 ### SLA-Aware Distributed LLM Inference Across Device-RAN-Cloud
 **Relevance: 82/100 | Hype: 55/100** — Empirical study of distributed LLM/VLM inference across device-edge-cloud tiers using vLLM on a 5G AI-RAN testbed, with detailed latency/SLA measurements for quantized model variants and MIG GPU isolation.
 *Authors: Hariz Yet, Nguyen Thanh Tam, Mao V. Ngo et al.*
@@ -336,13 +336,13 @@ Presents end-to-end measurements of SLA-aware VLM inference (Qwen2.5-VL 3B/7B) a
 
 ---
 
-### PonderLM-3: Adaptive Token-Wise Pondering with Differentiable Masking
-**Relevance: 80/100 | Hype: 55/100** — Adaptive token-wise pondering for inference compute allocation with differentiable masking, directly optimizes inference FLOPs per-token with train-inference consistency.
-*Authors: He Li, Feichen Song, Boyi Zeng et al.*
+### 3BASiL: An Algorithmic Framework for Sparse plus Low-Rank Compression of LLMs
+**Relevance: 80/100 | Hype: 55/100** — Sparse plus low-rank compression of LLMs (2:4 sparsity + low-rank) with 2.5x faster compression on A100 GPU; directly relevant to model compression for inference.
+*Authors: Mehdi Makni, Xiang Meng, Rahul Mazumder*
 *Published: 2026-03-02*
-[arXiv](https://arxiv.org/abs/2603.02023v1) | [PDF](https://arxiv.org/pdf/2603.02023v1)
+[arXiv](https://arxiv.org/abs/2603.01376v1) | [PDF](https://arxiv.org/pdf/2603.01376v1)
 
-> Test-time scaling has shown that allocating more additional computation at inference can improve generation quality, motivating a natural follow-up question: where should this computation be spent? Bu...
+> Sparse plus Low-Rank $(\mathbf{S} + \mathbf{LR})$ decomposition of Large Language Models (LLMs) has emerged as a promising direction in model compression, aiming to decompose pre-trained model weights...
 
 ---
 
@@ -368,13 +368,13 @@ Proposes TASC, a two-pronged framework for accelerating small language model inf
 
 ---
 
-### SageBwd: A Trainable Low-bit Attention
-**Relevance: 78/100 | Hype: 72/100** — Low-bit INT8 attention for training and inference acceleration, extends SageAttention. Directly relevant to quantized inference though focus includes training.
-*Authors: Jintao Zhang, Marco Chen, Haoxu Wang et al.*
+### KERV: Kinematic-Rectified Speculative Decoding for Embodied VLA Models
+**Relevance: 80/100 | Hype: 50/100** — Speculative decoding for VLA models with kinematic-based error correction and adaptive acceptance thresholds, directly optimizes inference speed achieving 27-37% acceleration.
+*Authors: Zihao Zheng, Zhihao Mao, Maoliang Li et al.*
 *Published: 2026-03-02*
-[arXiv](https://arxiv.org/abs/2603.02170v1) | [PDF](https://arxiv.org/pdf/2603.02170v1)
+[arXiv](https://arxiv.org/abs/2603.01581v1) | [PDF](https://arxiv.org/pdf/2603.01581v1)
 
-> Low-bit attention, such as SageAttention, has emerged as an effective approach for accelerating model inference, but its applicability to training remains poorly understood. In prior work, we introduc...
+> Vision-Language-Action (VLA) models build a token-domain robot control paradigm, yet suffer from low speed. Speculative Decoding (SD) is an optimization strategy that can boost inference speed. Two ke...
 
 ---
 
@@ -399,41 +399,17 @@ Proposes TASC, a two-pronged framework for accelerating small language model inf
 ---
 
 ### FreeAct: Freeing Activations for LLM Quantization
-**Relevance: 78/100 | Hype: 55/100** — Quantization framework for W4A4 inference of LLMs — directly reduces memory and compute at inference time, though focused on the quantization method itself rather than serving systems.
+**Relevance: 78/100 | Hype: 55/100** — LLM quantization framework handling dynamic activation patterns in diffusion LLMs and multimodal LLMs, directly improves inference efficiency through better quantization.
 *Authors: Xiaohao Liu, Xiaobo Xia, Manyi Zhang et al.*
 *Published: 2026-03-02*
 [arXiv](https://arxiv.org/abs/2603.01776v1) | [PDF](https://arxiv.org/pdf/2603.01776v1)
-
-FreeAct proposes a post-training quantization framework that breaks the one-to-one transformation constraint in W4A4 quantization by exploiting rank-deficient activations. It assigns distinct transformation matrices to different token types (vision vs. text in MLLMs, masked vs. unmasked in diffusion LLMs) while keeping a unified static transformation for weights. Experiments on LLaDA, Dream, Qwen2.5-VL, and InternVL2.5 show up to 5.3% improvement over FlatQuant, recovering near-BF16 accuracy at W4A4.
 
 > Quantization is pivotal for mitigating the significant memory and computational overhead of Large Language Models (LLMs). While emerging transformation-based methods have successfully enhanced quantiz...
 
 ---
 
-### 3BASiL: An Algorithmic Framework for Sparse plus Low-Rank Compression of LLMs
-**Relevance: 78/100 | Hype: 55/100** — Sparse plus low-rank compression of LLMs (2:4 sparsity + low-rank) reducing perplexity gap by 30% with 2.5x faster compression; directly relevant to model compression for efficient inference.
-*Authors: Mehdi Makni, Xiang Meng, Rahul Mazumder*
-*Published: 2026-03-02*
-[arXiv](https://arxiv.org/abs/2603.01376v1) | [PDF](https://arxiv.org/pdf/2603.01376v1)
-
-> Sparse plus Low-Rank $(\mathbf{S} + \mathbf{LR})$ decomposition of Large Language Models (LLMs) has emerged as a promising direction in model compression, aiming to decompose pre-trained model weights...
-
----
-
-### HeRo: Adaptive Orchestration of Agentic RAG on Heterogeneous Mobile SoC
-**Relevance: 78/100 | Hype: 52/100** — Directly addresses LLM inference orchestration on mobile SoCs with heterogeneous accelerator scheduling, bandwidth-aware concurrency control, and latency optimization for multi-model inference pipelines.
-*Authors: Maoliang Li, Jiayu Chen, Zihao Zheng et al.*
-*Published: 2026-03-02*
-[arXiv](https://arxiv.org/abs/2603.01661v1) | [PDF](https://arxiv.org/pdf/2603.01661v1)
-
-HeRo is a heterogeneous-aware scheduling framework for agentic RAG workflows on mobile SoCs (Snapdragon 8 Gen 3/4). It builds profiling-based performance models capturing accelerator affinity, workload shape sensitivity, and DRAM bandwidth contention, then uses an online scheduler combining shape-aware sub-stage partitioning, criticality-based accelerator mapping, and bandwidth-aware concurrency control. Evaluated on Qwen3 and LLaMA3 model families across three RAG workflows, HeRo achieves up to 10.94x latency reduction over GPU-only baselines and 1.5x over static multi-accelerator mapping.
-
-> With the increasing computational capability of mobile devices, deploying agentic retrieval-augmented generation (RAG) locally on heterogeneous System-on-Chips (SoCs) has become a promising way to enh...
-
----
-
 ### AdaPonderLM: Gated Pondering Language Models with Token-Wise Adaptive Depth
-**Relevance: 78/100 | Hype: 50/100** — Adaptive token-wise early exiting for recurrent LLMs during inference, reduces inference compute by ~10% while maintaining performance, directly about inference efficiency.
+**Relevance: 78/100 | Hype: 50/100** — Adaptive early exiting for recurrent LLM inference with KV cache reuse, directly reduces inference compute by ~10% while maintaining quality — token-wise adaptive computation.
 *Authors: Shixiang Song, He Li, Zitong Wang et al.*
 *Published: 2026-03-02*
 [arXiv](https://arxiv.org/abs/2603.01914v1) | [PDF](https://arxiv.org/pdf/2603.01914v1)
@@ -452,13 +428,13 @@ HeRo is a heterogeneous-aware scheduling framework for agentic RAG workflows on 
 
 ---
 
-### KERV: Kinematic-Rectified Speculative Decoding for Embodied VLA Models
-**Relevance: 75/100 | Hype: 50/100** — Speculative decoding optimization for Vision-Language-Action models using kinematic rectification, directly about accelerating VLA model inference with 27-37% speedup.
-*Authors: Zihao Zheng, Zhihao Mao, Maoliang Li et al.*
+### HeRo: Adaptive Orchestration of Agentic RAG on Heterogeneous Mobile SoC
+**Relevance: 75/100 | Hype: 50/100** — On-device LLM inference scheduling on heterogeneous mobile SoCs for agentic RAG, directly optimizes inference latency with up to 10.94x speedup.
+*Authors: Maoliang Li, Jiayu Chen, Zihao Zheng et al.*
 *Published: 2026-03-02*
-[arXiv](https://arxiv.org/abs/2603.01581v1) | [PDF](https://arxiv.org/pdf/2603.01581v1)
+[arXiv](https://arxiv.org/abs/2603.01661v1) | [PDF](https://arxiv.org/pdf/2603.01661v1)
 
-> Vision-Language-Action (VLA) models build a token-domain robot control paradigm, yet suffer from low speed. Speculative Decoding (SD) is an optimization strategy that can boost inference speed. Two ke...
+> With the increasing computational capability of mobile devices, deploying agentic retrieval-augmented generation (RAG) locally on heterogeneous System-on-Chips (SoCs) has become a promising way to enh...
 
 ---
 
@@ -492,6 +468,16 @@ HeRo is a heterogeneous-aware scheduling framework for agentic RAG workflows on 
 
 ---
 
+### PonderLM-3: Adaptive Token-Wise Pondering with Differentiable Masking
+**Relevance: 72/100 | Hype: 55/100** — Adaptive token-wise computation allocation at inference time via differentiable masking, reduces inference FLOPs while maintaining quality — directly optimizes inference efficiency.
+*Authors: He Li, Feichen Song, Boyi Zeng et al.*
+*Published: 2026-03-02*
+[arXiv](https://arxiv.org/abs/2603.02023v1) | [PDF](https://arxiv.org/pdf/2603.02023v1)
+
+> Test-time scaling has shown that allocating more additional computation at inference can improve generation quality, motivating a natural follow-up question: where should this computation be spent? Bu...
+
+---
+
 ### Test-Time Scaling with Diffusion Language Models via Reward-Guided Stitching
 **Relevance: 72/100 | Hype: 55/100** — Test-time scaling with diffusion language models using step-level recombination and process reward models; achieves 1.8x latency reduction over diffusion models while improving accuracy. Directly about LLM inference efficiency.
 *Authors: Roy Miles, Aysim Toker, Andreea-Maria Oncescu et al.*
@@ -502,16 +488,6 @@ HeRo is a heterogeneous-aware scheduling framework for agentic RAG workflows on 
 
 ---
 
-### Beyond Microservices: Testing Web-Scale RCA Methods on GPU-Driven LLM Workloads
-**Relevance: 72/100 | Hype: 50/100** — Evaluates root cause analysis methods on LLM inference deployments, directly studies LLM inference system failures, GPU-driven workloads, and observability for serving infrastructure.
-*Authors: Dominik Scheinert, Alexander Acker, Thorsten Wittkopp et al.*
-*Published: 2026-03-02*
-[arXiv](https://arxiv.org/abs/2603.02057v1) | [PDF](https://arxiv.org/pdf/2603.02057v1)
-
-> Large language model (LLM) services have become an integral part of search, assistance, and decision-making applications. However, unlike traditional web or microservices, the hardware and software st...
-
----
-
 ### Sparsity Induction for Accurate Post-Training Pruning of Large Language Models
 **Relevance: 72/100 | Hype: 50/100** — Post-training pruning/sparsity for LLMs to reduce computational and memory costs at inference time, directly relevant to inference efficiency.
 *Authors: Minhao Jiang, Zhikai Li, Xuewen Liu et al.*
@@ -519,6 +495,16 @@ HeRo is a heterogeneous-aware scheduling framework for agentic RAG workflows on 
 [arXiv](https://arxiv.org/abs/2602.21652v1) | [PDF](https://arxiv.org/pdf/2602.21652v1)
 
 > Large language models have demonstrated capabilities in text generation, while their increasing parameter scales present challenges in computational and memory efficiency. Post-training sparsity (PTS)...
+
+---
+
+### DynaMoE: Dynamic Token-Level Expert Activation with Layer-Wise Adaptive Capacity for Mixture-of-Experts Neural Networks
+**Relevance: 72/100 | Hype: 45/100** — Dynamic token-level MoE expert activation with layer-wise adaptive capacity, directly relevant to inference compute efficiency through variable expert routing.
+*Authors: Gökdeniz Gülmez*
+*Published: 2026-03-02*
+[arXiv](https://arxiv.org/abs/2603.01697v1) | [PDF](https://arxiv.org/pdf/2603.01697v1)
+
+> Mixture-of-Experts (MoE) architectures have emerged as a powerful paradigm for scaling neural networks while maintaining computational efficiency. However, standard MoE implementations rely on two rig...
 
 ---
 
@@ -552,13 +538,13 @@ HeRo is a heterogeneous-aware scheduling framework for agentic RAG workflows on 
 
 ---
 
-### Adaptive Spectral Feature Forecasting for Diffusion Sampling Acceleration
-**Relevance: 70/100 | Hype: 65/100** — Training-free feature caching/forecasting for diffusion model inference acceleration, achieves 4.79x speedup on FLUX.1 and 4.67x on Wan2.1-14B through spectral prediction.
-*Authors: Jiaqi Han, Juntong Shi, Puheng Li et al.*
-*Published: 2026-03-02*
-[arXiv](https://arxiv.org/abs/2603.01623v1) | [PDF](https://arxiv.org/pdf/2603.01623v1)
+### Qwen3-Coder-Next Technical Report
+**Relevance: 70/100 | Hype: 85/100** — 80B MoE model activating only 3B parameters during inference, directly relevant to efficient inference via sparse activation; from Qwen/Alibaba team.
+*Authors: Ruisheng Cao, Mouxiang Chen, Jiawei Chen et al.*
+*Published: 2026-02-28*
+[arXiv](https://arxiv.org/abs/2603.00729v1) | [PDF](https://arxiv.org/pdf/2603.00729v1)
 
-> Diffusion models have become the dominant tool for high-fidelity image and video generation, yet are critically bottlenecked by their inference speed due to the numerous iterative passes of Diffusion ...
+> We present Qwen3-Coder-Next, an open-weight language model specialized for coding agents. Qwen3-Coder-Next is an 80-billion-parameter model that activates only 3 billion parameters during inference, e...
 
 ---
 
@@ -572,6 +558,16 @@ HeRo is a heterogeneous-aware scheduling framework for agentic RAG workflows on 
 
 ---
 
+### Boosting Entropy with Bell Box Quantization
+**Relevance: 70/100 | Hype: 45/100** — Quantization-aware pre-training method that is both information-theoretically optimal and compute-efficient, directly relevant to inference efficiency of quantized LLMs.
+*Authors: Ningfeng Yang, Tor M. Aamodt*
+*Published: 2026-03-02*
+[arXiv](https://arxiv.org/abs/2603.01599v1) | [PDF](https://arxiv.org/pdf/2603.01599v1)
+
+> Quantization-Aware Pre-Training (QAPT) is an effective technique to reduce the compute and memory overhead of Deep Neural Networks while improving their energy efficiency on edge devices. Existing QAP...
+
+---
+
 ### Learning Generation Orders for Masked Discrete Diffusion Models via Variational Inference
 **Relevance: 70/100 | Hype: 45/100** — Variational inference for learning parallel generation orders in masked diffusion LLMs, achieving competitive accuracy with only 4 generation steps; directly relevant to parallel token generation efficiency.
 *Authors: David Fox, Sam Bowyer, Song Liu et al.*
@@ -579,15 +575,5 @@ HeRo is a heterogeneous-aware scheduling framework for agentic RAG workflows on 
 [arXiv](https://arxiv.org/abs/2602.23968v1) | [PDF](https://arxiv.org/pdf/2602.23968v1)
 
 > Masked discrete diffusion models (MDMs) are a promising new approach to generative modelling, offering the ability for parallel token generation and therefore greater efficiency than autoregressive co...
-
----
-
-### VIKIN: A Reconfigurable Accelerator for KANs and MLPs with Two-Stage Sparsity Support
-**Relevance: 70/100 | Hype: 35/100** — Reconfigurable accelerator for KANs and MLPs with sparsity support; about inference hardware acceleration for neural networks used in AI applications.
-*Authors: Wenhui Ou, Zhuoyu Wu, Yipu Zhang et al.*
-*Published: 2026-03-01*
-[arXiv](https://arxiv.org/abs/2603.01165v1) | [PDF](https://arxiv.org/pdf/2603.01165v1)
-
-> Recently, multi-layer perceptrons (MLPs) widely used in modern AI applications suffer from limited real-time performance due to intensive memory access overhead. Kolmogorov--Arnold Networks (KANs) hav...
 
 ---
