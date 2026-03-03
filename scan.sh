@@ -183,6 +183,9 @@ else
   git add data/papers.json papers.md
 fi
 
+# Always stage persisted hype watch (even if NO_HYPE — next run needs it)
+[ -f data/last-hype-watch.md ] && git add data/last-hype-watch.md
+
 # --- Commit and push ---
 
 if git diff --cached --quiet; then
