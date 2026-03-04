@@ -180,14 +180,11 @@ else
   HAS_NEWS=1
 fi
 
-echo "Rendering papers.md..."
-python src/render.py
-
 if [ "$HAS_NEWS" = "1" ]; then
-  git add data/papers.json papers.md news.md
+  git add data/papers.json news.md
 else
   echo "Nothing newsworthy, skipping news generation."
-  git add data/papers.json papers.md
+  git add data/papers.json
 fi
 
 # Always stage persisted hype watch (even if NO_HYPE — next run needs it)

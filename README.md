@@ -17,8 +17,7 @@ fetch_papers.py → Claude scores → merge_papers.py → fetch_hype_signals.py 
 6. If notable hype activity: Claude generates a "Surge Watch" blurb from signal trends.
 7. If new papers: `src/generate_news.py` downloads PDFs, rescores relevance via Claude, and generates flash news.
 8. Surge Watch section is always appended to `news.md` — analysis if noteworthy, or "nothing to report".
-9. `src/render.py` regenerates `papers.md` — a living list sorted by score.
-10. Results are committed, pushed, and posted to Discord via [OpenClaw](https://openclaw.ai/).
+9. Results are committed, pushed, and posted to Discord via [OpenClaw](https://openclaw.ai/).
 
 ## Topics covered
 
@@ -69,11 +68,9 @@ Edit `config.json` to change the topic, arXiv categories, keywords, or relevance
 │   ├── rescore_hype.py        # Update signals, detect notable activity
 │   ├── build_hype_prompt.py   # Build prompt for Surge Watch blurb
 │   ├── generate_news.py       # PDF rescore + flash news in one Claude call
-│   ├── render.py              # Generate papers.md from data/papers.json
 │   └── parse_scores.py        # Shared JSON parsing with error handling
 ├── data/
 │   └── papers.json            # Source of truth: all scored papers
-├── papers.md                  # Generated: the living paper list
 ├── news.md                    # Generated: flash-news bulletin (+ Surge Watch)
 ├── scan.sh                    # Orchestrates the full pipeline
 ├── score-prompt.md            # Claude prompt for scoring (JSON output)

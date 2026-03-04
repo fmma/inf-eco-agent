@@ -14,8 +14,7 @@ This repo is an automated agent that discovers new arXiv papers about LLM infere
 6. `src/build_hype_prompt.py` builds a prompt with full signal timelines for papers that have history. Claude analyzes trends and decides what's noteworthy (or outputs `NO_HYPE`).
 7. If new papers: `src/generate_news.py` downloads PDFs for top papers, invokes Claude with `--allowedTools "Read"` to read them, qualitatively rescores relevance, and generates flash news.
 8. Surge Watch section is always appended to `news.md` — Claude's hype analysis if noteworthy, or a "nothing to report" message.
-9. `src/render.py` regenerates `papers.md` — the single living list sorted by score, with hype as tiebreaker.
-10. `scan.sh` commits, pushes, and posts `news.md` to Discord via OpenClaw.
+9. `scan.sh` commits, pushes, and posts `news.md` to Discord via OpenClaw.
 
 ### Error handling
 
@@ -33,7 +32,6 @@ This repo is an automated agent that discovers new arXiv papers about LLM infere
 - `config.json` — Topic definition, arXiv categories, keywords, scoring threshold (0–100)
 - `src/fetch_papers.py` — Fetches papers from arXiv, deduplicates, adaptive lookback window
 - `src/merge_papers.py` — Merges Claude's scores (relevance + hype) into the paper database
-- `src/render.py` — Renders `papers.md` from `data/papers.json`
 - `src/fetch_hype_signals.py` — Queries Semantic Scholar + HuggingFace for external hype signals
 - `src/rescore_hype.py` — Appends today's signals to `hype_signal_history` (rolling window of 30), keeps `hype_signals` as latest snapshot
 - `src/build_hype_prompt.py` — Builds prompt with signal history timelines for Claude to analyze trends
@@ -44,5 +42,4 @@ This repo is an automated agent that discovers new arXiv papers about LLM infere
 - `surge-prompt.md` — The prompt used for "Surge Watch" — Claude analyzes signal timelines and decides what's noteworthy
 - `scan.sh` — Entry point that orchestrates the full pipeline
 - `data/papers.json` — Source of truth: all scored papers across runs
-- `papers.md` — Generated output: the living paper list
 - `news.md` — Generated output: flash-news bulletin posted to Discord (always includes Surge Watch section)
