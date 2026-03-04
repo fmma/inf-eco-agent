@@ -2,7 +2,17 @@
 
 Automatically discovered papers scored for relevance to: Serving, optimizing, and scaling large language model inference. Includes KV cache management, speculative decoding, continuous batching, PagedAttention, model quantization for inference, inference frameworks (vLLM, TensorRT-LLM, SGLang, TGI, llama.cpp), inference throughput/latency optimization, distributed inference, inference hardware, and I/O optimization (disk I/O, network I/O, memory bandwidth, data loading, storage systems, NVMe, RDMA, interconnects) as it relates to LLM inference and serving.
 
-**56** papers above threshold (70/100) out of **901** total scanned.
+**65** papers above threshold (70/100) out of **1033** total scanned.
+
+---
+
+### Speculative Speculative Decoding
+**Relevance: 97/100 | Hype: 92/100** — Directly about accelerating LLM inference via a novel speculative decoding method (Saguaro), achieving up to 2x over speculative decoding and 5x over autoregressive.
+*Authors: Tanishq Kumar, Tri Dao, Avner May*
+*Published: 2026-03-03*
+[arXiv](https://arxiv.org/abs/2603.03251v1) | [PDF](https://arxiv.org/pdf/2603.03251v1)
+
+> Autoregressive decoding is bottlenecked by its sequential nature. Speculative decoding has become a standard way to accelerate inference by using a fast draft model to predict upcoming tokens from a s...
 
 ---
 
@@ -108,6 +118,16 @@ Proposes LK losses — a likelihood-based loss and a hybrid KL+TV loss with adap
 
 ---
 
+### Practical FP4 Training for Large-Scale MoE Models on Hopper GPUs
+**Relevance: 92/100 | Hype: 80/100** — FP4 training recipe for 671B MoE models on Hopper GPUs with 14.8% memory reduction and 12.5% throughput improvement; directly about efficient large-scale model training/inference with low-precision.
+*Authors: Wuyue Zhang, Chongdong Huang, Chunbo You et al.*
+*Published: 2026-03-03*
+[arXiv](https://arxiv.org/abs/2603.02731v1) | [PDF](https://arxiv.org/pdf/2603.02731v1)
+
+> Training large-scale Mixture-of-Experts (MoE) models is bottlenecked by activation memory and expert-parallel communication, yet FP4 training remains impractical on Hopper-class GPUs without native MX...
+
+---
+
 ### Multi-Head Low-Rank Attention
 **Relevance: 92/100 | Hype: 78/100** — Directly addresses KV cache bottleneck in LLM decoding: proposes partitionable latent states for efficient tensor parallel decoding, achieving 2.8x speedup over MLA.
 *Authors: Songtao Liu, Hongwu Peng, Zhiwei Zhang et al.*
@@ -125,6 +145,16 @@ Proposes LK losses — a likelihood-based loss and a hybrid KL+TV loss with adap
 [arXiv](https://arxiv.org/abs/2602.19594v1) | [PDF](https://arxiv.org/pdf/2602.19594v1)
 
 > We introduce ISO-Bench, a benchmark for coding agents to test their capabilities on real-world inference optimization tasks. These tasks were taken from vLLM and SGLang, two of the most popular LLM se...
+
+---
+
+### Ouroboros: Wafer-Scale SRAM CIM with Token-Grained Pipelining for Large Language Model Inference
+**Relevance: 92/100 | Hype: 65/100** — Wafer-scale SRAM CIM architecture for LLM inference with token-grained pipelining, achieving 4.1x throughput and 4.2x energy efficiency gains; directly about LLM inference hardware.
+*Authors: Yiqi Liu, Yudong Pan, Mengdi Wang et al.*
+*Published: 2026-03-03*
+[arXiv](https://arxiv.org/abs/2603.02737v1) | [PDF](https://arxiv.org/pdf/2603.02737v1)
+
+> Conventional LLM inference architectures suffer from high energy and latency due to frequent data movement across memory hierarchies. We propose Ouroboros, a wafer-scale SRAM-based Computing-in-Memory...
 
 ---
 
@@ -240,6 +270,16 @@ Proposes a data-driven pipeline for optimizing GPU utilization in distributed LL
 
 ---
 
+### SUN: Shared Use of Next-token Prediction for Efficient Multi-LLM Disaggregated Serving
+**Relevance: 88/100 | Hype: 65/100** — Shared decode execution across multiple LLMs in disaggregated serving, enabling cross-model batching with up to 2x throughput per GPU; directly about multi-LLM inference serving optimization.
+*Authors: Sunghyeon Woo, Ahreum Seo, Jaegwang Lee et al.*
+*Published: 2026-03-03*
+[arXiv](https://arxiv.org/abs/2603.02599v1) | [PDF](https://arxiv.org/pdf/2603.02599v1)
+
+> In multi-model LLM serving, decode execution remains inefficient due to model-specific resource partitioning: since cross-model batching is not possible, memory-bound decoding often suffers from sever...
+
+---
+
 ### Understanding the Physics of Key-Value Cache Compression for LLMs through Attention Dynamics
 **Relevance: 88/100 | Hype: 55/100** — Directly studies KV cache compression physics, analyzing attention dynamics, semantic accessibility, and identifying compression tolerance thresholds across LLaMA and Qwen architectures.
 *Authors: Samhruth Ananthanarayanan, Ayan Sengupta, Tanmoy Chakraborty*
@@ -259,6 +299,16 @@ Proposes a data-driven pipeline for optimizing GPU utilization in distributed LL
 KEEP is a KV-cache-centric memory management system that accelerates LLM inference for embodied planning agents. It introduces three techniques: (1) static-dynamic memory construction that groups memory segments by update frequency to minimize KV cache invalidation, (2) multi-hop memory recomputation that uses attention-based importance propagation to selectively recompute KV states for critical memory segments, and (3) layer-balanced memory loading that redistributes KV loading across transformer layers to eliminate pipeline bubbles. Evaluated on ALFRED and WAH-NL benchmarks using Qwen-2.5 models atop vLLM, KEEP achieves up to 2.68x TTFT speedup over full recomputation and 1.90x TTFT reduction over CacheBlend with negligible accuracy loss.
 
 > Memory-augmented Large Language Models (LLMs) have demonstrated remarkable capability for complex and long-horizon embodied planning. By keeping track of past experiences and environmental states, mem...
+
+---
+
+### Cross-Family Speculative Prefill: Training-Free Long-Context Compression with Small Draft Models
+**Relevance: 85/100 | Hype: 65/100** — Cross-family speculative prefill for LLM prompt compression, reducing time-to-first-token in agentic multi-model serving; directly about LLM inference optimization and serving.
+*Authors: Shubhangi Upasani, Ravi Shanker Raju, Bo Li et al.*
+*Published: 2026-03-03*
+[arXiv](https://arxiv.org/abs/2603.02631v1) | [PDF](https://arxiv.org/pdf/2603.02631v1)
+
+> Prompt length is a major bottleneck in agentic large language model (LLM) workloads, where repeated inference steps and multi-call loops incur substantial prefill cost. Recent work on speculative pref...
 
 ---
 
@@ -299,6 +349,16 @@ KEEP is a KV-cache-centric memory management system that accelerates LLM inferen
 [arXiv](https://arxiv.org/abs/2603.02170v1) | [PDF](https://arxiv.org/pdf/2603.02170v1)
 
 > Low-bit attention, such as SageAttention, has emerged as an effective approach for accelerating model inference, but its applicability to training remains poorly understood. In prior work, we introduc...
+
+---
+
+### CUCo: An Agentic Framework for Compute and Communication Co-design
+**Relevance: 82/100 | Hype: 70/100** — CUCo generates high-performance CUDA kernels that jointly optimize computation and communication for distributed LLM training and inference. Directly addresses inference latency reduction with up to 1.57x speedup through compute-communication co-design.
+*Authors: Bodun Hu, Yoga Sri Varshan, Saurabh Agarwal et al.*
+*Published: 2026-03-02*
+[arXiv](https://arxiv.org/abs/2603.02376v1) | [PDF](https://arxiv.org/pdf/2603.02376v1)
+
+> Custom CUDA kernel development is essential for maximizing GPU utilization in large-scale distributed LLM training and inference, yet manually writing kernels that jointly leverage both computation an...
 
 ---
 
@@ -408,6 +468,16 @@ Proposes TASC, a two-pronged framework for accelerating small language model inf
 
 ---
 
+### MuxTune: Efficient Multi-Task LLM Fine-Tuning in Multi-Tenant Datacenters via Spatial-Temporal Backbone Multiplexing
+**Relevance: 78/100 | Hype: 50/100** — System for efficient concurrent execution of multiple PEFT fine-tuning tasks on LLMs via backbone multiplexing, achieving 2.33x throughput and 5.29x memory reduction; directly relevant to LLM datacenter efficiency.
+*Authors: Chunyu Xue, Yi Pan, Weihao Cui et al.*
+*Published: 2026-03-03*
+[arXiv](https://arxiv.org/abs/2603.02885v1) | [PDF](https://arxiv.org/pdf/2603.02885v1)
+
+> Parameter-Efficient Fine-Tuning (PEFT) is widely applied as the backend of fine-tuning APIs for large language model (LLM) customization in datacenters. Service providers deploy separate instances for...
+
+---
+
 ### AdaPonderLM: Gated Pondering Language Models with Token-Wise Adaptive Depth
 **Relevance: 78/100 | Hype: 50/100** — Adaptive early exiting for recurrent LLM inference with KV cache reuse, directly reduces inference compute by ~10% while maintaining quality — token-wise adaptive computation.
 *Authors: Shixiang Song, He Li, Zitong Wang et al.*
@@ -445,6 +515,16 @@ Proposes TASC, a two-pronged framework for accelerating small language model inf
 [arXiv](https://arxiv.org/abs/2602.22090v1) | [PDF](https://arxiv.org/pdf/2602.22090v1)
 
 > Large Language Models (LLMs) have revolutionized inference across diverse natural language tasks, with larger models performing better but at higher computational costs. We propose a confidence-driven...
+
+---
+
+### Robust Heterogeneous Analog-Digital Computing for Mixture-of-Experts Models with Theoretical Generalization Guarantees
+**Relevance: 75/100 | Hype: 45/100** — Heterogeneous analog-digital computing framework for MoE model inference, addressing noise in analog in-memory computing without retraining; directly about efficient MoE inference hardware.
+*Authors: Mohammed Nowaz Rabbani Chowdhury, Hsinyu Tsai, Geoffrey W. Burr et al.*
+*Published: 2026-03-03*
+[arXiv](https://arxiv.org/abs/2603.02633v1) | [PDF](https://arxiv.org/pdf/2603.02633v1)
+
+> Sparse Mixture-of-Experts (MoE) models enable efficient scalability by activating only a small sub-set of experts per input, yet their massive parameter counts lead to substantial memory and energy in...
 
 ---
 
@@ -525,6 +605,16 @@ Proposes TASC, a two-pronged framework for accelerating small language model inf
 [arXiv](https://arxiv.org/abs/2602.19509v1) | [PDF](https://arxiv.org/pdf/2602.19509v1)
 
 > Large Language Models (LLMs) face a persistent trade-off between inference cost and reasoning capability. While "Oracle" models (e.g., Llama-3-70B) achieve state-of-the-art accuracy, they are prohibit...
+
+---
+
+### GPUTOK: GPU Accelerated Byte Level BPE Tokenization
+**Relevance: 72/100 | Hype: 40/100** — GPU-accelerated BPE tokenizer achieving 1.7x over tiktoken for long sequences; directly about inference pipeline optimization (tokenization is a key inference stage).
+*Authors: Venu Gopal Kadamba, Kanishkha Jaisankar*
+*Published: 2026-03-03*
+[arXiv](https://arxiv.org/abs/2603.02597v1) | [PDF](https://arxiv.org/pdf/2603.02597v1)
+
+> As large language models move toward million-token context windows, CPU tokenizers become a major slowdown because they process text one step at a time while powerful GPUs sit unused. We built a GPU-b...
 
 ---
 
