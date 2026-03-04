@@ -78,7 +78,7 @@ print(n)
     batch_count=$(python -c "import json; print(len(json.load(open('$batch_file'))))")
     echo "  Scoring batch $((i+1))/$num_batches ($batch_count papers)..."
     {
-      cat prompt.md
+      cat score-prompt.md
       echo ""
       echo "## Papers JSON"
       echo '```json'

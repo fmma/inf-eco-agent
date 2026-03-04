@@ -15,7 +15,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parent.parent
 PAPERS_PATH = ROOT / "data" / "papers.json"
-PROMPT_PATH = ROOT / "news-rescore-prompt.md"
+PROMPT_PATH = ROOT / "news-prompt.md"
 NEWS_PATH = ROOT / "news.md"
 SCORES_PATH = Path("/tmp/inf-eco-scores.json")
 PDF_DIR = Path("/tmp/inf-eco-pdfs")

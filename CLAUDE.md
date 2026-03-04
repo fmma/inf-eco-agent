@@ -39,9 +39,9 @@ This repo is an automated agent that discovers new arXiv papers about LLM infere
 - `src/build_hype_prompt.py` — Builds prompt with signal history timelines for Claude to analyze trends
 - `src/generate_news.py` — Downloads PDFs, rescores relevance via Claude (`--allowedTools "Read"`), generates flash news
 - `src/parse_scores.py` — Shared helper: strips markdown fences, parses and validates score JSON
-- `prompt.md` — The prompt used when invoking Claude Code for scoring (JSON output only)
-- `news-rescore-prompt.md` — The prompt used for PDF rescore + news generation
-- `hype-prompt.md` — The prompt used for "Surge Watch" — Claude analyzes signal timelines and decides what's noteworthy
+- `score-prompt.md` — The prompt used when invoking Claude Code for scoring (JSON output only)
+- `news-prompt.md` — The prompt used for PDF rescore + news generation
+- `surge-prompt.md` — The prompt used for "Surge Watch" — Claude analyzes signal timelines and decides what's noteworthy
 - `scan.sh` — Entry point that orchestrates the full pipeline
 - `data/papers.json` — Source of truth: all scored papers across runs
 - `papers.md` — Generated output: the living paper list

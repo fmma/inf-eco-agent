@@ -76,9 +76,9 @@ Edit `config.json` to change the topic, arXiv categories, keywords, or relevance
 ├── papers.md                  # Generated: the living paper list
 ├── news.md                    # Generated: flash-news bulletin (+ Surge Watch)
 ├── scan.sh                    # Orchestrates the full pipeline
-├── prompt.md                  # Claude prompt for scoring (JSON output)
-├── news-rescore-prompt.md     # Claude prompt for PDF rescore + news
-├── hype-prompt.md             # Claude prompt for Surge Watch blurb
+├── score-prompt.md            # Claude prompt for scoring (JSON output)
+├── news-prompt.md             # Claude prompt for PDF rescore + news
+├── surge-prompt.md            # Claude prompt for Surge Watch blurb
 ├── config.json                # Topic, categories, keywords, threshold
 └── requirements.txt           # Python dependencies
 ```

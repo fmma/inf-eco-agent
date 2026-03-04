@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PAPERS_PATH = ROOT / "data" / "papers.json"
-PROMPT_PATH = ROOT / "hype-prompt.md"
+PROMPT_PATH = ROOT / "surge-prompt.md"
 LAST_HYPE_PATH = ROOT / "data" / "last-hype-watch.md"
 
 SIGNAL_KEYS = ["citations", "influential_citations", "hf_upvotes", "github_stars"]
