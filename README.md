@@ -14,14 +14,15 @@ fetch_papers.py → Claude scores → merge_papers.py → fetch_hype_signals.py 
 3. `src/merge_papers.py` merges scores into `data/papers.json`.
 4. `src/fetch_hype_signals.py` queries Semantic Scholar + HuggingFace for citations, upvotes, and GitHub stars.
 5. `src/rescore_hype.py` updates signal snapshots and detects notable activity (new traction or signal surges).
-6. If notable hype activity: Claude generates a "Hype Watch" blurb from raw signal deltas.
+6. If notable hype activity: Claude generates a "Surge Watch" blurb from signal trends.
 7. If new papers: `src/generate_news.py` downloads PDFs, rescores relevance via Claude, and generates flash news.
-8. `src/render.py` regenerates `papers.md` — a living list sorted by score.
-9. Results are committed, pushed, and posted to Discord via [OpenClaw](https://openclaw.ai/).
+8. Surge Watch section is always appended to `news.md` — analysis if noteworthy, or "nothing to report".
+9. `src/render.py` regenerates `papers.md` — a living list sorted by score.
+10. Results are committed, pushed, and posted to Discord via [OpenClaw](https://openclaw.ai/).
 
 ## Topics covered
 
-LLM serving, KV cache management, speculative decoding, continuous batching, PagedAttention, model quantization for inference, inference frameworks (vLLM, TensorRT-LLM, SGLang, TGI, llama.cpp), throughput/latency optimization, distributed inference, inference hardware, and I/O (memory bandwidth, NVMe, RDMA, interconnects, disk/network I/O).
+LLM serving, KV cache management, speculative decoding, continuous batching, PagedAttention, model quantization for inference, inference frameworks (vLLM, TensorRT-LLM, SGLang, TGI, llama.cpp), throughput/latency optimization, distributed inference, inference hardware, I/O (memory bandwidth, NVMe, RDMA, interconnects), and accelerator-integrated storage I/O (GPUDirect, P2P DMA, SPDK, SR-IOV, SSD/NVMe offloading) when relevant to inference.
 
 ## Setup
 
@@ -66,20 +67,18 @@ Edit `config.json` to change the topic, arXiv categories, keywords, or relevance
 │   ├── merge_papers.py        # Merge Claude's scores into data/papers.json
 │   ├── fetch_hype_signals.py  # Query Semantic Scholar + HuggingFace
 │   ├── rescore_hype.py        # Update signals, detect notable activity
-│   ├── build_hype_prompt.py   # Build prompt for Hype Watch blurb
+│   ├── build_hype_prompt.py   # Build prompt for Surge Watch blurb
 │   ├── generate_news.py       # PDF rescore + flash news in one Claude call
-│   ├── build_news_prompt.py   # Build news prompt from new papers
 │   ├── render.py              # Generate papers.md from data/papers.json
 │   └── parse_scores.py        # Shared JSON parsing with error handling
 ├── data/
 │   └── papers.json            # Source of truth: all scored papers
 ├── papers.md                  # Generated: the living paper list
-├── news.md                    # Generated: flash-news bulletin (+ Hype Watch)
+├── news.md                    # Generated: flash-news bulletin (+ Surge Watch)
 ├── scan.sh                    # Orchestrates the full pipeline
 ├── prompt.md                  # Claude prompt for scoring (JSON output)
 ├── news-rescore-prompt.md     # Claude prompt for PDF rescore + news
-├── news-prompt.md             # Claude prompt for news generation
-├── hype-prompt.md             # Claude prompt for Hype Watch blurb
+├── hype-prompt.md             # Claude prompt for Surge Watch blurb
 ├── config.json                # Topic, categories, keywords, threshold
 └── requirements.txt           # Python dependencies
 ```
