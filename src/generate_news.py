@@ -143,7 +143,7 @@ def main():
     print(f"Invoking Claude ({len(pdf_paths)} PDFs referenced in prompt)...")
 
     result = subprocess.run(
-        ["claude", "--print"],
+        ["claude", "--print", "--allowedTools", "Read"],
         input=prompt,
         capture_output=True,
         text=True,

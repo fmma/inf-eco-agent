@@ -146,31 +146,38 @@ if [ "$new_count" -gt 0 ]; then
   HAS_NEWS=1
 fi
 
-# --- Append hype watch to news.md ---
+# --- Append hype watch to news.md (always shown) ---
 
+# Determine hype watch content
 if [ "$HAS_HYPE" = "1" ]; then
-  if [ "$HAS_NEWS" = "1" ]; then
-    # Append hype watch section to existing news
-    {
-      echo ""
-      echo "---"
-      echo ""
-      echo "## Hype Watch"
-      cat /tmp/inf-eco-hype-watch.md
-    } >> news.md
-  else
-    # Only hype activity, no new papers — create news.md with just hype watch
-    {
-      echo "# Inference Ecosystem — Flash News"
-      echo "**$(date +%Y-%m-%d)** — No new papers today."
-      echo ""
-      echo "---"
-      echo ""
-      echo "## Hype Watch"
-      cat /tmp/inf-eco-hype-watch.md
-    } > news.md
-    HAS_NEWS=1
-  fi
+  HYPE_CONTENT=$(cat /tmp/inf-eco-hype-watch.md)
+else
+  HYPE_CONTENT="Nothing noteworthy in signal trends today."
+fi
+
+if [ "$HAS_NEWS" = "1" ]; then
+  # Append hype watch section to existing news
+  {
+    echo ""
+    echo "---"
+    echo ""
+    echo "## Surge Watch"
+    echo ""
+    echo "$HYPE_CONTENT"
+  } >> news.md
+else
+  # No new papers — create news.md with just hype watch
+  {
+    echo "# Inference Ecosystem — Flash News"
+    echo "**$(date +%Y-%m-%d)** — No new papers today."
+    echo ""
+    echo "---"
+    echo ""
+    echo "## Surge Watch"
+    echo ""
+    echo "$HYPE_CONTENT"
+  } > news.md
+  HAS_NEWS=1
 fi
 
 echo "Rendering papers.md..."
