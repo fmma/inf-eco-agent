@@ -1,14 +1,37 @@
-I can't access the PDFs due to sandbox restrictions, but the abstracts provide strong detail. Here's the bulletin based on the available information:
+Here's the generated bulletin. It seems I need write permission to save it to `news.md`. The output should be:
 
 # Inference Ecosystem — Flash News
-**2026-03-04 — 132 papers scanned**
 
-**Speculative Speculative Decoding (Saguaro)** — Tri Dao and team introduce SSD, which parallelizes the draft-verify loop in speculative decoding by pre-emptively preparing speculations for likely verification outcomes. Saguaro eliminates drafting overhead entirely when predictions hit, delivering **2x over optimized spec-decode baselines and 5x over autoregressive** on open-source engines. This is the most important spec-decode advance since Medusa. [arXiv](https://arxiv.org/abs/2603.03251v1) — Score: 97
+**2026-03-05 — 139 papers scanned**
 
-**Practical FP4 Training at 671B Scale** — A recipe for MXFP4 efficiency on Hopper GPUs *without* native FP4 tensor core support, using direct FP8-to-FP4 quantization and scaling-aware format conversion. On a 671B MoE (DeepSeek-scale), they get **14.8% memory reduction and 12.5% throughput gain** (1157→1302 tok/GPU/s) over FP8 baselines. Makes sub-8-bit training practical today. [arXiv](https://arxiv.org/abs/2603.02731v1) — Score: 92
+### Qualcomm Cracks the Quantization Error Code with CAT
 
-**Ouroboros: Wafer-Scale SRAM CIM for LLM Inference** — A wafer-scale compute-in-memory architecture that keeps everything in SRAM, no off-chip data movement. Token-grained pipelining replaces sequence-level batching to handle variable lengths. Results: **4.1x throughput, 4.2x energy efficiency** on average, peaking at 9.1x/17x for 13B models. [arXiv](https://arxiv.org/abs/2603.02737v1) — Score: 92
+Qualcomm AI Research decomposes 4-bit quantization error into *concentration* (outlier spread) and *alignment* (weight-activation direction match) via SQNR analysis — and shows that popular Hadamard/rotation transforms only fix concentration while completely ignoring alignment. Their new Concentration-Alignment Transform (CAT) uses a small calibration set to jointly optimize both, yielding W4A4 SQNR that rivals W6A6 on Qwen v3 8B. On Llama 2 7B, Llama 3 8B, Ministral 8B, and Qwen 3 8B, CAT matches or beats FlatQuant and SpinQuant at 4-bit — without any training. This is the clearest theoretical framework yet for understanding *why* transforms help quantization, and it's immediately actionable. [arXiv:2603.04359](https://arxiv.org/abs/2603.04359) — Score: 90 (was 82)
 
-**SUN: Cross-Model Decode Sharing** — Samsung decomposes decoder-only transformers into prefill and decode modules, fine-tunes only prefill, and shares a frozen decode module across multiple LLMs. Enables cross-model batching in disaggregated serving — **2x throughput per GPU** with TPOT within 5%. QSUN adds 4-bit decoding for another 45% speedup. [arXiv](https://arxiv.org/abs/2603.02599v1) — Score: 88
+### Bielik-Q2-Sharp: The $285 Guide to Extreme 2-bit Quantization
 
-**Cross-Family Speculative Prefill** — Meta shows that attention-based token importance transfers across model families (Qwen→LLaMA→DeepSeek), enabling training-free prompt compression even without an in-family draft model. Retains 90–100% accuracy while cutting TTFT substantially. Key primitive for agentic pipelines with heterogeneous model stacks. [arXiv](https://arxiv.org/abs/2603.02631v1) — Score: 85
+A single independent researcher systematically compares six SOTA 2-bit PTQ methods (QuIP#, SpinQuant+GPTQ, ButterflyQuant, QTIP, VPTQ, AQLM) on an 11B Polish LLM. The standout finding: a **MC-generation dissociation** where rotation-based methods (SpinQuant, ButterflyQuant) preserve log-likelihood but produce catastrophic autoregressive generation — loops and garbage text. QTIP achieves the best per-bit efficiency (79.4% MC acc at ~2.4 bpw, 3.27 GB), while QuIP# E8P12 matches the IQ2_XXS baseline within statistical noise. All models, Hessians, and evaluation logs are public. Essential reading if you're pushing models below 3 bits. [arXiv:2603.04162](https://arxiv.org/abs/2603.04162) — Score: 80 (was 78)
+
+### Speculative Decoding Meets Ascend NPU — With Caveats
+
+First end-to-end Medusa-style speculative decoding on Huawei Ascend NPU for OpenPangu-7B. The key engineering contribution: a fully static tree verification scheme with zero-copy path retrieval that sidesteps the NPU's static-graph execution constraint. Achieves 1.35x speedup for short sequences (L=128), but gains erode past 512 tokens as KV-cache memory bandwidth dominates — the NPU is more memory-sensitive than GPU here. Honest analysis of the memory wall on NPU hardware, useful for anyone targeting Ascend deployments. [arXiv:2603.03383](https://arxiv.org/abs/2603.03383) — Score: 78 (was 90)
+
+### HyperParallel: Huawei's Supernode-Aware Framework for Trillion-Scale Models
+
+Huawei/HKUST propose treating supernode clusters (384+ Ascend NPUs with unified memory) as a single logical computer inside MindSpore. Three components: HyperOffload (hierarchical HBM/DRAM memory management, 70% longer supported sequence lengths), HyperMPMD (fine-grained MPMD parallelism boosting MoE communication masking from 60% to 90%), and HyperShard (declarative parallel strategy specification). Mostly a vision paper with selected benchmarks, but signals where large-scale inference infrastructure is heading on non-NVIDIA hardware. [arXiv:2603.03731](https://arxiv.org/abs/2603.03731) — Score: 72 (was 75)
+
+### Online Routing for Multi-Layer Hierarchical Inference
+
+Formalizes the problem of routing inference tasks across edge-to-cloud hierarchies where feedback only arrives at the terminal oracle layer. Their VR-Ly-EXP4 algorithm integrates Lyapunov optimization with a variance-reduced bandit estimator to handle the depth-amplified feedback sparsity. On 80K jobs across 114 task types with 23 models, VR-Ly-EXP4 consistently achieves the lowest error rate and highest hit rate across 3-to-5-layer hierarchies. Directly relevant as inference moves toward tiered edge/cloud architectures. [arXiv:2603.04247](https://arxiv.org/abs/2603.04247) — Score: 72 (was 72)
+
+---
+
+## Surge Watch
+
+
+
+**Qwen3-Coder-Next** ([2603.00729](http://arxiv.org/abs/2603.00729v1)) is picking up steam — HF upvotes jumped from 6 to 28 overnight, and GitHub stars ticked up to ~15.9k. Not an inference paper per se, but the agentic coding angle means inference efficiency matters downstream. Worth watching if the upvote curve holds.
+
+**DualPath** ([2602.21548](http://arxiv.org/abs/2602.21548v1)) continues to hold steady at 37 HF upvotes — solid baseline traction for a storage-bandwidth paper, but growth has slowed to a trickle (+4 over 3 days). No surge here, just a paper that found its audience early.
+
+Everything else is flat. LK Losses, ISO-Bench, Vectorized Trie, and DynaMoE show zero or negligible movement — the community hasn't picked these up yet despite high relevance scores on paper.
