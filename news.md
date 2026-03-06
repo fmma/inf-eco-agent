@@ -1,37 +1,46 @@
-Here's the generated bulletin. It seems I need write permission to save it to `news.md`. The output should be:
-
 # Inference Ecosystem — Flash News
 
-**2026-03-05 — 139 papers scanned**
+**2026-03-06** — 154 papers scanned · 8 read in full · 5 highlighted
 
-### Qualcomm Cracks the Quantization Error Code with CAT
+---
 
-Qualcomm AI Research decomposes 4-bit quantization error into *concentration* (outlier spread) and *alignment* (weight-activation direction match) via SQNR analysis — and shows that popular Hadamard/rotation transforms only fix concentration while completely ignoring alignment. Their new Concentration-Alignment Transform (CAT) uses a small calibration set to jointly optimize both, yielding W4A4 SQNR that rivals W6A6 on Qwen v3 8B. On Llama 2 7B, Llama 3 8B, Ministral 8B, and Qwen 3 8B, CAT matches or beats FlatQuant and SpinQuant at 4-bit — without any training. This is the clearest theoretical framework yet for understanding *why* transforms help quantization, and it's immediately actionable. [arXiv:2603.04359](https://arxiv.org/abs/2603.04359) — Score: 90 (was 82)
+### FlashAttention-4: Maximizing Throughput on NVIDIA Blackwell GPUs
+*Tri Dao, Jay Shah, Ganesh Bikshandi, Vijay Thakkar, Pradeep Ramani, Harun Bayraktar (Together AI / Colfax / NVIDIA)*
 
-### Bielik-Q2-Sharp: The $285 Guide to Extreme 2-bit Quantization
+The FlashAttention line reaches Blackwell with a ground-up rewrite in CuTe-DSL (Python), targeting the B200's asymmetric MMA-to-memory ratio. Key moves: a software-emulated exponential that trades 1 ULP accuracy for an extra multiply slot, conditional softmax rescaling that skips ~40 % of rescale work, and a 2-CTA cooperative pipeline for the backward pass. Result: **1 613 TFLOP/s FP16 forward (71 % utilization)**, 1.3× over cuDNN 9.13 and 2.7× over Triton. The Python DSL cuts compile time 20–30× vs. C++ CUTLASS. Open-sourced.
 
-A single independent researcher systematically compares six SOTA 2-bit PTQ methods (QuIP#, SpinQuant+GPTQ, ButterflyQuant, QTIP, VPTQ, AQLM) on an 11B Polish LLM. The standout finding: a **MC-generation dissociation** where rotation-based methods (SpinQuant, ButterflyQuant) preserve log-likelihood but produce catastrophic autoregressive generation — loops and garbage text. QTIP achieves the best per-bit efficiency (79.4% MC acc at ~2.4 bpw, 3.27 GB), while QuIP# E8P12 matches the IQ2_XXS baseline within statistical noise. All models, Hessians, and evaluation logs are public. Essential reading if you're pushing models below 3 bits. [arXiv:2603.04162](https://arxiv.org/abs/2603.04162) — Score: 80 (was 78)
+### SlideSparse: Unlocking Sparse Tensor Cores via Sliding-Window Decomposition
+*Yuzong Chen et al.*
 
-### Speculative Decoding Meets Ascend NPU — With Caveats
+A new structured-sparsity family — **(2N−2):2N** — that maps to existing 2:4 Sparse Tensor Cores through a provably-optimal sliding-window decomposition (expansion factor γ = 2 − 2/N). At 6:8 sparsity on Qwen2.5-7B (A100, INT8 W8A8), SlideSparse delivers **1.33× end-to-end speedup** with negligible accuracy loss. Tested across A100, H100, B200, RTX 4090/5080, and DGX Spark. Integrated into **vLLM via a single config flag** — the most production-ready sparse-inference path to date.
 
-First end-to-end Medusa-style speculative decoding on Huawei Ascend NPU for OpenPangu-7B. The key engineering contribution: a fully static tree verification scheme with zero-copy path retrieval that sidesteps the NPU's static-graph execution constraint. Achieves 1.35x speedup for short sequences (L=128), but gains erode past 512 tokens as KV-cache memory bandwidth dominates — the NPU is more memory-sensitive than GPU here. Honest analysis of the memory wall on NPU hardware, useful for anyone targeting Ascend deployments. [arXiv:2603.03383](https://arxiv.org/abs/2603.03383) — Score: 78 (was 90)
+### VSPrefill: Vertical-Slash Sparse Attention for Long-Context Prefill
+*Cheng Luo et al.*
 
-### HyperParallel: Huawei's Supernode-Aware Framework for Trillion-Scale Models
+Decomposes attention into vertical (critical-token columns) and slash (local-diagonal) components, then trains a tiny bilayer "VSIndexer" to predict the sparse mask in linear time. Fused TileLang kernels avoid materializing the full attention matrix. On LLaMA-3.1-8B at 128 K context: **4.95× average prefill speedup, 98.35 % accuracy retention** across RULER, LongBench, and InfiniteBench. Scales better than competing sparse-attention methods as sequence length grows.
 
-Huawei/HKUST propose treating supernode clusters (384+ Ascend NPUs with unified memory) as a single logical computer inside MindSpore. Three components: HyperOffload (hierarchical HBM/DRAM memory management, 70% longer supported sequence lengths), HyperMPMD (fine-grained MPMD parallelism boosting MoE communication masking from 60% to 90%), and HyperShard (declarative parallel strategy specification). Mostly a vision paper with selected benchmarks, but signals where large-scale inference infrastructure is heading on non-NVIDIA hardware. [arXiv:2603.03731](https://arxiv.org/abs/2603.03731) — Score: 72 (was 75)
+### WaterSIC: Near-Optimal Post-Training Quantization via Waterfilling
+*Jiaqi Chen et al.*
 
-### Online Routing for Multi-Layer Hierarchical Inference
+Frames PTQ as a rate-distortion problem and allocates bits per column using the classic waterfilling algorithm. Proves that GPTQ's uniform allocation can be *arbitrarily* far from the information-theoretic limit; WaterSIC closes to within **0.255 bits of the IT bound**. On Llama-3.2-1B and Qwen3-8B across 1–4 bit, it sets new SOTA perplexity at every bitrate — particularly strong at sub-2-bit where other methods collapse.
 
-Formalizes the problem of routing inference tasks across edge-to-cloud hierarchies where feedback only arrives at the terminal oracle layer. Their VR-Ly-EXP4 algorithm integrates Lyapunov optimization with a variance-reduced bandit estimator to handle the depth-amplified feedback sparsity. On 80K jobs across 114 task types with 23 models, VR-Ly-EXP4 consistently achieves the lowest error rate and highest hit rate across 3-to-5-layer hierarchies. Directly relevant as inference moves toward tiered edge/cloud architectures. [arXiv:2603.04247](https://arxiv.org/abs/2603.04247) — Score: 72 (was 72)
+### Vocabulary Trimming for Faster Speculative Decoding
+*Sangjin Cheon et al.*
+
+Constrains the draft model's vocabulary to tokens the target model actually uses in-domain, cutting softmax and sampling cost. A TPE optimizer balances coverage vs. latency: **128 K → 13 K vocab (90 % reduction)** while retaining 93.7 % token coverage. Throughput gains of **6.7 % OOD and 19.6 % in-domain** (NER) on Llama-3.1-8B → 70B. Simple, orthogonal to other spec-decoding improvements.
+
+---
+
+*Other notable papers this batch: **InfoFlow KV** (attention-norm-guided selective KV recomputation for RAG, 3.49× at 32 K on 4× H100); **Helios** (3D-DRAM near-memory accelerator, 3.25× over GPU baselines); **SLO-Aware P/D disaggregation** (M/M/1 queuing model validated on DeepSeek-V3 + H200).*
 
 ---
 
 ## Surge Watch
 
+**SageBwd** ([2603.02170](http://arxiv.org/abs/2603.02170v1)) woke up — went from zero signals to 11 HF upvotes in a single day. A trainable low-bit attention paper from the Ion Stoica group; if the upvote curve continues tomorrow this one has legs.
 
+**Qwen3-Coder-Next** ([2603.00729](http://arxiv.org/abs/2603.00729v1)) keeps climbing — now at 35 HF upvotes (up from 28 yesterday, 6 two days ago) and GitHub stars crept to ~15.9k. Sustained momentum across three consecutive observations.
 
-**Qwen3-Coder-Next** ([2603.00729](http://arxiv.org/abs/2603.00729v1)) is picking up steam — HF upvotes jumped from 6 to 28 overnight, and GitHub stars ticked up to ~15.9k. Not an inference paper per se, but the agentic coding angle means inference efficiency matters downstream. Worth watching if the upvote curve holds.
+**Speculative Speculative Decoding** ([2603.03251](http://arxiv.org/abs/2603.03251v1)) just landed — Tri Dao and Tanishq Kumar. Only 1 HF upvote so far but scored 97 relevance. Too early for signal, but the author pedigree alone warrants a mention. One to track.
 
-**DualPath** ([2602.21548](http://arxiv.org/abs/2602.21548v1)) continues to hold steady at 37 HF upvotes — solid baseline traction for a storage-bandwidth paper, but growth has slowed to a trickle (+4 over 3 days). No surge here, just a paper that found its audience early.
-
-Everything else is flat. LK Losses, ISO-Bench, Vectorized Trie, and DynaMoE show zero or negligible movement — the community hasn't picked these up yet despite high relevance scores on paper.
+DualPath, LK Losses, and the rest: flat. No new movement worth reporting.
