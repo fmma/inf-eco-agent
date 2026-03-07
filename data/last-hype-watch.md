@@ -1,7 +1,5 @@
-**SageBwd** ([2603.02170](http://arxiv.org/abs/2603.02170v1)) woke up — went from zero signals to 11 HF upvotes in a single day. A trainable low-bit attention paper from the Ion Stoica group; if the upvote curve continues tomorrow this one has legs.
+**SageBwd** ([2603.02170](https://arxiv.org/abs/2603.02170v1)) continues its climb — 11 → 13 HF upvotes overnight. Not explosive, but steady upward trajectory from zero four days ago. The Ion Stoica pedigree keeps this one on the radar.
 
-**Qwen3-Coder-Next** ([2603.00729](http://arxiv.org/abs/2603.00729v1)) keeps climbing — now at 35 HF upvotes (up from 28 yesterday, 6 two days ago) and GitHub stars crept to ~15.9k. Sustained momentum across three consecutive observations.
+**Qwen3-Coder-Next** ([2603.00729](https://arxiv.org/abs/2603.00729v1)) is leveling off — only +2 HF upvotes today (35 → 37) after the 6 → 28 → 35 surge earlier in the week. GitHub stars still ticking up (~15.9k) but the initial burst appears to be cooling.
 
-**Speculative Speculative Decoding** ([2603.03251](http://arxiv.org/abs/2603.03251v1)) just landed — Tri Dao and Tanishq Kumar. Only 1 HF upvote so far but scored 97 relevance. Too early for signal, but the author pedigree alone warrants a mention. One to track.
-
-DualPath, LK Losses, and the rest: flat. No new movement worth reporting.
+Everything else: flat. Speculative Speculative Decoding still hasn't caught fire (2 upvotes). DualPath, LK Losses, ISO-Bench — no meaningful movement.
