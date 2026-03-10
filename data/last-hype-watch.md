@@ -1,1 +1,1 @@
-NO_HYPE
+[FlashPrefill](https://arxiv.org/abs/2603.06199v1) is picking up early community traction — HF upvotes jumped from 1 to 9 and GitHub stars from 3 to 12 in just one day since appearing. Worth watching given it was the standout paper this scan. [Qwen3-Coder-Next](https://arxiv.org/abs/2603.00729v1) continues steady accumulation at 43 HF upvotes (up from 6 a week ago), though that's modest for a major lab release. Everything else is flat or negligible.
