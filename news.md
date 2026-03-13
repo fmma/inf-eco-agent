@@ -1,45 +1,41 @@
 # Inference Ecosystem — Flash News
 
-**2026-03-12** — 133 new papers scanned
+**2026-03-13** | 179 new papers scanned
 
 ---
 
-### LookaheadKV — Learnable Cache Eviction Without Draft Models
-[arXiv:2603.10899](https://arxiv.org/abs/2603.10899) — Samsung Research · ICLR 2026
-
-Adds a handful of "lookahead tokens" and a tiny LoRA head to predict which KV entries will matter *before* generation begins, slashing eviction overhead by 14.5× versus draft-model approaches (LAQ, SpecKV) with under 0.5 % extra parameters. Evaluated on LLaMA and Qwen (1 B–8 B) across LongBench, RULER, and MT-Bench with negligible TTFT cost. Code available.
+[**LongFlow: Training-Free Long-Context KV Cache Compression for Reasoning Models**](https://arxiv.org/abs/2603.11504)
+Fuses FlashAttention with importance estimation and token eviction in a single Triton kernel, eliminating the separate scoring pass that plagues existing KV cache compression methods. Achieves 11.8x throughput on Qwen3-1.7B at 80% compression with negligible accuracy loss, and scales to DeepSeek-R1-Distill-Llama-8B where it maintains full-score AIME accuracy under 50% compression. The kernel design (fused attention + eviction in one pass) is the real contribution; the compression policy itself is secondary.
 **Rescored relevance: 94**
 
-### AgentServe — CUDA Green Contexts for Single-GPU Agentic Serving
-[arXiv:2603.10342](https://arxiv.org/abs/2603.10342)
+[**IndexCache: Cross-Layer Index Reuse for Sparse Attention Acceleration**](https://arxiv.org/abs/2603.12201)
+Observes that DeepSeek-style sparse attention indexers produce nearly identical top-k selections across adjacent layers (>95% overlap), then eliminates 75% of indexer computations by reusing indices. Validated on production-scale GLM-5-744B in addition to 30B benchmarks, delivering 1.82x prefill and 1.48x decode speedup. Training-aware distillation variant recovers the small accuracy gap from greedy reuse with minimal fine-tuning cost.
+**Rescored relevance: 92**
 
-Partitions streaming multiprocessors via CUDA Green Contexts so a single GPU can run multiple agentic sessions with hard SM isolation, pairing this with a TPOT-driven scheduler that picks batch size per partition. On an RTX 5090 (170 SMs) with Qwen2.5-7B, delivers up to 2.8× TTFT and 2.7× TPOT improvement over SGLang, vLLM, and llama.cpp.
-**Rescored relevance: 93**
+[**SFI: Training-Free Acceleration via Attention Support Stability**](https://arxiv.org/abs/2603.12038)
+Exploits the observation that attention support sets are stable within sentences but shift at semantic boundaries, enabling aggressive sparse-cache fast steps between boundary-triggered full recomputations. A closed-form selector derived from reverse-KL fusion avoids any learned components. Reports 1.6x to 14.4x throughput gains across tasks with no fine-tuning, applicable to any existing checkpoint.
+**Rescored relevance: 88**
 
-### S-HPLB — Sparsity-Aware Head Parallelism for Long-Context Attention
-[arXiv:2603.10353](https://arxiv.org/abs/2603.10353)
+[**Cornserve: Distributed Serving for Any-to-Any Multimodal Models**](https://arxiv.org/abs/2603.12118)
+First system to serve generic multimodal models (text, audio, image, video in any combination) across distributed GPUs with component-level scheduling. Introduces model fission at modality boundaries and record-and-replay execution to handle dynamic computation graphs. On Qwen 2.5 Omni, delivers 3.81x throughput and 5.79x lower P99 latency versus naive pipeline parallelism; open-sourced on Kubernetes (~23K lines Python).
+**Rescored relevance: 86**
 
-Tackles the load-imbalance problem in sparse attention by adaptively redistributing sparsity budgets across heads (max-min shifting) and then greedily balancing head-to-GPU assignment. Cuts attention latency by 2.88× on 8×A100 for Qwen2.5-72B at 128 K context, built atop MInference.
-**Rescored relevance: 90**
-
-### ES-dLLM — Early-Skipping Acceleration for Diffusion Language Models
-[arXiv:2603.10088](https://arxiv.org/abs/2603.10088) — Tsinghua IIIS · ICLR 2026
-
-Training-free method that identifies low-importance tokens early in the layer stack and skips their remaining computation, yielding 5.6–16.8× wall-clock speedup on LLaDA-8B and up to 13.5× on Dream-7B (H200). First work to seriously optimize inference for the emerging masked-diffusion LLM paradigm.
-**Rescored relevance: 90**
-
-### LLVQ — Leech-Lattice Vector Quantization at 2 Bits
-[arXiv:2603.11021](https://arxiv.org/abs/2603.11021) — Qualcomm AI Research
-
-Exploits the 24-dimensional Leech lattice for codebook-free 2-bit post-training quantization, retaining 92 % of Shannon capacity. Beats AQLM, QuIP#, and QTIP across Llama-2/3, Ministral-3, and Qwen-v3 families with a fully parallelizable dequant kernel using fast modulo arithmetic — no lookup tables needed.
-**Rescored relevance: 85**
+[**DapQ: Position-Aware Pseudo Queries for KV Cache Compression**](https://arxiv.org/abs/2603.11564)
+Demonstrates that positional information dominates query representations in importance scoring (cosine similarity 0.7238 with correct position vs. 0.3522 with correct content), then constructs position-aware pseudo queries that enable decoding-aligned eviction without access to future queries. Retains 99.5% accuracy on Needle-in-a-Haystack at a 3% KV cache budget, a notable improvement over position-agnostic baselines.
+**Rescored relevance: 83**
 
 ---
 
-*Surge Watch is reported separately.*
+**Surge Watch:** Nothing to report this cycle. No papers from the scored pool are showing notable external signal movement.
 
 ---
 
 ## Surge Watch
 
-Nothing noteworthy in signal trends today.
+
+
+[FlashPrefill](https://arxiv.org/abs/2603.06199v1) GitHub stars continue climbing steadily: 3 → 12 → 16 → 21 → 27 over five days. HF upvotes plateaued at 9, but the repo traction suggests practitioners are picking it up for long-context prefilling workloads.
+
+[Fish Audio S2](https://arxiv.org/abs/2603.08823v1) maintained its trajectory — 3 → 14 → 20 HF upvotes across three days, now with 26k GitHub stars on the parent repo. Still not core inference, but consistent community interest.
+
+Everything else is flat. Qwen3-Coder-Next grinding at 45 HF upvotes. DualPath stuck at 43. LK Losses frozen at 18 for two weeks straight. Multi-Head Low-Rank Attention showed first signs of life (3 HF upvotes, 8 GitHub stars) but too early to call.
