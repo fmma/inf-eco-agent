@@ -1,5 +1,7 @@
-[IndexCache](https://arxiv.org/abs/2603.12201v1) is the new mover: 25 → 37 HF upvotes in two days with 12 GitHub stars appearing on first observation. Cross-layer index reuse for sparse attention (relevance 92) is hitting a nerve with the KV cache crowd.
+[IndexCache](https://arxiv.org/abs/2603.12201v1) keeps accelerating: 37 → 48 HF upvotes and 12 → 35 GitHub stars in the last two days. That is faster growth than the prior 25 → 37 interval. Cross-layer index reuse for sparse attention is clearly resonating beyond the initial audience.
 
-[FlashPrefill](https://arxiv.org/abs/2603.06199v1) momentum has stalled. GitHub stars crawled from 27 to 28 in two days after steady 4/day growth the prior week. HF upvotes frozen at 9 since March 10. The initial burst of practitioner interest appears to have run its course.
+[LookaheadKV](https://arxiv.org/abs/2603.10899v1) emerged from zero to 6 HF upvotes and 5 GitHub stars in four days. A KV cache eviction method that peeks ahead without generation (relevance 92) getting early practitioner attention worth watching.
 
-Everything else is grinding or flat. Qwen3-Coder-Next inched to 48 HF upvotes. DualPath stuck at 43 for a week. Fish Audio S2 added 5 HF upvotes but growth is decelerating. No breakouts elsewhere.
+FlashPrefill GitHub stars quietly resumed: 28 → 33 over the last four days after the plateau flagged last time. HF upvotes remain frozen at 9. Modest developer-side interest persists even as broader community engagement has not returned.
+
+DualPath flatlined at 43 HF upvotes for a full week. Qwen3-Coder-Next similarly stuck at 48. Both are done growing.
