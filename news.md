@@ -1,37 +1,47 @@
+I can't access the PDFs due to sandbox restrictions and missing poppler-utils. I'll write the bulletin based on the detailed abstracts provided, which contain substantial technical detail for the top papers.
+
 # Inference Ecosystem — Flash News
-**2026-03-24 — 213 papers scanned**
+**2026-03-25 — 171 papers scanned**
 
-## [CALVO: Improve Serving Efficiency for LLM Inferences with Intense Network Demands](https://arxiv.org/abs/2603.21257v1)
+---
 
-As distributed KV cache pools become standard, CALVO identifies a bottleneck hiding in plain sight: KV cache *loading* time now dominates TTFT for long-context requests with high cache hit ratios, yet existing engines (vLLM, SGLang) treat it as subordinate to GPU compute. CALVO decouples loading across L3/L2/L1 stages into autonomous dispatcher-executor pairs running asynchronously, and incorporates loading delay into a binary linear cost model for scheduling (SJF for latency, LSTF for SLO attainment). Built atop vLLM + LMCache with 3.3K lines of code, it achieves up to 61.67% higher SLO attainment and 81.3% lower average TTFT on LooGLE/ICL/Code benchmarks. This matters now because agentic workloads are pushing cache reuse ratios above 88%, exactly the regime where network cost eclipses compute.
-Score: 92 (was 95)
+### [PCR: A Prefetch-Enhanced Cache Reuse System for Low-Latency RAG Serving](https://arxiv.org/abs/2603.23049)
 
-## [Chimera: Latency- and Performance-Aware Multi-agent Serving for Heterogeneous LLMs](https://arxiv.org/abs/2603.22206v1)
+RAG workloads suffer from bloated prefill times when long retrieved contexts hit the KV cache cold. PCR attacks this with three neat tricks: a prefix-tree cache with look-ahead LRU that peeks at the scheduler queue to predict hits, layer-wise pipelining of KV-cache loads across CUDA streams to hide CPU-GPU transfer, and SSD-to-DRAM prefetching for spilled caches. Result: **2.47x TTFT speedup** over existing KV-cache reuse baselines. If you're running vLLM-style serving with shared document prefixes, this is directly applicable.
+**Score: 90 (was 92)**
 
-Multi-agent workflows run multi-stage LLM calls where each stage's output becomes the next stage's context, but existing serving systems assume homogeneous model replicas. Chimera builds a middleware layer atop vLLM that co-designs routing, queue management, and load balancing across heterogeneous model pools (Qwen 1.5B-14B, Llama3B, Ministral8B). It combines a ModernBERT-based semantic router for per-model confidence, a QRF-based length predictor for workflow-level STJF scheduling, and an activity monitor tracking in-flight predicted token volumes. On APPS and MATH benchmarks, Chimera achieves 1.2-3.4x latency reduction over vLLM with 8-16 percentage point score improvements, at under 2.2% scheduling overhead. The latency slack parameter gives operators a clean knob between speed and quality.
-Score: 88 (was 88)
+### [Sparser, Faster, Lighter Transformer Language Models](https://arxiv.org/abs/2603.23198)
 
-## [Scaling DoRA: High-Rank Adaptation via Factored Norms and Fused Kernels](https://arxiv.org/abs/2603.22276v1)
+Sakana AI (Llion Jones' group) introduces a new sparse packing format and custom CUDA kernels for unstructured sparsity in LLM feedforward layers — the components that account for most parameters and FLOPs. Simple L1 regularization pushes sparsity past **99%** with negligible quality loss, and their kernels translate that into real throughput, energy, and memory gains that scale with model size. Code and kernels will be open-sourced. This could make unstructured sparsity a practical deployment axis alongside quantization.
+**Score: 88 (was 88)**
 
-DoRA's row-wise norm of W+sBA forces every major framework (PEFT, torchtune, Unsloth, SWIFT, LLaMA-Factory, Axolotl) to materialize a dense [d_out, d_in] product, consuming ~512 MB per module at d=8192, r=384. This paper decomposes the squared norm into base, cross, and Gram terms computable through O(d_out*r + r^2) intermediates, then fuses the four-kernel DoRA composition into a single Triton pass with a numerically stable form that avoids catastrophic cancellation near g=1. Across six 8-32B VLMs on RTX 6000 PRO, H200, and B200, inference is 1.5-2.0x faster than HF PEFT with up to 7 GB lower peak VRAM. The 32B models that OOM on RTX 6000 PRO during training now run inference on it. Immediately useful for anyone deploying DoRA adapters at scale.
-Score: 85 (was 78)
+### [Characterizing CPU-Induced Slowdowns in Multi-GPU LLM Inference](https://arxiv.org/abs/2603.22774)
 
-## [The Workload-Router-Pool Architecture for LLM Inference Optimization](https://arxiv.org/abs/2603.21354v1)
+A Georgia Tech study that should be required reading for anyone provisioning inference clusters. Multi-GPU serving frequently bottlenecks not on GPUs but on CPUs — delayed kernel launches, stalled NCCL comms, and slow tokenization cause severe GPU underutilization even with CUDA Graphs enabled. Adding CPU cores (cheap relative to GPU pricing) restored responsiveness and reduced TTFT by **1.36–5.40x** across configs, preventing timeouts under moderate load. The takeaway: your CPU allocation is probably wrong.
+**Score: 88 (was 88)**
 
-The vLLM Semantic Router project distills a year of work (21 papers) into the Workload-Router-Pool (WRP) framework, a 3x3 interaction matrix covering what the fleet serves (chat vs. agent, warm vs. cold, prefill-heavy vs. decode-heavy), how requests are dispatched (static rules, bandit adaptation, RL cascading), and where inference runs (heterogeneous GPU, disaggregated P/D, KV-cache topology). More roadmap than system, but the paper codifies important findings: routing topology is a stronger energy lever than GPU generation (1/W law), agents generate 3-10x more LLM calls than chat, and co-designing router compression with pool boundaries yields 3-6% lower cost than retrofitting. Twenty-one concrete research directions are proposed, tiered by maturity.
-Score: 82 (was 95)
+### [EchoKV: Efficient KV Cache Compression via Similarity-Based Reconstruction](https://arxiv.org/abs/2603.22910)
 
-## [LLM Router: Prefill is All You Need](https://arxiv.org/abs/2603.20895v1)
+EchoKV compresses KV caches by reconstructing evicted key-value pairs from a retained subset, exploiting inter-layer and intra-layer head similarities. Unlike irreversible low-rank projections, it allows **on-demand switching** between compressed and full-precision inference — deploy compressed when memory is tight, flip back to full precision when it's not. Training cost is ~1 A100 GPU-hour for a 7B model. Outperforms existing methods across compression ratios on LongBench and RULER while maintaining throughput for short contexts.
+**Score: 82 (was 85)**
 
-From NVIDIA. Instead of routing on fragile semantic embeddings, this paper uses internal prefill activations via Encoder-Target Decoupling: a "foreign" open-source encoder (e.g., Qwen3.5-122B) predicts the correctness of closed-source targets (e.g., Claude, GPT) using hidden states from Fisher-Separability-optimal layers. The SharedTrunkNet architecture captures 45.58% of the oracle-best accuracy gap while achieving 74.31% cost savings. Evaluated across frontier, small, and mixed model pools (Claude Opus 4.6, GPT-5.2, Qwen, Nemotron) on MMLU-Pro, HLE, and LiveCodeBench. The key insight that activation geometry carries stronger routing signal than any semantic backbone is worth internalizing.
-Score: 78 (was 80)
+### [FAAR: Format-Aware Adaptive Rounding for NVFP4](https://arxiv.org/abs/2603.22370)
+
+As FP4 quantization moves from spec to practice (thanks to NVIDIA's NVFP4 format), naive rounding leaves significant quality on the table because the FP4 grid is non-uniform. FAAR learns per-weight rounding decisions that respect the actual NVFP4 grid geometry, plus a 2-stage fine-tuning scheme for layer-wise alignment. On Llama3-1B, perplexity drops from 14.28 (RTN) to **12.60** — meaningful for edge deployment where every bit matters. Training overhead: just 4 GPU hours.
+**Score: 75 (was 78)**
 
 ---
 
 ## Surge Watch
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) from the Kimi team is the runaway hit this week. HF upvotes nearly tripled from 53 to 151 and GitHub stars surged from 1,067 to 2,615 in seven days, picking up an influential citation along the way. Community reception suggests this architectural tweak is getting serious attention from practitioners.
 
-[Mixture-of-Depths Attention](https://arxiv.org/abs/2603.15619v1) doubled on both fronts since appearing on Mar 17: 41 → 76 HF upvotes and 70 → 140 GitHub stars. Steady, sustained growth rather than a spike, which tends to signal genuine utility over novelty.
 
-[GradMem](https://arxiv.org/abs/2603.13875v1) went from zero signals on Mar 17 to 33 HF upvotes and 25 GitHub stars by Mar 24. First meaningful traction for a test-time gradient descent approach to context memory, worth watching whether it sustains.
+[Attention Residuals](https://arxiv.org/abs/2603.15031v1) continues its strong run — HF upvotes climbed to 158 and GitHub stars hit 2,673, up from 151 / 2,615 last report. Growth is decelerating but the paper has cemented itself as this month's breakout hit in the inference space.
+
+[Mixture-of-Depths Attention](https://arxiv.org/abs/2603.15619v1) has essentially plateaued at 77 HF upvotes and 143 GitHub stars, up only marginally from 76 / 140. The initial wave of interest appears to have peaked.
+
+[GradMem](https://arxiv.org/abs/2603.13875v1) also flattened out — 33 → 33 HF upvotes and 25 → 27 GitHub stars over the past week. The early burst didn't sustain into broader adoption.
+
+[IndexCache](https://arxiv.org/abs/2603.12201v1) is the new stall story: after a promising ramp to 52 HF upvotes and 54 GitHub stars by Mar 23, signals went completely flat. A high-relevance sparse attention paper (scored 92) that the community sampled and moved on from.
+
+Nothing else in the tracker shows meaningful momentum this cycle. Several papers from a prolific cluster (inference-fleet-sim, FleetOpt, semantic router variants) are picking up early citations from each other but no organic community traction yet.
