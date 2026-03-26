@@ -1,34 +1,32 @@
-I can't access the PDFs due to sandbox restrictions and missing poppler-utils. I'll write the bulletin based on the detailed abstracts provided, which contain substantial technical detail for the top papers.
+Now I have all the information I need from the PDFs. Let me write the bulletin based on my rescored assessments.
 
 # Inference Ecosystem — Flash News
-**2026-03-25 — 171 papers scanned**
+**2026-03-26 — 136 papers scanned**
 
----
+### [AVO: Agentic Variation Operators for Autonomous Evolutionary Search](https://arxiv.org/abs/2603.24517v1)
 
-### [PCR: A Prefetch-Enhanced Cache Reuse System for Low-Latency RAG Serving](https://arxiv.org/abs/2603.23049)
+NVIDIA lets an autonomous coding agent loose on attention kernels for 7 days on Blackwell B200 GPUs — and it beats both cuDNN (by up to 3.5%) and FlashAttention-4 (by up to 10.5%) on causal MHA, peaking at 1668 TFLOPS in BF16. The discovered optimizations — branchless accumulator rescaling (+8.1%), correction/MMA pipeline overlap, register rebalancing across warp groups — reflect genuine hardware-level reasoning across synchronization, scheduling, and register allocation. The GQA adaptation took only 30 minutes of additional agent effort, yielding up to 9.3% over FA4. This is the strongest evidence yet that agentic search can surpass months of expert kernel engineering.
+Score: 95 (was 78)
 
-RAG workloads suffer from bloated prefill times when long retrieved contexts hit the KV cache cold. PCR attacks this with three neat tricks: a prefix-tree cache with look-ahead LRU that peeks at the scheduler queue to predict hits, layer-wise pipelining of KV-cache loads across CUDA streams to hide CPU-GPU transfer, and SSD-to-DRAM prefetching for spilled caches. Result: **2.47x TTFT speedup** over existing KV-cache reuse baselines. If you're running vLLM-style serving with shared document prefixes, this is directly applicable.
-**Score: 90 (was 92)**
+### [Self-Distillation for Multi-Token Prediction](https://arxiv.org/abs/2603.23911v1)
 
-### [Sparser, Faster, Lighter Transformer Language Models](https://arxiv.org/abs/2603.23198)
+Tencent's MTP-D adds gradient-detached, TopN-logits-selected self-distillation from the main head to MTP heads during pretraining, boosting acceptance rates by 7.5% (4 heads) and translating to 22.9% inference speedup with no main-head accuracy loss. The looped extension strategy scales MTP heads from 4 to 16 via cheap continued pretraining (70B tokens), reaching up to 3.05x speedup over single-head MTP. Directly applicable to DeepSeek-V3-style cascaded MTP architectures now shipping in production LLMs like MiMo, GLM, and Qwen3.
+Score: 88 (was 82)
 
-Sakana AI (Llion Jones' group) introduces a new sparse packing format and custom CUDA kernels for unstructured sparsity in LLM feedforward layers — the components that account for most parameters and FLOPs. Simple L1 regularization pushes sparsity past **99%** with negligible quality loss, and their kernels translate that into real throughput, energy, and memory gains that scale with model size. Code and kernels will be open-sourced. This could make unstructured sparsity a practical deployment axis alongside quantization.
-**Score: 88 (was 88)**
+### [AttentionPack: Attention-aware Inference Optimizations for Large Vision-Language Models](https://arxiv.org/abs/2603.23914v1)
 
-### [Characterizing CPU-Induced Slowdowns in Multi-GPU LLM Inference](https://arxiv.org/abs/2603.22774)
+AttentionPack exploits the low-rank structure of visual token KV caches via multi-head SVD compression, achieving up to 8x memory reduction on VideoLLaVA and 5x on LLaVA with negligible quality loss. The attention-aware partial decompression trick cuts decompression FLOPs by 67% by using lower ranks for low-attention tokens. Combines cleanly with eviction, 4-bit quantization, and a fused FlashAttention-style kernel that halves decode latency. Particularly relevant as VLMs push to longer video contexts and higher-resolution multi-image inputs.
+Score: 85 (was 88)
 
-A Georgia Tech study that should be required reading for anyone provisioning inference clusters. Multi-GPU serving frequently bottlenecks not on GPUs but on CPUs — delayed kernel launches, stalled NCCL comms, and slow tokenization cause severe GPU underutilization even with CUDA Graphs enabled. Adding CPU cores (cheap relative to GPU pricing) restored responsiveness and reduced TTFT by **1.36–5.40x** across configs, preventing timeouts under moderate load. The takeaway: your CPU allocation is probably wrong.
-**Score: 88 (was 88)**
+### [The Diminishing Returns of Early-Exit Decoding in Modern LLMs](https://arxiv.org/abs/2603.23701v1)
 
-### [EchoKV: Efficient KV Cache Compression via Similarity-Based Reconstruction](https://arxiv.org/abs/2603.22910)
+A systematic study introducing the Early-exit Adaptability Score (EAS) metric, benchmarked across Llama2→4, Qwen2→3, GPT-OSS, and Mamba families. The verdict: modern LLMs are getting worse for early-exit, not better. Newer models show reduced layer redundancy thanks to improved pretraining recipes, with similarity to the final layer emerging only in the last few layers. Dense transformers still offer more early-exit potential than MoE or SSMs, and models >20B parameters fare best. Important calibration for anyone investing in early-exit inference optimizations — the easy wins are disappearing.
+Score: 80 (was 82)
 
-EchoKV compresses KV caches by reconstructing evicted key-value pairs from a retained subset, exploiting inter-layer and intra-layer head similarities. Unlike irreversible low-rank projections, it allows **on-demand switching** between compressed and full-precision inference — deploy compressed when memory is tight, flip back to full precision when it's not. Training cost is ~1 A100 GPU-hour for a 7B model. Outperforms existing methods across compression ratios on LongBench and RULER while maintaining throughput for short contexts.
-**Score: 82 (was 85)**
+### [LLM Inference at the Edge: Mobile, NPU, and GPU Trade-offs Under Sustained Load](https://arxiv.org/abs/2603.23640v1)
 
-### [FAAR: Format-Aware Adaptive Rounding for NVFP4](https://arxiv.org/abs/2603.22370)
-
-As FP4 quantization moves from spec to practice (thanks to NVIDIA's NVFP4 format), naive rounding leaves significant quality on the table because the FP4 grid is non-uniform. FAAR learns per-weight rounding decisions that respect the actual NVFP4 grid geometry, plus a 2-stage fine-tuning scheme for layer-wise alignment. On Llama3-1B, perplexity drops from 14.28 (RTN) to **12.60** — meaningful for edge deployment where every bit matters. Training overhead: just 4 GPU hours.
-**Score: 75 (was 78)**
+Benchmarks Qwen 2.5 1.5B (4-bit) across RPi5+Hailo-10H NPU, Galaxy S24 Ultra, iPhone 16 Pro, and RTX 4050 over 20 sustained iterations. The headline: thermal throttling, not peak compute, is the binding constraint on mobile. The iPhone 16 Pro loses 44% throughput within 2 iterations; the S24 Ultra's GPU gets frequency-floored by the OS at iteration 6. Meanwhile, the Hailo-10H NPU sustains 6.9 tok/s at 1.87W with 0.04% throughput variance and 271 mJ/token — matching RTX 4050 energy proportionality at 19x lower throughput. Essential reading for anyone planning always-on edge agent deployments.
+Score: 82 (was 88)
 
 ---
 
@@ -36,12 +34,10 @@ As FP4 quantization moves from spec to practice (thanks to NVIDIA's NVFP4 format
 
 
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) continues its strong run — HF upvotes climbed to 158 and GitHub stars hit 2,673, up from 151 / 2,615 last report. Growth is decelerating but the paper has cemented itself as this month's breakout hit in the inference space.
+[SpecEyes](https://arxiv.org/abs/2603.23483v1) is the fresh mover this cycle — 19 → 47 HF upvotes and 6 → 36 GitHub stars in a single day. A speculative perception/planning approach for agentic multimodal LLMs; worth watching whether this sustains or was a one-day spike.
 
-[Mixture-of-Depths Attention](https://arxiv.org/abs/2603.15619v1) has essentially plateaued at 77 HF upvotes and 143 GitHub stars, up only marginally from 76 / 140. The initial wave of interest appears to have peaked.
+[Attention Residuals](https://arxiv.org/abs/2603.15031v1) keeps grinding: 161 HF upvotes (+3) and 2,722 GitHub stars (+49 since last report). Growth has clearly tapered but the absolute numbers are remarkable — this is the defining inference paper of March 2026.
 
-[GradMem](https://arxiv.org/abs/2603.13875v1) also flattened out — 33 → 33 HF upvotes and 25 → 27 GitHub stars over the past week. The early burst didn't sustain into broader adoption.
+[Mamba-3](https://arxiv.org/abs/2603.15569v1) is quietly picking up academic traction — citations jumped from 4 to 6 in the last two days, including its first influential citation. HF engagement is minimal (6 upvotes) but the citation velocity suggests researchers are building on it.
 
-[IndexCache](https://arxiv.org/abs/2603.12201v1) is the new stall story: after a promising ramp to 52 HF upvotes and 54 GitHub stars by Mar 23, signals went completely flat. A high-relevance sparse attention paper (scored 92) that the community sampled and moved on from.
-
-Nothing else in the tracker shows meaningful momentum this cycle. Several papers from a prolific cluster (inference-fleet-sim, FleetOpt, semantic router variants) are picking up early citations from each other but no organic community traction yet.
+Everything else in the tracker is flat or showing only marginal movement. The inference-fleet-sim / FleetOpt / semantic router cluster continues accumulating cross-citations but no organic community pickup.

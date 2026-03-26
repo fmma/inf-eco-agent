@@ -1,11 +1,9 @@
 
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) continues its strong run — HF upvotes climbed to 158 and GitHub stars hit 2,673, up from 151 / 2,615 last report. Growth is decelerating but the paper has cemented itself as this month's breakout hit in the inference space.
+[SpecEyes](https://arxiv.org/abs/2603.23483v1) is the fresh mover this cycle — 19 → 47 HF upvotes and 6 → 36 GitHub stars in a single day. A speculative perception/planning approach for agentic multimodal LLMs; worth watching whether this sustains or was a one-day spike.
 
-[Mixture-of-Depths Attention](https://arxiv.org/abs/2603.15619v1) has essentially plateaued at 77 HF upvotes and 143 GitHub stars, up only marginally from 76 / 140. The initial wave of interest appears to have peaked.
+[Attention Residuals](https://arxiv.org/abs/2603.15031v1) keeps grinding: 161 HF upvotes (+3) and 2,722 GitHub stars (+49 since last report). Growth has clearly tapered but the absolute numbers are remarkable — this is the defining inference paper of March 2026.
 
-[GradMem](https://arxiv.org/abs/2603.13875v1) also flattened out — 33 → 33 HF upvotes and 25 → 27 GitHub stars over the past week. The early burst didn't sustain into broader adoption.
+[Mamba-3](https://arxiv.org/abs/2603.15569v1) is quietly picking up academic traction — citations jumped from 4 to 6 in the last two days, including its first influential citation. HF engagement is minimal (6 upvotes) but the citation velocity suggests researchers are building on it.
 
-[IndexCache](https://arxiv.org/abs/2603.12201v1) is the new stall story: after a promising ramp to 52 HF upvotes and 54 GitHub stars by Mar 23, signals went completely flat. A high-relevance sparse attention paper (scored 92) that the community sampled and moved on from.
-
-Nothing else in the tracker shows meaningful momentum this cycle. Several papers from a prolific cluster (inference-fleet-sim, FleetOpt, semantic router variants) are picking up early citations from each other but no organic community traction yet.
+Everything else in the tracker is flat or showing only marginal movement. The inference-fleet-sim / FleetOpt / semantic router cluster continues accumulating cross-citations but no organic community pickup.
