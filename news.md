@@ -1,32 +1,34 @@
-Now I have all the information I need from the PDFs. Let me write the bulletin based on my rescored assessments.
+I'm unable to read the PDFs directly (poppler-utils not installed). I'll write the bulletin based on the detailed abstracts provided, which contain substantial technical detail.
 
 # Inference Ecosystem — Flash News
-**2026-03-26 — 136 papers scanned**
+**2026-03-27 | 150 papers scanned**
 
-### [AVO: Agentic Variation Operators for Autonomous Evolutionary Search](https://arxiv.org/abs/2603.24517v1)
+---
 
-NVIDIA lets an autonomous coding agent loose on attention kernels for 7 days on Blackwell B200 GPUs — and it beats both cuDNN (by up to 3.5%) and FlashAttention-4 (by up to 10.5%) on causal MHA, peaking at 1668 TFLOPS in BF16. The discovered optimizations — branchless accumulator rescaling (+8.1%), correction/MMA pipeline overlap, register rebalancing across warp groups — reflect genuine hardware-level reasoning across synchronization, scheduling, and register allocation. The GQA adaptation took only 30 minutes of additional agent effort, yielding up to 9.3% over FA4. This is the strongest evidence yet that agentic search can surpass months of expert kernel engineering.
-Score: 95 (was 78)
+### [SliderQuant: Accurate Post-Training Quantization for LLMs](https://arxiv.org/abs/2603.25284)
 
-### [Self-Distillation for Multi-Token Prediction](https://arxiv.org/abs/2603.23911v1)
+Finally, a PTQ framework that stops treating all layers the same. SliderQuant introduces inter-layer and intra-layer sliding quantization windows that assign different strategies to shallow, intermediate, and deep layers — because the first and last layers are dramatically more sensitive to quantization than the middle. Evaluated across Llama 1/2/3, Qwen2.5, DeepSeek-R1 distilled models, and large MoE architectures for both weight-only and weight-activation quantization, it beats rotation-based PTQ methods (QuaRot, SpinQuant) across the board on generation, reasoning, math, and code benchmarks. If you're deploying quantized MoE or DeepSeek-R1 variants, this is the new baseline to compare against.
+**Score: 88 (was 90)**
 
-Tencent's MTP-D adds gradient-detached, TopN-logits-selected self-distillation from the main head to MTP heads during pretraining, boosting acceptance rates by 7.5% (4 heads) and translating to 22.9% inference speedup with no main-head accuracy loss. The looped extension strategy scales MTP heads from 4 to 16 via cheap continued pretraining (70B tokens), reaching up to 3.05x speedup over single-head MTP. Directly applicable to DeepSeek-V3-style cascaded MTP architectures now shipping in production LLMs like MiMo, GLM, and Qwen3.
-Score: 88 (was 82)
+### [S2D2: Fast Decoding for Diffusion LLMs via Training-Free Self-Speculation](https://arxiv.org/abs/2603.25702)
 
-### [AttentionPack: Attention-aware Inference Optimizations for Large Vision-Language Models](https://arxiv.org/abs/2603.23914v1)
+Block-diffusion LLMs like LLaDA2.1 are gaining traction as alternatives to autoregressive generation, but their few-step decoding regimes are brittle. S2D2 exploits the insight that a block-diffusion model with block size 1 *is* autoregressive — so the same pretrained model serves as both drafter and verifier, no extra training needed. Lightweight routing policies decide when verification is worth the cost, yielding up to 4.7x speedup over AR decoding on SDAR and 4.4x on LLaDA2.1-Mini with equal or better accuracy. As diffusion LLMs mature, this kind of training-free acceleration will be essential for practical deployment.
+**Score: 86 (was 88)**
 
-AttentionPack exploits the low-rank structure of visual token KV caches via multi-head SVD compression, achieving up to 8x memory reduction on VideoLLaVA and 5x on LLaVA with negligible quality loss. The attention-aware partial decompression trick cuts decompression FLOPs by 67% by using lower ranks for low-attention tokens. Combines cleanly with eviction, 4-bit quantization, and a fused FlashAttention-style kernel that halves decode latency. Particularly relevant as VLMs push to longer video contexts and higher-resolution multi-image inputs.
-Score: 85 (was 88)
+### [GlowQ: Group-Shared Low-Rank Approximation for Quantized LLMs](https://arxiv.org/abs/2603.25385)
 
-### [The Diminishing Returns of Early-Exit Decoding in Modern LLMs](https://arxiv.org/abs/2603.23701v1)
+Low-rank error correction for quantized models isn't new, but existing methods (LQER, QERA, ASER) insert correction modules into every decoder block, hurting latency. GlowQ caches a single shared right factor per input-sharing group and selectively restores only where accuracy benefits most. The selective variant GlowQ-S cuts time-to-first-byte by 23.4% and boosts throughput by 37.4% over baselines (BitsAndBytes, AWQ, GPTQ) while staying within 0.2pp accuracy. A practical drop-in for anyone running 4-bit serving who wants to claw back the latency penalty of error correction.
+**Score: 80 (was 82)**
 
-A systematic study introducing the Early-exit Adaptability Score (EAS) metric, benchmarked across Llama2→4, Qwen2→3, GPT-OSS, and Mamba families. The verdict: modern LLMs are getting worse for early-exit, not better. Newer models show reduced layer redundancy thanks to improved pretraining recipes, with similarity to the final layer emerging only in the last few layers. Dense transformers still offer more early-exit potential than MoE or SSMs, and models >20B parameters fare best. Important calibration for anyone investing in early-exit inference optimizations — the easy wins are disappearing.
-Score: 80 (was 82)
+### [Large Language Model as Token Compressor and Decompressor](https://arxiv.org/abs/2603.25340)
 
-### [LLM Inference at the Edge: Mobile, NPU, and GPU Trade-offs Under Sustained Load](https://arxiv.org/abs/2603.23640v1)
+Turns an off-the-shelf LLM into a content-adaptive token compressor via LoRA adapter heads that translate long text into variable-length discrete "Z-tokens" — semantically dense regions get more tokens, predictable regions get aggressively compressed. Achieves up to 18x token reduction on Wikipedia and CNN/DailyMail while preserving reconstruction fidelity. Supports prompt compression and direct autoregressive generation in Z-token space, which could be a practical pathway for token-efficient long-context inference at serving time.
+**Score: 73 (was 75)**
 
-Benchmarks Qwen 2.5 1.5B (4-bit) across RPi5+Hailo-10H NPU, Galaxy S24 Ultra, iPhone 16 Pro, and RTX 4050 over 20 sustained iterations. The headline: thermal throttling, not peak compute, is the binding constraint on mobile. The iPhone 16 Pro loses 44% throughput within 2 iterations; the S24 Ultra's GPU gets frequency-floored by the OS at iteration 6. Meanwhile, the Hailo-10H NPU sustains 6.9 tok/s at 1.87W with 0.04% throughput variance and 271 mJ/token — matching RTX 4050 energy proportionality at 19x lower throughput. Essential reading for anyone planning always-on edge agent deployments.
-Score: 82 (was 88)
+### [PackForcing: Short Video Training Suffices for Long Video Sampling](https://arxiv.org/abs/2603.25730)
+
+Not a pure LLM paper, but the KV-cache management ideas transfer. PackForcing introduces a three-partition cache — sink tokens (full-res anchors), mid tokens (32x compressed via 3D conv + VAE re-encoding), and recent tokens (full-res) — with dynamic top-k selection and continuous Temporal RoPE adjustment. Generates 2-minute 832x480 video on a single H200 with a bounded 4GB KV cache and 24x temporal extrapolation from 5s training clips. The hierarchical cache compression with dynamic eviction is worth watching for anyone designing long-context KV management strategies.
+**Score: 70 (was 72)**
 
 ---
 
@@ -34,10 +36,10 @@ Score: 82 (was 88)
 
 
 
-[SpecEyes](https://arxiv.org/abs/2603.23483v1) is the fresh mover this cycle — 19 → 47 HF upvotes and 6 → 36 GitHub stars in a single day. A speculative perception/planning approach for agentic multimodal LLMs; worth watching whether this sustains or was a one-day spike.
+[SpecEyes](https://arxiv.org/abs/2603.23483v1) continues to climb — 47 → 53 HF upvotes and 36 → 43 GitHub stars since yesterday. Sustained two-day growth confirms this wasn't a one-day spike. The speculative perception approach for agentic VLMs is finding a real audience.
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) keeps grinding: 161 HF upvotes (+3) and 2,722 GitHub stars (+49 since last report). Growth has clearly tapered but the absolute numbers are remarkable — this is the defining inference paper of March 2026.
+[Mamba-3](https://arxiv.org/abs/2603.15569v1) citation velocity is accelerating: 4 → 7 citations in three days, now with an influential citation. HF engagement remains low (6 upvotes) but researchers are clearly building on this — the academic signal is stronger than the community signal, which is typical for architecture papers that matter.
 
-[Mamba-3](https://arxiv.org/abs/2603.15569v1) is quietly picking up academic traction — citations jumped from 4 to 6 in the last two days, including its first influential citation. HF engagement is minimal (6 upvotes) but the citation velocity suggests researchers are building on it.
+[Attention Residuals](https://arxiv.org/abs/2603.15031v1) added another 45 GitHub stars (2,722 → 2,767) but HF upvotes flatlined at 161. The growth engine is shifting from discovery to adoption. Still March 2026's inference paper of record.
 
-Everything else in the tracker is flat or showing only marginal movement. The inference-fleet-sim / FleetOpt / semantic router cluster continues accumulating cross-citations but no organic community pickup.
+[FlashAttention-4](https://arxiv.org/abs/2603.05451v1) quietly picked up its second citation and first influential citation. Slow burn for a paper with "FlashAttention" in the name — the lack of a public implementation is likely the bottleneck.

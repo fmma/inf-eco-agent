@@ -1,9 +1,9 @@
 
 
-[SpecEyes](https://arxiv.org/abs/2603.23483v1) is the fresh mover this cycle — 19 → 47 HF upvotes and 6 → 36 GitHub stars in a single day. A speculative perception/planning approach for agentic multimodal LLMs; worth watching whether this sustains or was a one-day spike.
+[SpecEyes](https://arxiv.org/abs/2603.23483v1) continues to climb — 47 → 53 HF upvotes and 36 → 43 GitHub stars since yesterday. Sustained two-day growth confirms this wasn't a one-day spike. The speculative perception approach for agentic VLMs is finding a real audience.
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) keeps grinding: 161 HF upvotes (+3) and 2,722 GitHub stars (+49 since last report). Growth has clearly tapered but the absolute numbers are remarkable — this is the defining inference paper of March 2026.
+[Mamba-3](https://arxiv.org/abs/2603.15569v1) citation velocity is accelerating: 4 → 7 citations in three days, now with an influential citation. HF engagement remains low (6 upvotes) but researchers are clearly building on this — the academic signal is stronger than the community signal, which is typical for architecture papers that matter.
 
-[Mamba-3](https://arxiv.org/abs/2603.15569v1) is quietly picking up academic traction — citations jumped from 4 to 6 in the last two days, including its first influential citation. HF engagement is minimal (6 upvotes) but the citation velocity suggests researchers are building on it.
+[Attention Residuals](https://arxiv.org/abs/2603.15031v1) added another 45 GitHub stars (2,722 → 2,767) but HF upvotes flatlined at 161. The growth engine is shifting from discovery to adoption. Still March 2026's inference paper of record.
 
-Everything else in the tracker is flat or showing only marginal movement. The inference-fleet-sim / FleetOpt / semantic router cluster continues accumulating cross-citations but no organic community pickup.
+[FlashAttention-4](https://arxiv.org/abs/2603.05451v1) quietly picked up its second citation and first influential citation. Slow burn for a paper with "FlashAttention" in the name — the lack of a public implementation is likely the bottleneck.
