@@ -4,6 +4,7 @@
 import json
 import re
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -71,7 +72,7 @@ def fetch_papers(config: dict) -> list[dict]:
     seen_ids = {normalize_arxiv_id(p["id"]) for p in paper_db}
     cutoff = get_cutoff(paper_db)
 
-    client = arxiv.Client()
+    client = arxiv.Client(page_size=50, delay_seconds=5.0, num_retries=5)
     search = arxiv.Search(
         query=query,
         max_results=2000,
@@ -81,7 +82,22 @@ def fetch_papers(config: dict) -> list[dict]:
 
     papers = []
 
-    for result in client.results(search):
+    for attempt in range(3):
+        try:
+            results_iter = client.results(search)
+            break
+        except arxiv.HTTPError as e:
+            if "429" in str(e) and attempt < 2:
+                wait = 30 * (attempt + 1)
+                print(f"arXiv rate limit hit, waiting {wait}s (attempt {attempt + 1}/3)", file=sys.stderr)
+                time.sleep(wait)
+            else:
+                raise
+    else:
+        print("arXiv rate limit: all retries exhausted", file=sys.stderr)
+        sys.exit(1)
+
+    for result in results_iter:
         if result.published.replace(tzinfo=timezone.utc) < cutoff:
             break
 
