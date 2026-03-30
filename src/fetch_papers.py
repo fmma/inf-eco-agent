@@ -84,43 +84,38 @@ def fetch_papers(config: dict) -> list[dict]:
 
     for attempt in range(3):
         try:
-            results_iter = client.results(search)
-            break
+            for result in client.results(search):
+                if result.published.replace(tzinfo=timezone.utc) < cutoff:
+                    return papers
+
+                if normalize_arxiv_id(result.entry_id) in seen_ids:
+                    continue
+
+                title = result.title
+                abstract = result.summary
+
+                if not keyword_matches(f"{title} {abstract}", keywords):
+                    continue
+
+                papers.append({
+                    "id": result.entry_id,
+                    "title": re.sub(r"\s+", " ", title).strip(),
+                    "abstract": re.sub(r"\s+", " ", abstract).strip(),
+                    "authors": [a.name for a in result.authors[:10]],
+                    "published": result.published.isoformat(),
+                    "pdf_url": result.pdf_url,
+                })
+            return papers
         except arxiv.HTTPError as e:
             if "429" in str(e) and attempt < 2:
-                wait = 30 * (attempt + 1)
+                wait = 60 * (attempt + 1)
                 print(f"arXiv rate limit hit, waiting {wait}s (attempt {attempt + 1}/3)", file=sys.stderr)
                 time.sleep(wait)
             else:
                 raise
-    else:
-        print("arXiv rate limit: all retries exhausted", file=sys.stderr)
-        sys.exit(1)
 
-    for result in results_iter:
-        if result.published.replace(tzinfo=timezone.utc) < cutoff:
-            break
-
-        # Skip already-scored papers
-        if normalize_arxiv_id(result.entry_id) in seen_ids:
-            continue
-
-        title = result.title
-        abstract = result.summary
-
-        if not keyword_matches(f"{title} {abstract}", keywords):
-            continue
-
-        papers.append({
-            "id": result.entry_id,
-            "title": re.sub(r"\s+", " ", title).strip(),
-            "abstract": re.sub(r"\s+", " ", abstract).strip(),
-            "authors": [a.name for a in result.authors[:10]],
-            "published": result.published.isoformat(),
-            "pdf_url": result.pdf_url,
-        })
-
-    return papers
+    print("arXiv rate limit: all retries exhausted", file=sys.stderr)
+    sys.exit(1)
 
 
 def main():
