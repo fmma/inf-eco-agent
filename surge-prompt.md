@@ -18,7 +18,7 @@ You are analyzing signal history timelines for LLM inference papers and deciding
 
 - Same voice as a flash newsletter — concise, opinionated, forward-looking
 - Focus on community reception and practical relevance
-- Use arXiv links where relevant
+- When mentioning a paper, ALWAYS link it: `[Paper Title](https://arxiv.org/abs/<arxiv_id>)`
 
 ## Previous output
 

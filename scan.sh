@@ -84,7 +84,7 @@ print(n)
       echo '```json'
       cat "$batch_file"
       echo '```'
-    } | claude --print > "/tmp/inf-eco-scores-batch-${i}.json" &
+    } | claude --print --effort max > "/tmp/inf-eco-scores-batch-${i}.json" &
     pids+=($!)
   done
 
@@ -125,7 +125,7 @@ python src/rescore_hype.py
 HAS_HYPE=0
 if python src/build_hype_prompt.py > /tmp/inf-eco-hype-prompt.md 2>/dev/null; then
   echo "Generating hype watch..."
-  claude --print < /tmp/inf-eco-hype-prompt.md > /tmp/inf-eco-hype-watch.md
+  claude --print --effort max < /tmp/inf-eco-hype-prompt.md > /tmp/inf-eco-hype-watch.md
   # Persist for next run's prompt context
   cp /tmp/inf-eco-hype-watch.md data/last-hype-watch.md
   if ! grep -q "NO_HYPE" /tmp/inf-eco-hype-watch.md; then
