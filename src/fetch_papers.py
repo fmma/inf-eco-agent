@@ -73,6 +73,7 @@ def fetch_papers(config: dict) -> list[dict]:
     cutoff = get_cutoff(paper_db)
 
     client = arxiv.Client(page_size=2000, delay_seconds=5.0, num_retries=5)
+    client.query_url_format = "https://arxiv.org/api/query?{}"
     search = arxiv.Search(
         query=query,
         max_results=2000,
