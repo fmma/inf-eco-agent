@@ -4,7 +4,6 @@
 import json
 import re
 import sys
-import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -72,7 +71,7 @@ def fetch_papers(config: dict) -> list[dict]:
     seen_ids = {normalize_arxiv_id(p["id"]) for p in paper_db}
     cutoff = get_cutoff(paper_db)
 
-    client = arxiv.Client(page_size=200, delay_seconds=5.0, num_retries=5)
+    client = arxiv.Client(page_size=200, delay_seconds=20.0, num_retries=1)
     client.query_url_format = "https://arxiv.org/api/query?{}"
     search = arxiv.Search(
         query=query,
@@ -82,41 +81,28 @@ def fetch_papers(config: dict) -> list[dict]:
     )
 
     papers = []
-
-    for attempt in range(3):
-        try:
-            for result in client.results(search):
-                if result.published.replace(tzinfo=timezone.utc) < cutoff:
-                    return papers
-
-                if normalize_arxiv_id(result.entry_id) in seen_ids:
-                    continue
-
-                title = result.title
-                abstract = result.summary
-
-                if not keyword_matches(f"{title} {abstract}", keywords):
-                    continue
-
-                papers.append({
-                    "id": result.entry_id,
-                    "title": re.sub(r"\s+", " ", title).strip(),
-                    "abstract": re.sub(r"\s+", " ", abstract).strip(),
-                    "authors": [a.name for a in result.authors[:10]],
-                    "published": result.published.isoformat(),
-                    "pdf_url": result.pdf_url,
-                })
+    for result in client.results(search):
+        if result.published.replace(tzinfo=timezone.utc) < cutoff:
             return papers
-        except arxiv.HTTPError as e:
-            if "429" in str(e) and attempt < 2:
-                wait = 60 * (attempt + 1)
-                print(f"arXiv rate limit hit, waiting {wait}s (attempt {attempt + 1}/3)", file=sys.stderr)
-                time.sleep(wait)
-            else:
-                raise
 
-    print("arXiv rate limit: all retries exhausted", file=sys.stderr)
-    sys.exit(1)
+        if normalize_arxiv_id(result.entry_id) in seen_ids:
+            continue
+
+        title = result.title
+        abstract = result.summary
+
+        if not keyword_matches(f"{title} {abstract}", keywords):
+            continue
+
+        papers.append({
+            "id": result.entry_id,
+            "title": re.sub(r"\s+", " ", title).strip(),
+            "abstract": re.sub(r"\s+", " ", abstract).strip(),
+            "authors": [a.name for a in result.authors[:10]],
+            "published": result.published.isoformat(),
+            "pdf_url": result.pdf_url,
+        })
+    return papers
 
 
 def main():
