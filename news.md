@@ -1,36 +1,38 @@
-PDF reading is blocked by the sandbox environment. I'll proceed with the detailed abstracts to write the bulletin — they contain specific methods, benchmarks, and speedups.
+I can't access the PDFs due to sandbox restrictions on /tmp. I'll proceed with the detailed abstracts provided — they contain substantial technical detail for these papers.
 
 # Inference Ecosystem — Flash News
-**2026-03-31 | 333 papers scanned**
+**2026-04-01 | 464 papers scanned**
 
----
+This was a quantization-heavy week with multiple KV cache compression papers, but the standouts are a practical KV offloading framework and a deep-dive into speculative decoding's blind spots.
 
-### [ScoutAttention: Efficient KV Cache Offloading via Layer-Ahead CPU Pre-computation](https://arxiv.org/abs/2603.27138)
+### [ScoutAttention: Efficient KV Cache Offloading via Layer-Ahead CPU Pre-computation for LLM Inference](https://arxiv.org/abs/2603.27138v1)
 
-GPU memory remains the binding constraint for long-context decode batches, and ScoutAttention tackles it with a clever twist on KV cache offloading: the CPU starts computing attention for layer N+1 while the GPU is still on layer N, hiding most of the CPU latency behind GPU work. A block-wise sparse attention scheme keeps CPU load manageable, and an asynchronous periodic recall mechanism preserves accuracy within 2.4% of the full-cache baseline. Net result: **2.1x speedup** over prior offloading methods. If you're serving 100K+ context on commodity boxes with big DRAM, this is the paper to read. Score: 92 (was 95)
+The key insight here is using the CPU *one layer ahead* to pre-compute sparse attention indices, so by the time the GPU needs them the results are ready — no stalling on CPU or I/O. Combined with GPU-CPU collaborative block-wise sparse attention that drastically cuts CPU workload, ScoutAttention hits 2.1x speedup over existing offloading methods while staying within 2.4% of full-precision accuracy. If you're serving long-context workloads and your KV cache is spilling to DRAM, this is the most practical offloading design we've seen.
+Score: 93 (was 95)
 
-### [TAPS: Task-Aware Proposal Distributions for Speculative Sampling](https://arxiv.org/abs/2603.27027)
+### [TAPS: Task Aware Proposal Distributions for Speculative Sampling](https://arxiv.org/abs/2603.27027v1)
 
-Speculative decoding drafters are almost always trained on generic data — TAPS asks what happens when you match drafter training data to your actual workload. Using HASS and EAGLE-2 backbones, they show MathInstruct-trained drafters dominate on reasoning while ShareGPT-trained ones win on chat, with mixed data improving robustness. The real contribution: a **confidence-based routing** scheme that selects the best specialized drafter at inference time, and a merged-tree verification strategy that yields the highest acceptance lengths overall. Practical takeaway for anyone running speculative decoding in production: your drafter training mix matters as much as its architecture. Score: 90 (was 95)
+A wake-up call for anyone running speculative decoding with a generic drafter. TAPS shows draft training data *matters* — MathInstruct-trained drafters dominate on reasoning benchmarks while ShareGPT-trained ones win on MT-Bench. Naive weight averaging of specialized drafters fails, but confidence-based routing and merged-tree verification recover the gains. The practical takeaway: if you're deploying spec-dec in production with mixed workloads, train domain-specific drafters and route by confidence, not entropy. Already at 122 HF upvotes — the community noticed.
+Score: 92 (was 93)
 
-### [RSR-core: A High-Performance Engine for Low-Bit Matrix-Vector Multiplication](https://arxiv.org/abs/2603.27462)
+### [ITQ3_S: High-Fidelity 3-bit LLM Inference via Interleaved Ternary Quantization with Rotation-Domain Smoothing](https://arxiv.org/abs/2603.27914v2)
 
-Production-ready engine for binary/ternary weight MVM with optimized CPU and CUDA kernels implementing the Redundant Segment Reduction algorithm. Achieves **62x speedup on CPU** and **1.9x speedup on CUDA** for token generation with popular ternary LLMs. Ships with HuggingFace integration for preprocessing and inference — pip install and go. As 1-bit and 1.58-bit models mature, this is the kind of kernel infrastructure that makes them actually deployable. [Code on GitHub](https://github.com/UIC-InDeXLab/RSR-core). Score: 88 (was 92)
+A mathematically rigorous 3-bit format that pre-rotates weights via Fast Walsh-Hadamard Transform before ternary quantization, spreading outlier energy uniformly. The inverse FWHT is fused directly into the CUDA MMQ kernel's shared-memory loading stage, so reconstruction error is bounded by the ternary grid alone. On RTX 5090 (Blackwell), ITQ3_S achieves FP16-competitive perplexity at 1.5x the throughput of 4-bit alternatives via DP4A and Tensor Core scheduling. Impressive engineering, though validation is currently Blackwell-only and single-author.
+Score: 88 (was 95)
 
-### [SCIN: Switch-Centric In-Network Architecture for LLM Inference](https://arxiv.org/abs/2603.28239)
+### [TurboAngle: Near-Lossless KV Cache Compression via Uniform Angle Quantization](https://arxiv.org/abs/2603.27467v1)
 
-Rethinks NVLink SHARP's accelerator-centric All-Reduce by moving the reduction initiator into the switch itself. This eliminates redundant data movement (GPU→switch→GPU round-trip) and enables in-network quantization to 8-bit, nearly doubling effective bandwidth. On a multi-FPGA prototype: **8.7x All-Reduce speedup** for small messages, **1.74x faster TTFT** and 1.34x faster TPOT on LLaMA-2. Still at the FPGA-prototype stage, but the architectural insight — that the switch should own the reduction, not the GPU — points where multi-GPU interconnects are heading. Score: 85 (was 95)
-
-### [KVSculpt: KV Cache Compression as Distillation](https://arxiv.org/abs/2603.27819)
-
-Instead of evicting or merging existing KV pairs, KVSculpt optimizes a smaller set of unconstrained KV pairs in continuous embedding space via L-BFGS (keys) and closed-form least squares (values) to preserve attention behavior. An adaptive budget allocation scheme redistributes compression ratios across layers and heads based on difficulty — and the non-uniformity is extreme: per-layer MSE varies by up to **100x**, per-head by up to **467x**. Achieves 3.5–4.1x KL divergence reduction over select-and-fit baselines on Qwen2.5-1.5B. A fundamentally different take on KV compression that treats it as a distillation problem. Score: 82 (was 92)
+Compresses KV cache entries by quantizing the *angle* of element pairs in Walsh-Hadamard space, where random diagonal rotation makes pairs approximately uniform on the unit circle. The per-layer early-boost mechanism independently tunes K and V codebook sizes, achieving lossless compression on 4 of 7 models and near-lossless on 6 of 7 at just 3.28–3.67 angle bits per element. Combined with 8-bit key / 4-bit log-space value norm quantization, total cost is 6.56 bits on Mistral-7B with +0.0014 perplexity degradation — no calibration data needed. The layer-group sensitivity analysis revealing K-dominated vs. V-dominated bottleneck patterns is a useful design insight.
+Score: 85 (was 92)
 
 ---
 
 ## Surge Watch
 
-[PackForcing](https://arxiv.org/abs/2603.25730v1) is the breakout of the week: zero signals on Mar 28, then 40 HF upvotes and 101 GitHub stars by Mar 31. Efficient long-video inference via short-video training clearly struck a chord — fastest cold-start we've tracked this month.
+[PackForcing](https://arxiv.org/abs/2603.25730v1) exploded from zero to 44 HF upvotes and 128 GitHub stars between 03-28 and 04-01. Short-video-training for long-context inference clearly struck a nerve — one of the fastest cold starts this month.
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) HF upvotes reactivated after a week flat at 162: now 169 (+7 in 3 days), with GitHub stars pushing to 2,843 (+48). Adoption curve hasn't flattened — this project has legs.
+[Attention Residuals](https://arxiv.org/abs/2603.15031v1) HF upvotes broke out of their week-long plateau at 162, climbing to 170 (+8 in 4 days). GitHub stars hit 2,859 (+64). The "discovery phase is over" call may have been premature — new audiences are still finding this.
 
-[SpecEyes](https://arxiv.org/abs/2603.23483v1) surge is over: +1 HF upvote and +5 stars over 3 days, down from the 19 → 57 run. Settled into steady state around 58 upvotes / 48 stars.
+[Mamba-3](https://arxiv.org/abs/2603.15569v1) citations ticked up to 8 after the plateau at 7, confirming continued academic accumulation rather than a fade-out. Still waiting on the implementation-driven second wave.
+
+[IndexCache](https://arxiv.org/abs/2603.12201v1) GitHub stars quietly jumped from 55 to 66 after weeks frozen in the mid-50s. HF upvotes remain flat at 52 — this looks like practitioner adoption catching up to the initial research interest.
