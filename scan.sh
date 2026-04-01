@@ -9,6 +9,7 @@ fi
 
 # Allow running from within a Claude Code session or hook
 unset CLAUDECODE
+export CLAUDE_CODE_DISABLE_1M_CONTEXT=1
 
 DISCORD_TARGET="${DISCORD_CHANNEL:-}"
 
