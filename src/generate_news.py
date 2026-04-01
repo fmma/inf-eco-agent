@@ -18,7 +18,7 @@ PAPERS_PATH = ROOT / "data" / "papers.json"
 PROMPT_PATH = ROOT / "news-prompt.md"
 NEWS_PATH = ROOT / "news.md"
 SCORES_PATH = Path("/tmp/inf-eco-scores.json")
-PDF_DIR = Path("/tmp/inf-eco-pdfs")
+PDF_DIR = ROOT / "data" / "pdfs"
 
 MAX_PDF_PAPERS = 8
 MAX_NEWS_PAPERS = 20
@@ -127,6 +127,9 @@ def main():
     pdf_paths: dict[str, Path] = {}
 
     if top_papers:
+        if PDF_DIR.exists():
+            for old in PDF_DIR.glob("*.pdf"):
+                old.unlink()
         PDF_DIR.mkdir(parents=True, exist_ok=True)
         print(f"Downloading PDFs for {len(top_papers)} papers...")
 
