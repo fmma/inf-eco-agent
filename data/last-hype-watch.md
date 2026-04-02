@@ -1,7 +1,7 @@
-[PackForcing](https://arxiv.org/abs/2603.25730v1) exploded from zero to 44 HF upvotes and 128 GitHub stars between 03-28 and 04-01. Short-video-training for long-context inference clearly struck a nerve — one of the fastest cold starts this month.
+[PackForcing](https://arxiv.org/abs/2603.25730v1) is this week's breakout: zero signals on Mar 28, now sitting at 46 HF upvotes and 152 GitHub stars five days later. Short-to-long video inference via packing is clearly resonating with practitioners.
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) HF upvotes broke out of their week-long plateau at 162, climbing to 170 (+8 in 4 days). GitHub stars hit 2,859 (+64). The "discovery phase is over" call may have been premature — new audiences are still finding this.
+[Vectorizing the Trie](https://arxiv.org/abs/2602.22647v1) was a sleeper — 4 HF upvotes for over a month, completely flat — then 204 GitHub stars appeared overnight. Practitioners discovered efficient constrained decoding on accelerators without the academic community noticing first. Worth watching whether upvotes follow.
 
-[Mamba-3](https://arxiv.org/abs/2603.15569v1) citations ticked up to 8 after the plateau at 7, confirming continued academic accumulation rather than a fade-out. Still waiting on the implementation-driven second wave.
+[Attention Residuals](https://arxiv.org/abs/2603.15031v1) keeps compounding: 2,888 GitHub stars (+93 in 5 days) and HF upvotes ticked up to 171 (+9). Approaching the 3K star mark with no sign of plateauing. Still the highest-momentum paper in the tracker.
 
-[IndexCache](https://arxiv.org/abs/2603.12201v1) GitHub stars quietly jumped from 55 to 66 after weeks frozen in the mid-50s. HF upvotes remain flat at 52 — this looks like practitioner adoption catching up to the initial research interest.
+[SpecEyes](https://arxiv.org/abs/2603.23483v1) growth has tapered — only +2 HF upvotes and +6 stars over 5 days after the initial 19→57 surge. The discovery phase is winding down.

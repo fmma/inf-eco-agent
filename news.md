@@ -1,38 +1,34 @@
-I can't access the PDFs due to sandbox restrictions on /tmp. I'll proceed with the detailed abstracts provided — they contain substantial technical detail for these papers.
-
 # Inference Ecosystem — Flash News
-**2026-04-01 | 464 papers scanned**
+**2 April 2026 — 623 papers scanned**
 
-This was a quantization-heavy week with multiple KV cache compression papers, but the standouts are a practical KV offloading framework and a deep-dive into speculative decoding's blind spots.
+### [MAC-Attention: a Match-Amend-Complete Scheme for Fast and Accurate Attention Computation](https://arxiv.org/abs/2604.00235v1)
 
-### [ScoutAttention: Efficient KV Cache Offloading via Layer-Ahead CPU Pre-computation for LLM Inference](https://arxiv.org/abs/2603.27138v1)
+A training-free, model-agnostic decode acceleration that reuses prior attention computations instead of re-streaming the entire KV cache. MAC matches pre-RoPE queries in a short ring buffer, rectifies a small high-mass band near the match boundary, then merges via numerically stable log-domain fusion. On LLaMA with FlashInfer, it cuts KV accesses by up to 99%, delivers 14.3x attention-phase speedup (up to 46x at 256K), and achieves 2.6x end-to-end generation speedup at 128K context — all while matching full-attention quality on LongBench v2, RULER, and LongGenBench. Accepted at MLSys 2026; works with MQA/GQA and MoE models. This is the most exciting long-context decode result this week.
+Score: 97 (was 95)
 
-The key insight here is using the CPU *one layer ahead* to pre-compute sparse attention indices, so by the time the GPU needs them the results are ready — no stalling on CPU or I/O. Combined with GPU-CPU collaborative block-wise sparse attention that drastically cuts CPU workload, ScoutAttention hits 2.1x speedup over existing offloading methods while staying within 2.4% of full-precision accuracy. If you're serving long-context workloads and your KV cache is spilling to DRAM, this is the most practical offloading design we've seen.
-Score: 93 (was 95)
+### [TENT: A Declarative Slice Spraying Engine for Performant and Resilient Data Movement in Disaggregated LLM Serving](https://arxiv.org/abs/2604.00368v1)
 
-### [TAPS: Task Aware Proposal Distributions for Speculative Sampling](https://arxiv.org/abs/2603.27027v1)
+Production data plane from the Mooncake ecosystem that replaces imperative path selection with declarative slice spraying across heterogeneous interconnects (RDMA, NVLink, MNNVL, Ascend UB). TENT decomposes elephant flows into 64KB slices and schedules each to the rail with the lowest estimated completion time via telemetry-driven feedback. On H800 HGX clusters with SGLang HiCache, it achieves 1.36x higher throughput and 26% lower P90 TTFT over Mooncake TE, with sub-50ms self-healing on link failures. Already deployed at multiple industrial sites processing 50M+ tokens/min. Open-sourced at github.com/kvcache-ai/Mooncake. If you run disaggregated serving at scale, this is your new transfer engine.
+Score: 96 (was 95)
 
-A wake-up call for anyone running speculative decoding with a generic drafter. TAPS shows draft training data *matters* — MathInstruct-trained drafters dominate on reasoning benchmarks while ShareGPT-trained ones win on MT-Bench. Naive weight averaging of specialized drafters fails, but confidence-based routing and merged-tree verification recover the gains. The practical takeaway: if you're deploying spec-dec in production with mixed workloads, train domain-specific drafters and route by confidence, not entropy. Already at 122 HF upvotes — the community noticed.
-Score: 92 (was 93)
+### [Scheduling LLM Inference with Uncertainty-Aware Output Length Predictions](https://arxiv.org/abs/2604.00499v1)
+
+Instead of predicting a single output length for SJF scheduling, TIE fits a log-t distribution — theoretically justified by power-law tail decay from stochastic EOS sampling. A DeBERTa-v3 predictor estimates (mu, sigma), and a Tail Inflated Expectation score combines the censored expectation with CVaR at alpha=0.9 for risk-adaptive scheduling. Implemented on vLLM with async batched prediction. At 100 RPS on Llama-3-8B, TIE reduces per-token latency by 2.31x over the best baseline (LTR) and improves offline SDG throughput by 1.42x. Generalizes across 8 models including MoE architectures, 3 datasets, and both 8B and 70B scales. A principled fix for a problem every serving team hits.
+Score: 93 (was 92)
 
 ### [ITQ3_S: High-Fidelity 3-bit LLM Inference via Interleaved Ternary Quantization with Rotation-Domain Smoothing](https://arxiv.org/abs/2603.27914v2)
 
-A mathematically rigorous 3-bit format that pre-rotates weights via Fast Walsh-Hadamard Transform before ternary quantization, spreading outlier energy uniformly. The inverse FWHT is fused directly into the CUDA MMQ kernel's shared-memory loading stage, so reconstruction error is bounded by the ternary grid alone. On RTX 5090 (Blackwell), ITQ3_S achieves FP16-competitive perplexity at 1.5x the throughput of 4-bit alternatives via DP4A and Tensor Core scheduling. Impressive engineering, though validation is currently Blackwell-only and single-author.
+Fuses FWHT rotation with IQ3_S ternary quantization into a single CUDA kernel — the 256-point inverse Walsh-Hadamard transform runs entirely in shared memory during dequantization with only 2.1% compute overhead. On RTX 5090 Blackwell, ITQ3_S closes 57% of the perplexity gap to FP16 versus baseline IQ3_S (6.52 vs 7.03 on WikiText-2 for LLaMA-3 8B) while fitting a 70B model in 27.3 GiB — single consumer GPU, no sharding. Prefill throughput exceeds 4-bit alternatives by 1.5x via optimized DP4A and Tensor Core scheduling. For anyone running models on consumer hardware, this pushes the practical floor of quantization quality.
 Score: 88 (was 95)
-
-### [TurboAngle: Near-Lossless KV Cache Compression via Uniform Angle Quantization](https://arxiv.org/abs/2603.27467v1)
-
-Compresses KV cache entries by quantizing the *angle* of element pairs in Walsh-Hadamard space, where random diagonal rotation makes pairs approximately uniform on the unit circle. The per-layer early-boost mechanism independently tunes K and V codebook sizes, achieving lossless compression on 4 of 7 models and near-lossless on 6 of 7 at just 3.28–3.67 angle bits per element. Combined with 8-bit key / 4-bit log-space value norm quantization, total cost is 6.56 bits on Mistral-7B with +0.0014 perplexity degradation — no calibration data needed. The layer-group sensitivity analysis revealing K-dominated vs. V-dominated bottleneck patterns is a useful design insight.
-Score: 85 (was 92)
 
 ---
 
 ## Surge Watch
 
-[PackForcing](https://arxiv.org/abs/2603.25730v1) exploded from zero to 44 HF upvotes and 128 GitHub stars between 03-28 and 04-01. Short-video-training for long-context inference clearly struck a nerve — one of the fastest cold starts this month.
+[PackForcing](https://arxiv.org/abs/2603.25730v1) is this week's breakout: zero signals on Mar 28, now sitting at 46 HF upvotes and 152 GitHub stars five days later. Short-to-long video inference via packing is clearly resonating with practitioners.
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) HF upvotes broke out of their week-long plateau at 162, climbing to 170 (+8 in 4 days). GitHub stars hit 2,859 (+64). The "discovery phase is over" call may have been premature — new audiences are still finding this.
+[Vectorizing the Trie](https://arxiv.org/abs/2602.22647v1) was a sleeper — 4 HF upvotes for over a month, completely flat — then 204 GitHub stars appeared overnight. Practitioners discovered efficient constrained decoding on accelerators without the academic community noticing first. Worth watching whether upvotes follow.
 
-[Mamba-3](https://arxiv.org/abs/2603.15569v1) citations ticked up to 8 after the plateau at 7, confirming continued academic accumulation rather than a fade-out. Still waiting on the implementation-driven second wave.
+[Attention Residuals](https://arxiv.org/abs/2603.15031v1) keeps compounding: 2,888 GitHub stars (+93 in 5 days) and HF upvotes ticked up to 171 (+9). Approaching the 3K star mark with no sign of plateauing. Still the highest-momentum paper in the tracker.
 
-[IndexCache](https://arxiv.org/abs/2603.12201v1) GitHub stars quietly jumped from 55 to 66 after weeks frozen in the mid-50s. HF upvotes remain flat at 52 — this looks like practitioner adoption catching up to the initial research interest.
+[SpecEyes](https://arxiv.org/abs/2603.23483v1) growth has tapered — only +2 HF upvotes and +6 stars over 5 days after the initial 19→57 surge. The discovery phase is winding down.
