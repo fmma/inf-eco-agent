@@ -1,34 +1,30 @@
 # Inference Ecosystem — Flash News
-**2 April 2026 — 623 papers scanned**
+**2026-04-03 | 597 papers scanned**
 
-### [MAC-Attention: a Match-Amend-Complete Scheme for Fast and Accurate Attention Computation](https://arxiv.org/abs/2604.00235v1)
+### [DWDP: Distributed Weight Data Parallelism for High-Performance LLM Inference on NVL72](https://arxiv.org/abs/2604.01621)
 
-A training-free, model-agnostic decode acceleration that reuses prior attention computations instead of re-streaming the entire KV cache. MAC matches pre-RoPE queries in a short ring buffer, rectifies a small high-mass band near the match boundary, then merges via numerically stable log-domain fusion. On LLaMA with FlashInfer, it cuts KV accesses by up to 99%, delivers 14.3x attention-phase speedup (up to 46x at 256K), and achieves 2.6x end-to-end generation speedup at 128K context — all while matching full-attention quality on LongBench v2, RULER, and LongGenBench. Accepted at MLSys 2026; works with MQA/GQA and MoE models. This is the most exciting long-context decode result this week.
-Score: 97 (was 95)
+NVIDIA introduces DWDP, a new inference parallelism strategy that eliminates inter-rank synchronization from MoE serving by offloading expert weights across peer GPUs and fetching them on demand via copy-engine-based P2P transfers. Implemented in TensorRT-LLM and evaluated with DeepSeek-R1 on GB200 NVL72, it improves end-to-end output TPS/GPU by 8.8% at comparable TPS/user in the 20-100 TPS/user range. The key insight: synchronization overhead hits ~12% under realistic workload imbalance (20% CV in sequence lengths), and DWDP's fully asynchronous execution sidesteps it entirely. The paper also includes a detailed analysis of power-induced frequency throttling from communication-computation overlap — a real concern on Blackwell. Score: 94 (was 95)
 
-### [TENT: A Declarative Slice Spraying Engine for Performant and Resilient Data Movement in Disaggregated LLM Serving](https://arxiv.org/abs/2604.00368v1)
+### [Goose: Anisotropic Speculation Trees for Training-Free Speculative Decoding](https://arxiv.org/abs/2604.02047)
 
-Production data plane from the Mooncake ecosystem that replaces imperative path selection with declarative slice spraying across heterogeneous interconnects (RDMA, NVLink, MNNVL, Ascend UB). TENT decomposes elephant flows into 64KB slices and schedules each to the rail with the lowest estimated completion time via telemetry-driven feedback. On H800 HGX clusters with SGLang HiCache, it achieves 1.36x higher throughput and 26% lower P90 TTFT over Mooncake TE, with sub-50ms self-healing on link failures. Already deployed at multiple industrial sites processing 50M+ tokens/min. Open-sourced at github.com/kvcache-ai/Mooncake. If you run disaggregated serving at scale, this is your new transfer engine.
-Score: 96 (was 95)
+GOOSE formalizes an overlooked asymmetry in training-free speculative decoding: context-matched tokens (from n-gram lookup) are accepted 2-18x more often than transition tokens (from logit statistics). The optimal tree is therefore *anisotropic* — a deep spine of reliable tokens with wide branches of low-confidence alternatives. This is proven to dominate balanced trees (Sequoia-style) and achieves 1.9-4.3x lossless speedup on 7B-33B models across five benchmarks, outperforming isotropic baselines by 12-33% under equal node budgets. Zero training required, <7 MB memory overhead, <1% wall-clock tree construction cost. The confidence-adaptive bypass mode automatically switches to linear verification when match quality is high. Score: 93 (was 95)
 
-### [Scheduling LLM Inference with Uncertainty-Aware Output Length Predictions](https://arxiv.org/abs/2604.00499v1)
+### [FlatAttention: Dataflow and Fabric Collectives Co-Optimization for Tile-Based Accelerators](https://arxiv.org/abs/2604.02110)
 
-Instead of predicting a single output length for SJF scheduling, TIE fits a log-t distribution — theoretically justified by power-law tail decay from stochastic EOS sampling. A DeBERTa-v3 predictor estimates (mu, sigma), and a Tail Inflated Expectation score combines the censored expectation with CVaR at alpha=0.9 for risk-adaptive scheduling. Implemented on vLLM with async batched prediction. At 100 RPS on Llama-3-8B, TIE reduces per-token latency by 2.31x over the best baseline (LTR) and improves offline SDG throughput by 1.42x. Generalizes across 8 models including MoE architectures, 3 datasets, and both 8B and 70B scales. A principled fix for a problem every serving team hits.
-Score: 93 (was 92)
+FlatAttention proposes a new attention dataflow for emerging tile-based many-PE accelerators that exploits hardware multicast and reduction primitives in the on-chip NoC fabric. On a 32x32 tile configuration matching GH200's peak FP16 performance, it achieves 86% average utilization for compute-bound attention and 78% HBM bandwidth utilization for memory-bound cases — averaging 1.9x over FlashAttention-3/FlashMLA on GH200. End-to-end DeepSeek-v3 FP8 decoding on a 64-chip wafer-scale system shows 1.9x throughput improvement over 96 H800 GPUs despite 1.5x lower peak performance. A forward-looking paper for anyone tracking post-GPU inference hardware. Score: 85 (was 92)
 
-### [ITQ3_S: High-Fidelity 3-bit LLM Inference via Interleaved Ternary Quantization with Rotation-Domain Smoothing](https://arxiv.org/abs/2603.27914v2)
+### [AA-SVD: Anchored and Adaptive SVD for LLM Compression](https://arxiv.org/abs/2604.02119)
 
-Fuses FWHT rotation with IQ3_S ternary quantization into a single CUDA kernel — the 256-point inverse Walsh-Hadamard transform runs entirely in shared memory during dequantization with only 2.1% compute overhead. On RTX 5090 Blackwell, ITQ3_S closes 57% of the perplexity gap to FP16 versus baseline IQ3_S (6.52 vs 7.03 on WikiText-2 for LLaMA-3 8B) while fitting a 70B model in 27.3 GiB — single consumer GPU, no sharding. Prefill throughput exceeds 4-bit alternatives by 1.5x via optimized DP4A and Tensor Core scheduling. For anyone running models on consumer hardware, this pushes the practical floor of quantization quality.
-Score: 88 (was 95)
+AA-SVD tackles a blind spot in SVD-based LLM compression: existing methods either optimize on original activations (ignoring upstream compression drift) or on shifted activations (risking divergence from original behavior). AA-SVD does both via a closed-form solution that anchors to original outputs while conditioning on shifted inputs, plus a block-level refinement step that lets compressed layers jointly compensate for each other's errors. On LLaMA-7B at 0.6 compression ratio, it achieves 8.35 WikiText2 perplexity vs. 13.11 for SVD-LLM — and at 0.4 ratio, it's the only SVD method that doesn't collapse. Particularly strong on compact architectures like LLaMA-3-1B where SVD-LLM's perplexity blows up 3x. Score: 82 (was 88)
 
 ---
 
 ## Surge Watch
 
-[PackForcing](https://arxiv.org/abs/2603.25730v1) is this week's breakout: zero signals on Mar 28, now sitting at 46 HF upvotes and 152 GitHub stars five days later. Short-to-long video inference via packing is clearly resonating with practitioners.
+[TAPS](https://arxiv.org/abs/2603.27027v1) is the new arrival to watch: 137 HF upvotes within days of appearing on the tracker, making it the strongest debut since Attention Residuals. Task-aware proposal distributions for speculative sampling from KAUST — the community clearly has appetite for practical spec-decode improvements.
 
-[Vectorizing the Trie](https://arxiv.org/abs/2602.22647v1) was a sleeper — 4 HF upvotes for over a month, completely flat — then 204 GitHub stars appeared overnight. Practitioners discovered efficient constrained decoding on accelerators without the academic community noticing first. Worth watching whether upvotes follow.
+[Attention Residuals](https://arxiv.org/abs/2603.15031v1) is finally decelerating: +33 GitHub stars over the last day to 2,921, down from the +93-in-5-days pace reported last time. HF upvotes have stalled at 171. Still the most-starred paper in the tracker, but the discovery phase is winding down.
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) keeps compounding: 2,888 GitHub stars (+93 in 5 days) and HF upvotes ticked up to 171 (+9). Approaching the 3K star mark with no sign of plateauing. Still the highest-momentum paper in the tracker.
+[PackForcing](https://arxiv.org/abs/2603.25730v1) continues on GitHub — 191 stars (+39 since last report) — but HF upvotes flatlined at 47. Practitioners are starring the repo; the academic side has moved on.
 
-[SpecEyes](https://arxiv.org/abs/2603.23483v1) growth has tapered — only +2 HF upvotes and +6 stars over 5 days after the initial 19→57 surge. The discovery phase is winding down.
+[Vectorizing the Trie](https://arxiv.org/abs/2602.22647v1) follow-up: the overnight GitHub surge didn't sustain — only +2 stars to 206, and HF upvotes never followed at all. One-time discovery, not a trend.
