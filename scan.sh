@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 cd "$(dirname "$0")"
+git pull --ff-only
 
 # Activate venv if it exists
 if [ -d .venv ]; then
@@ -204,7 +205,6 @@ else
   msg="$msg — $(IFS=', '; echo "${parts[*]}")"
   echo "Committing..."
   git commit -m "$msg"
-  git pull --rebase
   git push
 
   # --- Notify via Discord ---
