@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -eo pipefail
 cd "$(dirname "$0")"
-git pull --ff-only
+
+# Discard uncommitted changes from crashed runs, then sync with remote.
+# Unpushed commits (scored data) are preserved via rebase.
+git checkout -- .
+git pull --rebase
 
 # Activate venv if it exists
 if [ -d .venv ]; then
