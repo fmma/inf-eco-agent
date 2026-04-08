@@ -203,8 +203,8 @@ else
   [ ${#parts[@]} -eq 0 ] && parts+=("hype updated from external signals")
   msg="$msg — $(IFS=', '; echo "${parts[*]}")"
   echo "Committing..."
-  git pull --rebase
   git commit -m "$msg"
+  git pull --rebase
   git push
 
   # --- Notify via Discord ---
