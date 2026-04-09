@@ -24,8 +24,23 @@ This repo is an automated agent that discovers new arXiv papers about LLM infere
 ### Scheduling
 
 - systemd user timer (`inf-eco-scan.timer`) fires daily at 08:00 CET with `Persistent=true` (catches up after sleep/shutdown).
-- systemd user service (`inf-eco-scan.service`) retries on failure every 5 min, up to 6 times per hour.
+- One attempt per day. No automatic retries.
 - Discord notifications via OpenClaw (`DISCORD_CHANNEL` env var in the service).
+
+### Deployment
+
+The agent runs on the remote host `foadell` at `~/inf-eco-agent`. Code is deployed via git, not rsync.
+
+- `scan.sh` runs `git pull --rebase` at startup, so foadell always gets the latest code before each scan.
+- `deploy.sh` triggers a `git pull --ff-only` on foadell for immediate deploys. It refuses to run if the local repo has uncommitted or unpushed changes.
+- To deploy: commit and push changes, then run `bash deploy.sh`. Or just push and let the next scheduled scan pick it up.
+- If a previous scan crashed mid-run, `git checkout -- .` at the top of `scan.sh` discards uncommitted changes. Unpushed commits (scored data) are preserved via rebase.
+
+Avoid rsyncing files to foadell. It creates unstaged changes that break `git pull --rebase`.
+
+### arXiv rate limits
+
+arXiv aggressively rate-limits and bans IPs. The fetch step uses conservative settings: `page_size=200`, `delay_seconds=20`, `num_retries=1`. Do not increase retries or decrease delay. There is no application-level retry logic; if arXiv returns an error, the scan fails and retries the next day.
 
 ## Key files
 
