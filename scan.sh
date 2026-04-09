@@ -9,6 +9,7 @@ git pull --rebase
 
 # Activate venv if it exists
 if [ -d .venv ]; then
+  # shellcheck source=/dev/null
   source .venv/bin/activate
 fi
 
@@ -22,12 +23,12 @@ DISCORD_TARGET="${DISCORD_CHANNEL:-}"
 
 notify_error() {
   local msg="$1"
-  if [ -n "$DISCORD_TARGET" ] && command -v openclaw &>/dev/null; then
+  if [ -n "$DISCORD_TARGET" ] && command -v openclaw &> /dev/null; then
     openclaw message send --channel discord --target "$DISCORD_TARGET" \
       --message "<@231463543449321474> **inf-eco-agent failed:**
 \`\`\`
 $msg
-\`\`\`" 2>/dev/null || true
+\`\`\`" 2> /dev/null || true
   fi
 }
 
@@ -79,10 +80,10 @@ print(n)
 
   # Score all batches in parallel
   pids=()
-  for ((i=0; i<num_batches; i++)); do
+  for ((i = 0; i < num_batches; i++)); do
     batch_file="/tmp/inf-eco-papers-batch-${i}.json"
     batch_count=$(python -c "import json; print(len(json.load(open('$batch_file'))))")
-    echo "  Scoring batch $((i+1))/$num_batches ($batch_count papers)..."
+    echo "  Scoring batch $((i + 1))/$num_batches ($batch_count papers)..."
     {
       cat score-prompt.md
       echo ""
@@ -129,7 +130,7 @@ python src/rescore_hype.py
 # --- Generate hype watch (Claude decides what's notable) ---
 
 HAS_HYPE=0
-if python src/build_hype_prompt.py > /tmp/inf-eco-hype-prompt.md 2>/dev/null; then
+if python src/build_hype_prompt.py > /tmp/inf-eco-hype-prompt.md 2> /dev/null; then
   echo "Generating hype watch..."
   claude --print --effort max < /tmp/inf-eco-hype-prompt.md > /tmp/inf-eco-hype-watch.md
   # Persist for next run's prompt context
@@ -206,13 +207,16 @@ else
   [ "$new_count" -gt 0 ] && parts+=("$new_count new papers scored")
   [ "$HAS_HYPE" = "1" ] && parts+=("hype watch")
   [ ${#parts[@]} -eq 0 ] && parts+=("hype updated from external signals")
-  msg="$msg — $(IFS=', '; echo "${parts[*]}")"
+  msg="$msg — $(
+    IFS=', '
+    echo "${parts[*]}"
+  )"
   echo "Committing..."
   git commit -m "$msg"
   git push
 
   # --- Notify via Discord ---
-  if [ "$HAS_NEWS" = "1" ] && [ -n "$DISCORD_TARGET" ] && command -v openclaw &>/dev/null; then
+  if [ "$HAS_NEWS" = "1" ] && [ -n "$DISCORD_TARGET" ] && command -v openclaw &> /dev/null; then
     echo "Posting news to Discord..."
     openclaw message send --channel discord --target "$DISCORD_TARGET" --message "<@231463543449321474>
 $(cat news.md)" || echo "Warning: Discord notification failed." >&2
