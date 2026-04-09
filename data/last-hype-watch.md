@@ -1,5 +1,7 @@
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) just doubled its citation count — 3 to 6 overnight, with influential citations tripling from 1 to 3. Star growth has cooled to ~28/day (3,027 total), but the academic community is now citing it in earnest. The transition from viral GitHub project to citable infrastructure is the real signal here.
+[TriAttention](https://arxiv.org/abs/2604.04921v1) has its third data point and the verdict is sustained: 82 HF upvotes and 284 GitHub stars, up from 73/194 yesterday. That's +90 stars overnight — the KV cache compression angle is clearly resonating with practitioners, not just paper-scrollers.
 
-[TriAttention](https://arxiv.org/abs/2604.04921v1) landed at 73 HF upvotes and 194 GitHub stars after yesterday's spike, but we only have two data points — too early to call sustained vs. one-day viral. Next reading will tell the story.
+[MegaTrain](https://arxiv.org/abs/2604.05091v1) — "full-precision 100B+ training on a single GPU" — went from 4 to 26 HF upvotes and 4 to 99 GitHub stars overnight. The premise is audacious enough to drive clicks on its own, but the early velocity suggests real curiosity. Only two data points; next reading will separate hype from staying power.
 
-Everything else is flat. [TAPS](https://arxiv.org/abs/2603.27027v1) remains frozen at 141 HF upvotes / 4 stars — the follow-through gap persists.
+[Attention Residuals](https://arxiv.org/abs/2603.15031v1) is cooling off: star growth halved to ~15/day (3,042 total), citations flat at 6. The viral-to-infrastructure transition flagged last time appears to be settling into steady state rather than accelerating further.
+
+Everything else is flat. [TAPS](https://arxiv.org/abs/2603.27027v1) enters week two frozen at 141 upvotes / 4 stars — the follow-through gap is now structural.
