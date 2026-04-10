@@ -1,7 +1,7 @@
-[TriAttention](https://arxiv.org/abs/2604.04921v1) has its third data point and the verdict is sustained: 82 HF upvotes and 284 GitHub stars, up from 73/194 yesterday. That's +90 stars overnight — the KV cache compression angle is clearly resonating with practitioners, not just paper-scrollers.
+[TriAttention](https://arxiv.org/abs/2604.04921v1) shows no sign of slowing down: 93 HF upvotes and 383 GitHub stars on its fourth data point, up from 82/284 yesterday. That's another +99 stars overnight — the same clip as the day before. KV cache compression via trig transforms is clearly hitting a nerve with the long-context crowd.
 
-[MegaTrain](https://arxiv.org/abs/2604.05091v1) — "full-precision 100B+ training on a single GPU" — went from 4 to 26 HF upvotes and 4 to 99 GitHub stars overnight. The premise is audacious enough to drive clicks on its own, but the early velocity suggests real curiosity. Only two data points; next reading will separate hype from staying power.
+[MegaTrain](https://arxiv.org/abs/2604.05091v1) gets its third reading and the verdict is real momentum, not just launch-day curiosity: 38 HF upvotes (+12) and 190 GitHub stars (+91), nearly doubling again. The "100B on one GPU" pitch is converting browsers into stargazers at a sustained rate.
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) is cooling off: star growth halved to ~15/day (3,042 total), citations flat at 6. The viral-to-infrastructure transition flagged last time appears to be settling into steady state rather than accelerating further.
+[MARS](https://arxiv.org/abs/2604.07023v1) is the new entry to watch — a multi-token generation method that jumped from 12 to 25 HF upvotes and 2 to 12 GitHub stars overnight. Only two data points, but the velocity pattern echoes MegaTrain's early trajectory.
 
-Everything else is flat. [TAPS](https://arxiv.org/abs/2603.27027v1) enters week two frozen at 141 upvotes / 4 stars — the follow-through gap is now structural.
+Everything else is steady-state or flat. [Attention Residuals](https://arxiv.org/abs/2603.15031v1) added just 12 stars (3,054 total) — the cool-down continues. [TAPS](https://arxiv.org/abs/2603.27027v1) remains frozen at 141/4.
