@@ -1,9 +1,7 @@
-[MegaTrain](https://arxiv.org/abs/2604.05091v1) crossed 400 GitHub stars — 313 → 404 in two days. Growth rate is moderating (+91 vs. last report's +123 burst) but it's still the fastest-cloning repo in this batch. HF upvotes inching up to 43, confirming the practitioner-over-researcher split.
+[Attention Sink in Transformers: A Survey](https://arxiv.org/abs/2604.10098v1) is the new mover — 26 → 58 HF upvotes in a single day, plus 34 GitHub stars appearing overnight. Unusually strong debut for a survey paper; attention sink mechanisms are clearly hitting a nerve with practitioners optimizing long-context inference.
 
-[MARS](https://arxiv.org/abs/2604.07023v1) correction: called it stalled last time at 29/15, but it's now 34 HF upvotes and 18 stars — a quiet but real uptick. Multi-token generation for autoregressive models is finding a slower-burn audience than the initial spike suggested.
+[Introspective Diffusion Language Models](https://arxiv.org/abs/2604.11035v1) quietly surged from 7 to 69 GitHub stars overnight (HF upvotes 8 → 15). The stars-over-upvotes skew suggests builders are cloning before researchers are reading — worth watching as the diffusion LLM space heats up.
 
-[DMax](https://arxiv.org/abs/2604.08302v1) is decelerating: 38 → 45 HF upvotes and 75 → 92 stars in two days, versus +21/+70 in its debut window. Healthy adoption for a diffusion LLM decoding paper, but not a runaway.
+[FlashAttention-4](https://arxiv.org/abs/2603.05451v1) continues its slow academic burn — citations climbed from 3 to 5 (1 influential) despite just 1 HF upvote. The Tri Dao pedigree guarantees eventual practitioner adoption; the paper is building citation gravity well ahead of community engagement.
 
-[Mamba-3](https://arxiv.org/abs/2603.15569v1) is the quiet academic mover — citations jumped from 10 to 13 (latest reading) with 1 influential, while HF upvotes sit at just 6. Researchers are citing it; practitioners aren't starring it.
-
-TriAttention, Attention Residuals, and TAPS have all flatlined — still big numbers, but the growth stories are over.
+Previous cycle's movers are all converging to steady state: MegaTrain added just 31 stars (435 total), DMax gained +4 HF/+5 stars, MARS added +3 HF/+5 stars. All healthy tail adoption, but the breakout phases are over.
