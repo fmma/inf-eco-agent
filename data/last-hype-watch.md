@@ -1,7 +1,7 @@
-[Attention Sink in Transformers: A Survey](https://arxiv.org/abs/2604.10098v1) is the new mover — 26 → 58 HF upvotes in a single day, plus 34 GitHub stars appearing overnight. Unusually strong debut for a survey paper; attention sink mechanisms are clearly hitting a nerve with practitioners optimizing long-context inference.
+[Attention Sink in Transformers](https://arxiv.org/abs/2604.10098v1) refuses to plateau — 58 → 69 HF upvotes and 34 → 47 GitHub stars in the latest 24 hours. Three-day arc of 26 → 69 upvotes makes this the fastest-moving survey paper we've tracked. Clearly tapped a nerve.
 
-[Introspective Diffusion Language Models](https://arxiv.org/abs/2604.11035v1) quietly surged from 7 to 69 GitHub stars overnight (HF upvotes 8 → 15). The stars-over-upvotes skew suggests builders are cloning before researchers are reading — worth watching as the diffusion LLM space heats up.
+[Introspective Diffusion Language Models](https://arxiv.org/abs/2604.11035v1) is accelerating, not cooling — GitHub stars surged 69 → 94 overnight (HF 15 → 19). The builder-first pattern is intensifying as diffusion LLMs compete for the non-autoregressive slot.
 
-[FlashAttention-4](https://arxiv.org/abs/2603.05451v1) continues its slow academic burn — citations climbed from 3 to 5 (1 influential) despite just 1 HF upvote. The Tri Dao pedigree guarantees eventual practitioner adoption; the paper is building citation gravity well ahead of community engagement.
+[Nemotron 3 Super](https://arxiv.org/abs/2604.12374v1) is the fresh entry — NVIDIA's MoE Mamba-Transformer hybrid leapt from 4 → 21 HF upvotes in a single day. The Mamba-meets-MoE-for-agentic-reasoning pitch is resonating; first-day signal strength mirrors TriAttention's early trajectory.
 
-Previous cycle's movers are all converging to steady state: MegaTrain added just 31 stars (435 total), DMax gained +4 HF/+5 stars, MARS added +3 HF/+5 stars. All healthy tail adoption, but the breakout phases are over.
+TriAttention has now fully settled (107 HF / 534 stars, +2/+30 over 2 days). First citation appeared, marking the transition from community buzz to academic uptake.
