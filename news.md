@@ -1,39 +1,32 @@
 # Inference Ecosystem — Flash News
-**2026-04-16 | 426 papers scanned**
+**2026-04-17 | 476 papers scanned**
 
-### [Event Tensor: A Unified Abstraction for Compiling Dynamic Megakernel](https://arxiv.org/abs/2604.13327v1)
+## [Prefill-as-a-Service: KVCache of Next-Generation Models Could Go Cross-Datacenter](https://arxiv.org/abs/2604.15039v1)
 
-CMU and NVIDIA introduce Event Tensor Compiler (ETC), a compiler abstraction that fuses entire LLM decoding pipelines — attention, RoPE, KV-cache, MLP, MoE — into a single persistent megakernel. On B200 GPUs, ETC beats vLLM by 1.48x and SGLang by 1.20x at batch-1 on Qwen3-30B-A3B, while cutting engine warmup from 583s (SGLang) to 35s via true ahead-of-time compilation that eliminates CUDA Graph recapture entirely. The MoE megakernel outperforms FlashInfer by 1.23x through on-GPU dynamic scheduling of data-dependent expert routing — something no prior megakernel could handle. Already merged into a major open-source system. This is the new bar for low-batch serving latency.
-Score: 97 (was 95)
+Moonshot AI and Tsinghua introduce PrfaaS, a cross-datacenter serving architecture that selectively offloads long-context prefills to remote compute-dense clusters and ships the resulting KVCache over commodity Ethernet. The key enabler: hybrid-attention models (Kimi Linear, MiMo-V2-Flash, Qwen3.5-397B) slash KV throughput by 4-36x vs. dense models, making inter-cluster transfer feasible. On a 1T-parameter hybrid model, PrfaaS achieves 54% higher throughput and 64% lower P90 TTFT than homogeneous PD baselines, consuming only 13 Gbps of Ethernet — 13% of a 100G link. This paper redraws the deployment boundary of PD disaggregation from single-RDMA-cluster to multi-datacenter, with bandwidth-aware scheduling and a hybrid prefix cache pool built on vLLM.
+Score: 96 (was 95)
 
-### [ToolSpec: Accelerating Tool Calling via Schema-Aware and Retrieval-Augmented Speculative Decoding](https://arxiv.org/abs/2604.13519v1)
+## [Scepsy: Serving Agentic Workflows Using Aggregate LLM Pipelines](https://arxiv.org/abs/2604.15186v1)
 
-ToolSpec observes that tool-call generation — not tool execution — is the latency bottleneck (80-96% of end-to-end time at scale). It uses a finite-state machine to deterministically fill schema tokens (JSON keys, tool names, parameter names) while speculatively decoding only variable fields, plus retrieves similar historical tool calls as draft candidates. The result: 3.5-4.2x speedup across Qwen2.5, LLaMA-3.1, and ToolLLaMA, with 61% relative improvement over the best training-free speculative decoding baseline. Training-free, plug-and-play, and increasingly relevant as agentic multi-tool workflows scale.
-Score: 90 (was 93)
+Imperial College's Scepsy tackles a growing blind spot: how to efficiently schedule multi-LLM agentic workflows (beam search, RAG+reranker) onto GPU clusters. The core insight is that while individual workflow executions are wildly unpredictable, the *relative* time each LLM consumes is stable — enabling an "Aggregate LLM Pipeline" abstraction that predicts throughput/latency from per-LLM profiles. Scepsy jointly optimizes fractional GPU shares, tensor parallelism, and replica counts via topology-aware placement on Kubernetes with Nvidia MPS. On a 16-GPU cluster: 2.4x higher throughput and 27x lower latency than Kubernetes autoscaling or Aegaeon. As agentic inference becomes the default deployment pattern, this is the scheduling paper the ecosystem needs.
+Score: 90 (was 92)
 
-### [KV Packet: Recomputation-Free Context-Independent KV Caching for LLMs](https://arxiv.org/abs/2604.13226v1)
+## [RACER: Retrieval-Augmented Contextual Rapid Speculative Decoding](https://arxiv.org/abs/2604.14885v1)
 
-KV Packet wraps each document's precomputed KV cache in lightweight trainable Header/Trailer soft-token adapters (just 8 tokens each), enabling zero-recomputation cache concatenation for RAG. The adapters absorb attention-sink boundary artifacts that cause naive concatenation to fail. On Llama-3.1-8B, TTFT drops 19.45x on Needle-in-a-Haystack and inference FLOPs fall 5-6 orders of magnitude versus CacheBlend/EPIC, while F1 stays competitive with full recomputation. Universal adapters trained on mixed domains generalize across tasks — a practical drop-in for any RAG serving stack running repeat-document workloads.
-Score: 88 (was 95)
+RACER unifies retrieval-based and logits-based drafting for training-free speculative decoding. An Aho-Corasick automaton with LRU eviction captures repeated n-gram patterns from context, while a "copy-logit" strategy reuses logits from prior occurrences of the same token to build a pruned draft tree. The two are merged into a single speculation budget per step. Across Vicuna, LLaMA-3.1, and Qwen3 (up to 32B), RACER consistently delivers >2x speedup over autoregressive decoding and outperforms EAGLE-3 on speedup ratio despite lower MAT — because it adds zero model parameters. Plug-and-play, code released, and robust across reasoning, code, and multilingual tasks.
+Score: 82 (was 90)
 
-### [DASH-Q: Robust Ultra Low-Bit Post-Training Quantization via Stable Diagonal Curvature Estimate](https://arxiv.org/abs/2604.13806v1)
+## [MemoSight: Unifying Context Compression and Multi-Token Prediction for Reasoning Acceleration](https://arxiv.org/abs/2604.14889v1)
 
-DASH-Q makes an elegant argument: at 2-bit precision, off-diagonal Hessian entries are pure noise from limited calibration data, so GPTQ-style cross-channel compensation overfits. By discarding off-diagonal terms entirely and solving independent weighted least-squares per channel, DASH-Q improves 2-bit zero-shot accuracy by 7% average (up to 14%) over the strongest PTQ baseline across Llama-3.1-8B, Qwen3-14B, DeepSeek-MoE-16B, Phi-3.5-MoE, and Mixtral-8x7B — while quantizing 74.5x faster. Stable even with just 2 calibration samples. Deploys on standard inference engines with no custom kernels.
-Score: 85 (was 88)
-
-### [YOCO++: Enhancing YOCO with KV Residual Connections for Efficient LLM Inference](https://arxiv.org/abs/2604.13556v1)
-
-YOCO++ adds weighted KV residual connections from layer 1 to each bottom-half layer in the YOCO decoder-decoder architecture, enriching the shared global KV cache at zero additional decoding I/O cost. With a learnable scaling factor (lambda=35) to stabilize training, it achieves SOTA among cross-layer KV compression methods at 50% cache compression — outperforming the standard Transformer on commonsense benchmarks at 1.1B scale. Prefilling latency halves and decoding throughput jumps, unlike FusedKV which regresses on throughput due to extra I/O.
-Score: 80 (was 90)
+MemoSight addresses the ballooning KV cache from long Chain-of-Thought reasoning by jointly training context compression ("memory tokens") and multi-token prediction ("foresight tokens") — both implemented purely via special tokens and position ID manipulation, requiring zero architecture changes. Memory tokens compress each reasoning step at a configurable ratio; foresight tokens predict d steps ahead for speculative verification. On Qwen2.5-7B and Llama-3.1-8B across GSM8K, MMLU, GPQA, and BBH: 66% peak KV cache reduction, 1.56x inference speedup, and accuracy that matches or beats uncompressed baselines. The first framework to successfully combine MTP with CoT compression.
+Score: 82 (was 85)
 
 ---
 
 ## Surge Watch
 
-[Attention Sink in Transformers](https://arxiv.org/abs/2604.10098v1) refuses to plateau — 58 → 69 HF upvotes and 34 → 47 GitHub stars in the latest 24 hours. Three-day arc of 26 → 69 upvotes makes this the fastest-moving survey paper we've tracked. Clearly tapped a nerve.
+Last week's breakouts are all decelerating. [Attention Sink in Transformers](https://arxiv.org/abs/2604.10098v1) went from +11 HF/day to +3 — sitting at 72 upvotes and 49 stars. [Introspective Diffusion Language Models](https://arxiv.org/abs/2604.11035v1) same story: stars crept 94 → 102, HF barely moved. Initial bursts spent on both.
 
-[Introspective Diffusion Language Models](https://arxiv.org/abs/2604.11035v1) is accelerating, not cooling — GitHub stars surged 69 → 94 overnight (HF 15 → 19). The builder-first pattern is intensifying as diffusion LLMs compete for the non-autoregressive slot.
+New name worth watching: [DMax](https://arxiv.org/abs/2604.08302v1) quietly ran up 17 → 50 HF upvotes and 5 → 104 GitHub stars in one week — strong traction for aggressive parallel decoding targeting discrete diffusion LLMs. Growth is now leveling, but alongside the Introspective Diffusion paper it confirms non-autoregressive inference as a real research lane, not a one-off.
 
-[Nemotron 3 Super](https://arxiv.org/abs/2604.12374v1) is the fresh entry — NVIDIA's MoE Mamba-Transformer hybrid leapt from 4 → 21 HF upvotes in a single day. The Mamba-meets-MoE-for-agentic-reasoning pitch is resonating; first-day signal strength mirrors TriAttention's early trajectory.
-
-TriAttention has now fully settled (107 HF / 534 stars, +2/+30 over 2 days). First citation appeared, marking the transition from community buzz to academic uptake.
+[Nemotron 3 Super](https://arxiv.org/abs/2604.12374v1) continued to 26 HF (from 21 yesterday) — sustaining interest but not breaking out further.
