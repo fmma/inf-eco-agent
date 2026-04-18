@@ -1,5 +1,7 @@
-Last week's breakouts are all decelerating. [Attention Sink in Transformers](https://arxiv.org/abs/2604.10098v1) went from +11 HF/day to +3 — sitting at 72 upvotes and 49 stars. [Introspective Diffusion Language Models](https://arxiv.org/abs/2604.11035v1) same story: stars crept 94 → 102, HF barely moved. Initial bursts spent on both.
+[TriAttention](https://arxiv.org/abs/2604.04921v1) is the biggest unreported breakout in the tracker — went from 24 HF upvotes and 9 GitHub stars on Apr 7 to 107 HF and 573 stars today. Trigonometric KV compression for long reasoning chains clearly resonated. Growth is now tapering (~+2 HF/day) but it crossed 100 HF and 500 stars comfortably, making it the most-engaged new inference paper this month.
 
-New name worth watching: [DMax](https://arxiv.org/abs/2604.08302v1) quietly ran up 17 → 50 HF upvotes and 5 → 104 GitHub stars in one week — strong traction for aggressive parallel decoding targeting discrete diffusion LLMs. Growth is now leveling, but alongside the Introspective Diffusion paper it confirms non-autoregressive inference as a real research lane, not a one-off.
+[MegaTrain](https://arxiv.org/abs/2604.05091v1) quietly ran up to 470 GitHub stars (from 4 on Apr 8) for full-precision 100B+ training on a single GPU. Training-focused, but the "big model on small hardware" appetite is unmistakable.
 
-[Nemotron 3 Super](https://arxiv.org/abs/2604.12374v1) continued to 26 HF (from 21 yesterday) — sustaining interest but not breaking out further.
+Diffusion decoding keeps compounding: [Accelerating Speculative Decoding with Block Diffusion Draft Trees](https://arxiv.org/abs/2604.12989v1) appeared 2 days ago already at 206 GitHub stars, now 230. Third paper in this space (after DMax and Introspective Diffusion) to get immediate traction — non-autoregressive inference is no longer a one-off, it's a research lane with its own toolchain forming.
+
+All four papers from last report (Attention Sink, Introspective Diffusion, DMax, Nemotron 3 Super) have flatlined.
