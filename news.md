@@ -1,39 +1,34 @@
+I can't read the PDFs directly (no poppler-utils installed and no PDF Python libraries available). I'll write the bulletin using the detailed abstracts provided, which contain specific methods, benchmarks, and results.
+
 # Inference Ecosystem — Flash News
-**2026-04-21 | 573 papers scanned**
+**2026-04-27 · 603 papers scanned**
 
-### [Neural Garbage Collection: Learning to Forget while Learning to Reason](https://arxiv.org/abs/2604.18002v1)
+### [Guess-Verify-Refine: Data-Aware Top-K for Sparse-Attention Decoding on Blackwell via Temporal Correlation](https://arxiv.org/abs/2604.22312)
 
-Stanford's Li, Hamid, Fox, and Goodman introduce a paradigm shift: instead of hand-designed KV cache eviction heuristics, let the model *learn* what to forget via reinforcement learning. NGC treats cache eviction as a discrete action (sampled via Gumbel-top-k) alongside token generation, optimized end-to-end from task reward alone — no proxy objectives, no teacher models. On Countdown it more than doubles the next-best baseline (49.6% vs 21.2% at 2.4x cache reduction); on AIME 2025 it hits 21.4% pass@32 at 4.6x compression where SnapKV manages 10.7%. The "budget-aware interoception" trick — conditioning the prompt on eviction rate — enables generalization to unseen cache budgets. This is the paper to watch if you believe efficiency should be a learned capability, not an engineered one.
-Score: 95 (was 93)
+NVIDIA ships GVR, an exact Top-K algorithm for sparse-attention decoding that exploits temporal correlation between consecutive decode steps. Integrated directly into TensorRT-LLM's DeepSeek Sparse Attention stack on Blackwell, it achieves 1.88x average speedup over the production radix-select kernel (up to 2.42x per layer) while preserving bit-exact outputs. End-to-end TPOT improves 7.52% at 100K context, with gains scaling at longer sequences. If you're serving DeepSeek-V3.2 on Blackwell, this is already in the stack. Score: 96 (was 95)
 
-### [Open-TQ-Metal: Fused Compressed-Domain Attention for Long-Context LLM Inference on Apple Silicon](https://arxiv.org/abs/2604.16957v1)
+### [FASER: Fine-Grained Phase Management for Speculative Decoding in Dynamic LLM Serving](https://arxiv.org/abs/2604.20503)
 
-A solo developer just made Llama 3.1 70B at 128K context run on a single 64 GB Mac — something every existing framework (mlx-lm, llama.cpp, Ollama) cannot do. The trick: a custom Metal compute shader that reads packed int4 KV cache directly, dequantizes in GPU registers via bitwise ops, and computes attention with online softmax in a single pass — zero intermediate matrices. The fused `sdpa_int4` kernel achieves 48x attention speedup at 128K context over dequantize-then-attend. Across 330 experiments, the paper also reveals that the attention scale factor (not model size) determines whether angular quantization like PolarQuant works: Gemma 4's `attn_scale=1.0` amplifies directional error 25-100x vs Llama's standard 1/sqrt(d), and QJL's 0.85 per-layer correlation collapses to ~0 after 80 layers at 70B scale.
-Score: 93 (was 95)
+FASER tackles the rigidity of current speculative decoding systems by introducing per-request speculative length tuning within continuous batches, early pruning of rejected tokens inside verification, and spatial multiplexing to overlap draft and verify phases. Prototyped in vLLM, it delivers up to 53% throughput gain and 1.92x latency reduction over state-of-the-art. This is the most practical spec-decode improvement we've seen — it works with existing draft models and adapts to volatile online traffic patterns. Score: 94 (was 95)
 
-### [HieraSparse: Hierarchical Semi-Structured Sparse KV Attention](https://arxiv.org/abs/2604.16864v1)
+### [SAW-INT4: System-Aware 4-Bit KV-Cache Quantization for Real-World LLM Serving](https://arxiv.org/abs/2604.19157)
 
-First system to leverage GPU sparse tensor cores (NVIDIA Ampere/Hopper `mma.sp` instructions) for KV cache attention acceleration in both prefill and decode. The Trans-Both kernel design transposes both GEMMs to make K and V^T the sparse operands, enabling theoretical 2x speedup on both phases. At 50% sparsity, HieraSparse achieves 4.57x attention speedup over MUSTAFAR's unstructured approach and 1.2x better compression ratio at the same sparsity level. The `movmatrix`-based in-register re-layout between GEMMs avoids shared-memory overhead. End-to-end on Llama-3.1-8B at 128K context: 1.41x TTFT reduction and 1.54x TPOT reduction. Code released at GitHub.
-Score: 90 (was 95)
+Co-authored by Tri Dao, this paper asks what KV-cache quantization actually survives production serving constraints — paged memory layouts, fused attention, regular memory access. The answer: token-wise INT4 with block-diagonal Hadamard rotation. Their fused rotation-quantization kernel integrates into paged KV-cache with zero measurable end-to-end overhead, matching plain INT4 throughput. More complex methods (vector quantization, Hessian-aware) add marginal gains once you account for serving compatibility. A systems co-design reality check the field needed. Score: 92 (was 95)
 
-### [Neural Garbage Collection (NGC)](https://arxiv.org/abs/2604.18002v1) already covered above.
+### [FairyFuse: Multiplication-Free LLM Inference on CPUs via Fused Ternary Kernels](https://arxiv.org/abs/2604.20913)
 
-### [River-LLM: Large Language Model Seamless Exit Based on KV Share](https://arxiv.org/abs/2604.18396v1)
+FairyFuse eliminates all floating-point multiplications from ternary LLM inference by fusing eight sub-GEMVs into a single AVX-512 loop of masked additions and subtractions. The result: 32.4 tok/s on a single Xeon 8558P, outperforming llama.cpp Q4_K_M by 1.24x with near-lossless quality (WikiText-2 PPL 5.52 vs 5.47 FP16). Roofline analysis shows 16x weight compression shifts memory-bound GEMV toward compute on bandwidth-limited CPUs — a 29.6x kernel speedup. If you're deploying on CPU-only infrastructure, this is the new baseline to beat. Score: 85 (was 95)
 
-Early exit in decoder-only LLMs has a dirty secret: the KV Cache Absence problem means skipped layers leave holes for subsequent tokens, and existing fixes (recompute, masking, state propagation) eat your speedup. River-LLM solves this with a "KV-Shared Exit River" — lightweight W4A16-quantized copies of backbone layers that share the same KV cache address space. When a token exits early, it traverses the quantized exit layers that naturally fill in the missing KV entries at 2.4x throughput. The exit decision uses state transition similarity (input-output cosine similarity) which correlates with cumulative quantization error. Training-free, 1.71-2.16x wall-clock speedup across Llama 3.2 1B / 3.1 8B / Phi4-mini / Ministral3 8B on GSM8K, MATH, and HumanEval, with memory footprint approaching full quantization.
-Score: 88 (was 92)
+### [MCAP: Deployment-Time Layer Profiling for Memory-Constrained LLM Inference](https://arxiv.org/abs/2604.21026)
 
-### [HybridGen: Efficient LLM Generative Inference via CPU-GPU Hybrid Computing](https://arxiv.org/abs/2604.18529v1)
-
-For long-context inference where KV caches overflow GPU memory, HybridGen parallelizes attention across CPU and GPU — each processor computes on KV tokens in its local memory. The key enabler: decoupling attention logit computation (Q*K^T is independent across tokens) from softmax/value aggregation, plus exploiting consecutive-layer input similarity (cosine sim >0.9 after layer 1) to let the CPU proactively compute next-layer logits while the GPU finishes the current layer. A feedback scheduler dynamically adjusts how many tokens the CPU processes based on runtime latency. With CXL-expanded memory and semantic-aware KV mapping (keys in fast DRAM, values in CXL), HybridGen outperforms FlexGen, InfiniGen, and four other baselines by 1.41-3.2x across OPT/Llama/Qwen on three GPU platforms.
-Score: 88 (was 95)
+MCAP uses Monte Carlo activation profiling at load time to estimate per-layer importance, then drives dynamic precision dispatch (W4A8 vs W4A16) and residency tiering (GPU/RAM/SSD) from a single weight set. The NVE runtime achieves 1.5–1.8x decode throughput over llama.cpp Q4_0 on T4 and enables models to run in memory regimes previously infeasible without modifying weights. Interesting approach to making one checkpoint serve many hardware targets. Score: 78 (was 93)
 
 ---
 
 ## Surge Watch
 
-[Mixture-of-Depths Attention](https://arxiv.org/abs/2603.15619) — the overnight spike we flagged yesterday wasn't a one-off. Stars surged again from 193 to 231 (+38 in 24h) after being flat at 162 for over a week. That's +69 stars in two days — something (likely a major integration or implementation push) is actively driving GitHub traffic. HF engagement remains flat at 80, so this is purely dev-community driven.
+[Act While Thinking](https://arxiv.org/abs/2603.18897) is the sleeper signal this week. After a full month of absolute zero engagement, it suddenly picked up 3 citations (2 influential) in the last 6 days. Influential citations on a pattern-aware speculative tool execution paper suggest it's being referenced by substantial follow-up work — worth watching whether this becomes a trend or a one-off cluster.
 
-[FlashAttention-4](https://arxiv.org/abs/2603.05451) is accelerating in the academic graph: 5→9 citations in the past week, with 2 new in the last 3 days. It's becoming a standard reference in the attention optimization literature. Still just 1 HF upvote and zero GitHub stars after 7 weeks — the researcher/practitioner gap is widening, not closing.
+[Accelerating Speculative Decoding with Block Diffusion Draft Trees](https://arxiv.org/abs/2604.12989) continues its quiet dev-community climb: 246→294 GitHub stars (+48 in 6 days), now nearly matching TriAttention's early trajectory. Still only 6 HF upvotes — this is purely implementation-driven interest.
 
-Everything else is steady-state. TriAttention's initial explosion has fully cooled (+1 HF, +8 stars since yesterday). Nemotron 3 Super is still climbing (now 36 HF) but decelerating.
+Previous hot signals are cooling as expected. [Mixture-of-Depths Attention](https://arxiv.org/abs/2603.15619) went from +69 stars in two days to just +16 over the past six — the surge we flagged is over, settling at 247. [FlashAttention-4](https://arxiv.org/abs/2603.05451) flatlined at 9 citations after its academic acceleration.
