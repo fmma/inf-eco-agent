@@ -102,14 +102,19 @@ print(n)
 
   # Combine all batch scores
   python -c "
-import json, glob, re
+import json, glob, re, sys
 all_scores = []
 for f in sorted(glob.glob('/tmp/inf-eco-scores-batch-*.json'),
                 key=lambda x: int(re.search(r'(\d+)', x.rsplit('-',1)[1]).group())):
     raw = open(f).read().strip()
+    if not raw:
+        sys.exit(f'Error: empty score batch {f} (claude returned no output)')
     if raw.startswith('\`\`\`'): raw = raw.split('\n', 1)[1]
     if raw.endswith('\`\`\`'): raw = raw.rsplit('\`\`\`', 1)[0].strip()
-    all_scores.extend(json.loads(raw))
+    try:
+        all_scores.extend(json.loads(raw))
+    except json.JSONDecodeError as e:
+        sys.exit(f'Error: invalid JSON in {f}: {e}\n--- first 500 chars ---\n{raw[:500]}')
 json.dump(all_scores, open('/tmp/inf-eco-scores.json', 'w'), indent=2)
 "
   echo "Merging scores..."

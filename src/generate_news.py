@@ -159,12 +159,16 @@ def main():
     if result.returncode != 0:
         print(f"Error: Claude returned exit code {result.returncode}", file=sys.stderr)
         if result.stderr:
-            print(f"stderr: {result.stderr[:500]}", file=sys.stderr)
+            print(f"stderr: {result.stderr[:2000]}", file=sys.stderr)
+        if result.stdout:
+            print(f"stdout: {result.stdout[:2000]}", file=sys.stderr)
         sys.exit(1)
 
     news = result.stdout.strip()
     if not news:
         print("Error: Claude returned empty output", file=sys.stderr)
+        if result.stderr:
+            print(f"stderr: {result.stderr[:2000]}", file=sys.stderr)
         sys.exit(1)
 
     NEWS_PATH.write_text(news + "\n")
