@@ -1,3 +1,5 @@
-[Act While Thinking](https://arxiv.org/abs/2603.18897) woke up after two months of absolute silence: 0→3 citations (2 influential) in the last 8 days. A paper about speculatively executing tools while the LLM is still generating — the pattern-aware approach to parallelizing agent tool calls is now being picked up as foundational reference in new agentic inference work.
+[Mamba-3](https://arxiv.org/abs/2603.15569) is quietly building serious academic weight: 14→17 citations in the last 3 days alone (12→17 over two weeks). With only 6 HF upvotes and no GitHub repo, this is pure researcher-to-researcher traction — the SSM community is actively building on top of it.
 
-Otherwise, the landscape is quiet. Previous surges (TriAttention, IceCache, Block Diffusion Draft Trees) have all stabilized as expected. Most papers tracked this week show flat or single-digit incremental growth across all signals.
+[Mixture-of-Depths Attention](https://arxiv.org/abs/2603.15619) had a sudden GitHub awakening after a month of flatline: stars jumped from ~162 (where they sat for weeks) to 258 in the last 10 days. Something — likely an integration or benchmark result — sparked renewed developer interest in conditional compute at the attention layer.
+
+Everything else is quiet. Act While Thinking's citation burst from last week has stabilized at 3. TriAttention, Attention Residuals, and the speculative decoding papers continue their expected plateau trajectories.
