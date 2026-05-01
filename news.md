@@ -1,33 +1,37 @@
+I have detailed abstracts for all 20 candidate papers. The PDF extraction tools aren't available on this system (no poppler-utils, and python commands need approval), but the abstracts contain sufficient technical detail — method names, speedups, benchmarks — to rescore and write the bulletin. Let me proceed.
+
 # Inference Ecosystem — Flash News
+**2026-05-01** | 538 papers scanned
 
-**2026-04-30 | 467 papers scanned**
+---
 
-## [SPIN: Unifying Sparse Attention with Hierarchical Memory for Scalable Long-Context LLM Serving](https://arxiv.org/abs/2604.26837v1)
+### [SAW-INT4: System-Aware 4-Bit KV-Cache Quantization for Real-World LLM Serving](https://arxiv.org/abs/2604.19157)
 
-Microsoft Research delivers a sparse-attention-aware serving framework built on vLLM that co-designs execution pipelines with GPU-CPU hierarchical KV storage. SPIN introduces a unified "partition" abstraction mapping different sparsity granularities (blocks, clusters, tokens) onto a shared page-based substrate, a locality-aware bucketed LRU cache manager that dynamically sizes per-request HBM budgets, and OS-style two-level metadata indexing that cuts metadata HBM consumption by 49-78x. Evaluated on Qwen3-8B/14B and Llama-3.1-70B across A100 and B200 GPUs with three integrated sparse attention algorithms (ShadowKV, RetroInfer, SeerAttention-R), SPIN delivers 1.66-5.66x higher end-to-end throughput and 7-9x lower TTFT than vLLM. This is the framework that makes sparse attention actually work at the systems level.
-Score: 95 (was 95)
+Tri Dao is a co-author, and the message is simple: under real paged-memory serving constraints, token-wise INT4 quantization with block-diagonal Hadamard rotation is all you need. They show that fancier methods (vector quantization, Hessian-aware) give marginal gains once you enforce paged KV-cache layouts, fused attention, and regular memory access. Their fused rotation-quantization kernel integrates into paged KV-cache with zero measurable end-to-end overhead — matching plain INT4 throughput across concurrency levels. This is the kind of systems co-design paper that actually changes what gets deployed.
+**Score: 95 (was 95)**
 
-## [DAK: Direct-Access-Enabled GPU Memory Offloading with Optimal Efficiency for LLM Inference](https://arxiv.org/abs/2604.26074v1)
+### [Scaling Multi-Node MoE Inference Using Expert Activation Patterns](https://arxiv.org/abs/2604.23150)
 
-DAK repurposes NVIDIA's Tensor Memory Accelerator (TMA) — originally designed for HBM-to-SMEM transfers — to stream weights and KV caches directly from remote host memory into GPU shared memory, completely bypassing HBM staging. This is the first system to use TMA for cross-interconnect data movement. A greedy algorithm with provable optimality determines per-operation offloading ratios for compute-bound vs. memory-bound kernels, while active congestion control and TMA multicast eliminate interconnect saturation and read amplification. On GH200 (NVLink-C2C), DAK achieves up to 3x throughput over FlexGen and vLLM prefetch baselines; on RTX 6000 Blackwell (PCIe Gen5), up to 1.8x. Open-sourced and ready for integration.
-Score: 94 (was 95)
+Georgia Tech + Meta profile Llama 4 Maverick, DeepSeek V3-671B, and Qwen3-230B with 100k+ real expert activation traces and uncover persistent patterns: variable load imbalance, domain-specific expert popularity shifts (code vs. math vs. chat), and strong prefill-decode activation correlation. Their workload-aware micro-batch grouping and expert placement strategy reduces inter-node all-to-all communication by up to 20x, directly cutting MoE decode latency. If you're serving any frontier MoE model across multiple nodes, this is the paper to read.
+**Score: 93 (was 95)**
 
-## [RaMP: Runtime-Aware Megakernel Polymorphism for Mixture-of-Experts](https://arxiv.org/abs/2604.26039v1)
+### [Super Apriel: One Checkpoint, Many Speeds](https://arxiv.org/abs/2604.19877)
 
-Every production MoE system — vLLM, SGLang, Alpha-MoE, DeepGEMM, FlashInfer — dispatches kernels from batch size alone, ignoring the expert routing distribution that changes every forward step. RaMP shows this leaves 10-70% of kernel throughput unrealized. A four-parameter wave cost model fitted from just 10-24 minutes of one-time profiling per model selects the fastest configuration from the runtime expert histogram, achieving 0.93% mean regret vs. exhaustive search across 8 MoE architectures including 3 unseen. The cost model is kernel-agnostic: applied to Alpha-MoE's own C++ kernel with zero source changes, it delivers 1.14x. Paired with a co-designed CuTe DSL kernel exposing 134-268 polymorphic configs, RaMP delivers 1.30x end-to-end in vLLM over Triton FP8, 1.41x over DeepGEMM.
-Score: 93 (was 95)
+ServiceNow's SLAM Labs release a 15B supernet where every decoder layer has four trained mixer choices — Full Attention, Sliding Window, Kimi Delta Attention, and Gated DeltaNet. You switch presets between requests at serving time without reloading weights, spanning 2.9x to 10.7x decode throughput at 96% to 77% quality retention. The all-FA preset matches the teacher on all benchmarks. The single-checkpoint design also enables speculative decoding without a separate draft model. Open weights, vLLM serving code, and placement optimizer released.
+**Score: 90 (was 88)**
 
-## [Efficient, VRAM-Constrained xLM Inference on Clients](https://arxiv.org/abs/2604.26334v1)
+### [FairyFuse: Multiplication-Free LLM Inference on CPUs via Fused Ternary Kernels](https://arxiv.org/abs/2604.20913)
 
-From NVIDIA (accepted MLSys 2026 Industry Track), pipelined sharding is a benchmark-profile-guided CPU-GPU hybrid scheduler for client inference. It shards models at the sub-layer level and selects from three schedule plans (GPU-only, static CPU-GPU split, dynamic pipelined split) per token tier, adapting to CPU thread count, PCIe bandwidth, and VRAM budget at runtime. On a high-end desktop with Qwen3-235B (77GB on disk) at just 2GB VRAM, it achieves 7.7 TPS for 1K context — interactive speed from a 39x memory reduction. Combined with VLMOpt for Cosmos-Reason1, VRAM demand drops 10x vs. vLLM. Average TTFT improvement: 2x (up to 6.7x); TPS: 3.7x (up to 30x). This is the missing piece for running large models alongside games on consumer GPUs.
-Score: 88 (was 92)
+Achieves 32.4 tokens/s on a single Intel Xeon 8558P by fusing ternary weight operations into a single AVX-512 loop — zero floating-point multiplications. Outperforms llama.cpp Q4_K_M by 1.24x with near-lossless quality (WikiText-2 PPL 5.52 vs 5.47 FP16). Roofline analysis confirms the 16x weight compression shifts memory-bound GEMV toward compute on bandwidth-limited CPUs, yielding a 29.6x kernel speedup. Ternary models remain niche, but this proves CPU-only inference has legs.
+**Score: 85 (was 95)**
+
+### [Efficient Mixture-of-Experts LLM Inference with Apple Silicon NPUs](https://arxiv.org/abs/2604.18788)
+
+NPUMoE tackles the three things that make MoE hostile to NPUs: dynamic expert routing, irregular operators, and small-kernel dispatch overhead. It uses offline-calibrated expert capacity/popularity to drive static tiering, grouped expert execution, and load-aware graph residency. On M-series devices across three MoE models and four long-context workloads: 1.3–5.6x latency reduction, 1.8–7.4x energy efficiency gains, and 1.8–5.5x CPU-cycle savings. First serious effort at offloading MoE prefill to Apple's ANE.
+**Score: 85 (was 92)**
 
 ---
 
 ## Surge Watch
 
-[Mamba-3](https://arxiv.org/abs/2603.15569) is quietly building serious academic weight: 14→17 citations in the last 3 days alone (12→17 over two weeks). With only 6 HF upvotes and no GitHub repo, this is pure researcher-to-researcher traction — the SSM community is actively building on top of it.
-
-[Mixture-of-Depths Attention](https://arxiv.org/abs/2603.15619) had a sudden GitHub awakening after a month of flatline: stars jumped from ~162 (where they sat for weeks) to 258 in the last 10 days. Something — likely an integration or benchmark result — sparked renewed developer interest in conditional compute at the attention layer.
-
-Everything else is quiet. Act While Thinking's citation burst from last week has stabilized at 3. TriAttention, Attention Residuals, and the speculative decoding papers continue their expected plateau trajectories.
+Nothing noteworthy in signal trends today.
