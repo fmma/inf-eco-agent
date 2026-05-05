@@ -37,6 +37,31 @@ def download_pdf(url: str, dest: Path) -> bool:
         return False
 
 
+def compress_pdf(path: Path) -> None:
+    """Re-encode PDF in place at /ebook quality to keep request size under the
+    Anthropic API's 20 MB per-request cap. Falls back to the original on
+    failure or if gs produces a larger file."""
+    before = path.stat().st_size
+    tmp = path.with_suffix(".pdf.gs")
+    try:
+        subprocess.run(
+            ["gs", "-dNOPAUSE", "-dBATCH", "-dQUIET",
+             "-sDEVICE=pdfwrite", "-dPDFSETTINGS=/ebook",
+             f"-sOutputFile={tmp}", str(path)],
+            check=True, capture_output=True, timeout=60,
+        )
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError) as e:
+        print(f"  Warning: gs compression failed ({e}); using original", file=sys.stderr)
+        tmp.unlink(missing_ok=True)
+        return
+    after = tmp.stat().st_size
+    if after < before:
+        tmp.replace(path)
+        print(f"    compressed {before/1e6:.1f} MB -> {after/1e6:.1f} MB")
+    else:
+        tmp.unlink()
+
+
 def find_top_papers(papers: list[dict], today: str) -> list[dict]:
     """Find top-scoring papers from today for PDF download."""
     candidates = [
@@ -138,7 +163,11 @@ def main():
             dest = PDF_DIR / f"{arxiv_id}.pdf"
             print(f"  [{arxiv_id}] {p['title'][:60]}...")
             if download_pdf(p["pdf_url"], dest):
+                compress_pdf(dest)
                 pdf_paths[p["id"]] = dest
+
+        total = sum(p.stat().st_size for p in pdf_paths.values())
+        print(f"Total PDF payload: {total/1e6:.1f} MB")
 
     # Build prompt and invoke Claude
     prompt = build_prompt(papers, top_papers, pdf_paths, new_ids)
