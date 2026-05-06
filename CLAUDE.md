@@ -23,8 +23,8 @@ This repo is an automated agent that discovers new arXiv papers about LLM infere
 
 ### Scheduling
 
-- systemd user timer (`inf-eco-scan.timer`) fires daily at 08:00 CET with `Persistent=true` (catches up after sleep/shutdown).
-- One attempt per day. No automatic retries.
+- systemd user timer (`inf-eco-scan.timer`) fires daily at 23:00 CET (21:00 UTC) with `Persistent=true` (catches up after sleep/shutdown). This sits in the quiet window between arXiv's 18:00 UTC submission deadline and 00:00 UTC announcement, avoiding the post-announcement traffic spike that triggers 429s.
+- One systemd-level attempt per day; no service-level retries (the arxiv client itself retries 429s twice — see "arXiv rate limits" below).
 - Discord notifications via OpenClaw (`DISCORD_CHANNEL` env var in the service).
 
 ### Deployment
@@ -40,7 +40,7 @@ Avoid rsyncing files to foadell. It creates unstaged changes that break `git pul
 
 ### arXiv rate limits
 
-arXiv aggressively rate-limits and bans IPs. The fetch step uses conservative settings: `page_size=200`, `delay_seconds=20`, `num_retries=0`. Do not enable retries or decrease delay. If arXiv returns an error, the scan fails and waits for the next day's scheduled run.
+arXiv aggressively rate-limits and bans IPs. The fetch step uses conservative settings: `page_size=200`, `delay_seconds=20`, `num_retries=2`. Two retries 20s apart catch brief 429 blips while staying far below arXiv's 1 req / 3 s documented limit (a daily run makes ~3 requests total). Do not increase further or decrease delay.
 
 ## Key files
 

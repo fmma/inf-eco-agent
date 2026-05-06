@@ -71,7 +71,7 @@ def fetch_papers(config: dict) -> list[dict]:
     seen_ids = {normalize_arxiv_id(p["id"]) for p in paper_db}
     cutoff = get_cutoff(paper_db)
 
-    client = arxiv.Client(page_size=200, delay_seconds=20.0, num_retries=0)
+    client = arxiv.Client(page_size=200, delay_seconds=20.0, num_retries=2)
     search = arxiv.Search(
         query=query,
         max_results=2000,
