@@ -40,7 +40,7 @@ Avoid rsyncing files to foadell. It creates unstaged changes that break `git pul
 
 ### arXiv rate limits
 
-arXiv aggressively rate-limits and bans IPs. The fetch step uses conservative settings: `page_size=200`, `delay_seconds=20`, `num_retries=2`. Two retries 20s apart catch brief 429 blips while staying far below arXiv's 1 req / 3 s documented limit (a daily run makes ~3 requests total). Do not increase further or decrease delay.
+arXiv aggressively rate-limits and bans IPs. The fetch step uses conservative settings: `page_size=200`, `delay_seconds=300`, `num_retries=2`. The 5-minute spacing means retries land outside the throttle window observed in practice (20s retries always failed; ~5 min idle clears the bucket). A successful daily run makes 1-2 page requests; a fully-failing run takes ~10 min before giving up.
 
 ## Key files
 
