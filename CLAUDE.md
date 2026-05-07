@@ -40,7 +40,7 @@ Avoid rsyncing files to foadell. It creates unstaged changes that break `git pul
 
 ### arXiv rate limits
 
-arXiv aggressively rate-limits paginated bursts: even 5-min-spaced pages will 429 around the 3rd request. The fetch step avoids pagination entirely by requesting one large page: `page_size=2000` (arXiv's max), `max_results=2000`, so each scan makes a single HTTP request. `delay_seconds=300`, `num_retries=2` only matter on the retry path: if that single request 429s, retry 5 min later up to twice.
+arXiv aggressively rate-limits paginated bursts: even 5-min-spaced pages will 429 around the 3rd request. The fetch step uses `page_size=500` (large enough to fit most days in 1 request, busy weeks in 2), `delay_seconds=300`, `num_retries=2`. Avoid `page_size=2000` (the documented max): the server takes 30+ seconds on the big-keyword query and starts returning HTTP 500.
 
 ## Key files
 
