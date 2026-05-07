@@ -2,12 +2,19 @@
 """Fetch recent arXiv papers matching configured keywords and categories."""
 
 import json
+import logging
 import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import arxiv
+
+logging.basicConfig(
+    level=logging.INFO,
+    stream=sys.stderr,
+    format="%(asctime)s %(name)s %(levelname)s %(message)s",
+)
 
 ROOT = Path(__file__).resolve().parent.parent
 
