@@ -40,7 +40,7 @@ Avoid rsyncing files to foadell. It creates unstaged changes that break `git pul
 
 ### arXiv rate limits
 
-arXiv aggressively rate-limits paginated bursts: even 5-min-spaced pages will 429 around the 3rd request. The fetch step uses `page_size=500` (large enough to fit most days in 1 request, busy weeks in 2), `delay_seconds=300`, `num_retries=2`. Avoid `page_size=2000` (the documented max): the server takes 30+ seconds on the big-keyword query and starts returning HTTP 500.
+arXiv aggressively rate-limits anything that looks bursty. The fetch step bypasses the `arxiv` python library and makes a single `requests.get` against `https://export.arxiv.org/api/query` with `max_results=500` (one page covers the typical 3-day window). On 429/5xx the script emits an empty JSON list and exits 0, so the rest of the pipeline runs as a "no new papers" day. No retry — retrying within the same run was observed to keep the throttle hot. Use a descriptive User-Agent (`inf-eco-agent/1.0 (mailto:...)`) per arXiv API guidance. Avoid `max_results=2000` (the documented max): the server takes 30+ seconds on the big-keyword query and returns HTTP 500.
 
 ## Key files
 

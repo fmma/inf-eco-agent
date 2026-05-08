@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Fetch recent arXiv papers matching configured keywords and categories."""
+"""Fetch recent arXiv papers matching configured keywords and categories.
+
+Direct HTTP call against the arXiv API, parsed with feedparser. Bypasses
+the arxiv python library so we control retry, UA, and 429 handling.
+"""
 
 import json
 import logging
@@ -7,16 +11,22 @@ import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import urlencode
 
-import arxiv
+import feedparser
+import requests
 
 logging.basicConfig(
     level=logging.INFO,
     stream=sys.stderr,
-    format="%(asctime)s %(name)s %(levelname)s %(message)s",
+    format="%(asctime)s %(levelname)s %(message)s",
 )
+log = logging.getLogger("fetch_papers")
 
 ROOT = Path(__file__).resolve().parent.parent
+ARXIV_API = "https://export.arxiv.org/api/query"
+USER_AGENT = "inf-eco-agent/1.0 (mailto:frederik.meisner@gmail.com)"
+TRANSIENT_STATUSES = {429, 500, 502, 503, 504}
 
 
 def load_config():
@@ -56,13 +66,37 @@ def get_cutoff(papers: list[dict], min_days: int = 3) -> datetime:
         days = max(days_since, min_days)
 
     cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-    print(f"Fetching papers from the last {days} days (cutoff: {cutoff.date()})", file=sys.stderr)
+    log.info("Fetching papers from the last %d days (cutoff: %s)", days, cutoff.date())
     return cutoff
 
 
 def keyword_matches(text: str, keywords: list[str]) -> bool:
     text_lower = text.lower()
     return any(kw.lower() in text_lower for kw in keywords)
+
+
+def fetch_arxiv_feed(query: str, max_results: int) -> feedparser.FeedParserDict:
+    """Make a single GET against the arXiv API and parse the Atom response."""
+    params = {
+        "search_query": query,
+        "sortBy": "submittedDate",
+        "sortOrder": "descending",
+        "start": 0,
+        "max_results": max_results,
+    }
+    url = f"{ARXIV_API}?{urlencode(params)}"
+    log.info("GET %s", url)
+    resp = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=60)
+    log.info("HTTP %d (%d bytes)", resp.status_code, len(resp.content))
+    resp.raise_for_status()
+    return feedparser.parse(resp.content)
+
+
+def get_pdf_url(entry) -> str | None:
+    for link in entry.get("links", []):
+        if link.get("title") == "pdf":
+            return link.get("href")
+    return None
 
 
 def fetch_papers(config: dict) -> list[dict]:
@@ -78,42 +112,47 @@ def fetch_papers(config: dict) -> list[dict]:
     seen_ids = {normalize_arxiv_id(p["id"]) for p in paper_db}
     cutoff = get_cutoff(paper_db)
 
-    client = arxiv.Client(page_size=500, delay_seconds=300.0, num_retries=2)
-    search = arxiv.Search(
-        query=query,
-        max_results=2000,
-        sort_by=arxiv.SortCriterion.SubmittedDate,
-        sort_order=arxiv.SortOrder.Descending,
-    )
+    feed = fetch_arxiv_feed(query, max_results=500)
+    log.info("Parsed %d entries from feed", len(feed.entries))
 
     papers = []
-    for result in client.results(search):
-        if result.published.replace(tzinfo=timezone.utc) < cutoff:
-            return papers
+    for entry in feed.entries:
+        published = datetime.fromisoformat(entry.published.replace("Z", "+00:00"))
+        if published < cutoff:
+            break
 
-        if normalize_arxiv_id(result.entry_id) in seen_ids:
+        if normalize_arxiv_id(entry.id) in seen_ids:
             continue
 
-        title = result.title
-        abstract = result.summary
+        title = entry.title
+        abstract = entry.summary
 
         if not keyword_matches(f"{title} {abstract}", keywords):
             continue
 
         papers.append({
-            "id": result.entry_id,
+            "id": entry.id,
             "title": re.sub(r"\s+", " ", title).strip(),
             "abstract": re.sub(r"\s+", " ", abstract).strip(),
-            "authors": [a.name for a in result.authors[:10]],
-            "published": result.published.isoformat(),
-            "pdf_url": result.pdf_url,
+            "authors": [a.name for a in entry.authors[:10]],
+            "published": published.isoformat(),
+            "pdf_url": get_pdf_url(entry),
         })
     return papers
 
 
 def main():
     config = load_config()
-    papers = fetch_papers(config)
+    try:
+        papers = fetch_papers(config)
+    except requests.HTTPError as e:
+        status = e.response.status_code if e.response is not None else None
+        if status in TRANSIENT_STATUSES:
+            log.warning("arXiv returned %s; emitting empty list (skip-day)", status)
+            json.dump([], sys.stdout)
+            sys.stdout.write("\n")
+            return
+        raise
     json.dump(papers, sys.stdout, indent=2)
     sys.stdout.write("\n")
 
