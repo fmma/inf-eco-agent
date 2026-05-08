@@ -10,13 +10,13 @@ fails the script — scan.sh decides how to react.
 import json
 import logging
 import re
+import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlencode
 
 import feedparser
-import requests
 
 logging.basicConfig(
     level=logging.INFO,
@@ -77,7 +77,12 @@ def keyword_matches(text: str, keywords: list[str]) -> bool:
 
 
 def fetch_arxiv_feed(query: str, max_results: int) -> feedparser.FeedParserDict:
-    """Make a single GET against the arXiv API and parse the Atom response."""
+    """Make a single GET against the arXiv API via curl and parse the Atom response.
+
+    Uses curl(1) instead of python requests because in our testing curl
+    consistently succeeded against arXiv where back-to-back python requests
+    got 429s. Wire-level details (TLS/HTTP2/headers) appear to matter.
+    """
     params = {
         "search_query": query,
         "sortBy": "submittedDate",
@@ -87,10 +92,29 @@ def fetch_arxiv_feed(query: str, max_results: int) -> feedparser.FeedParserDict:
     }
     url = f"{ARXIV_API}?{urlencode(params)}"
     log.info("GET %s", url)
-    resp = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=60)
-    log.info("HTTP %d (%d bytes)", resp.status_code, len(resp.content))
-    resp.raise_for_status()
-    return feedparser.parse(resp.content)
+    result = subprocess.run(
+        [
+            "curl",
+            "--silent",
+            "--show-error",
+            "--max-time", "60",
+            "--user-agent", USER_AGENT,
+            "--write-out", "%{http_code}",
+            url,
+        ],
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"curl failed (exit {result.returncode}): {result.stderr.decode('utf-8', 'replace').strip()}"
+        )
+    body = result.stdout[:-3]
+    status_code = int(result.stdout[-3:])
+    log.info("HTTP %d (%d bytes)", status_code, len(body))
+    if status_code >= 400:
+        raise RuntimeError(f"arXiv returned HTTP {status_code}")
+    return feedparser.parse(body)
 
 
 def get_pdf_url(entry) -> str | None:

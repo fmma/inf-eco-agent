@@ -40,7 +40,7 @@ Avoid rsyncing files to foadell. It creates unstaged changes that break `git pul
 
 ### arXiv rate limits
 
-arXiv aggressively rate-limits anything that looks bursty. The fetch step bypasses the `arxiv` python library and makes a single `requests.get` against `https://export.arxiv.org/api/query` with `max_results=500` (one page covers the typical 3-day window). No retry — retrying within the same run was observed to keep the throttle hot. Non-2xx fails the script and the scan.sh ERR trap decides what to do. Use a descriptive User-Agent (`inf-eco-agent/1.0 (mailto:...)`) per arXiv API guidance. Avoid `max_results=2000` (the documented max): the server takes 30+ seconds on the big-keyword query and returns HTTP 500.
+arXiv aggressively rate-limits anything that looks bursty. The fetch step bypasses the `arxiv` python library and shells out to `curl(1)` for a single GET against `https://export.arxiv.org/api/query` with `max_results=500` (one page covers the typical 3-day window). Curl was chosen over python `requests` because in our testing back-to-back python calls got 429s where curl consistently succeeded — wire-level details (TLS/HTTP2/headers) appear to matter to arXiv's throttle. No retry — retrying within the same run was observed to keep the throttle hot. Non-2xx fails the script and the scan.sh ERR trap decides what to do. Use a descriptive User-Agent (`inf-eco-agent/1.0 (mailto:...)`) per arXiv API guidance. Avoid `max_results=2000` (the documented max): the server takes 30+ seconds on the big-keyword query and returns HTTP 500.
 
 ## Key files
 
