@@ -29,9 +29,9 @@ log = logging.getLogger("fetch_papers")
 ROOT = Path(__file__).resolve().parent.parent
 ARXIV_API = "https://export.arxiv.org/api/query"
 USER_AGENT = "inf-eco-agent/1.0 (mailto:frederik.meisner@gmail.com)"
-PAGE_SIZE = 200
+PAGE_SIZE = 100
 PAGE_SLEEP_SECONDS = 300
-MAX_PAGES = 100
+MAX_PAGES = 5
 
 
 def load_config():
