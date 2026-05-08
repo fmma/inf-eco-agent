@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Fetch recent arXiv papers matching configured keywords and categories.
 
-One direct HTTP call against the arXiv API, parsed with feedparser. Bypasses
-the arxiv python library so we control the request fully (single GET, no
-internal retry, custom User-Agent). Non-2xx propagates as an exception and
-fails the script — scan.sh decides how to react.
+Direct HTTP calls (via curl) against the arXiv API, parsed with feedparser.
+Paginates with a 5-minute sleep between pages until the published cutoff is
+crossed or the page is empty. Non-2xx propagates as an exception and fails
+the script — scan.sh decides how to react.
 """
 
 import json
@@ -12,6 +12,7 @@ import logging
 import re
 import subprocess
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlencode
@@ -28,6 +29,9 @@ log = logging.getLogger("fetch_papers")
 ROOT = Path(__file__).resolve().parent.parent
 ARXIV_API = "https://export.arxiv.org/api/query"
 USER_AGENT = "inf-eco-agent/1.0 (mailto:frederik.meisner@gmail.com)"
+PAGE_SIZE = 200
+PAGE_SLEEP_SECONDS = 300
+MAX_PAGES = 5
 
 
 def load_config():
@@ -76,8 +80,8 @@ def keyword_matches(text: str, keywords: list[str]) -> bool:
     return any(kw.lower() in text_lower for kw in keywords)
 
 
-def fetch_arxiv_feed(query: str, max_results: int) -> feedparser.FeedParserDict:
-    """Make a single GET against the arXiv API via curl and parse the Atom response.
+def fetch_arxiv_page(query: str, start: int, max_results: int) -> feedparser.FeedParserDict:
+    """Fetch one page from the arXiv API via curl and parse the Atom response.
 
     Uses curl(1) instead of python requests because in our testing curl
     consistently succeeded against arXiv where back-to-back python requests
@@ -87,7 +91,7 @@ def fetch_arxiv_feed(query: str, max_results: int) -> feedparser.FeedParserDict:
         "search_query": query,
         "sortBy": "submittedDate",
         "sortOrder": "descending",
-        "start": 0,
+        "start": start,
         "max_results": max_results,
     }
     url = f"{ARXIV_API}?{urlencode(params)}"
@@ -137,32 +141,49 @@ def fetch_papers(config: dict) -> list[dict]:
     seen_ids = {normalize_arxiv_id(p["id"]) for p in paper_db}
     cutoff = get_cutoff(paper_db)
 
-    feed = fetch_arxiv_feed(query, max_results=500)
-    log.info("Parsed %d entries from feed", len(feed.entries))
-
     papers = []
-    for entry in feed.entries:
-        published = datetime.fromisoformat(entry.published.replace("Z", "+00:00"))
-        if published < cutoff:
+    cutoff_crossed = False
+    for page_idx in range(MAX_PAGES):
+        if page_idx > 0:
+            log.info("Sleeping %d seconds before next page", PAGE_SLEEP_SECONDS)
+            time.sleep(PAGE_SLEEP_SECONDS)
+
+        start = page_idx * PAGE_SIZE
+        feed = fetch_arxiv_page(query, start=start, max_results=PAGE_SIZE)
+        log.info("Page %d: parsed %d entries (start=%d)", page_idx + 1, len(feed.entries), start)
+
+        if not feed.entries:
             break
 
-        if normalize_arxiv_id(entry.id) in seen_ids:
-            continue
+        for entry in feed.entries:
+            published = datetime.fromisoformat(entry.published.replace("Z", "+00:00"))
+            if published < cutoff:
+                cutoff_crossed = True
+                break
 
-        title = entry.title
-        abstract = entry.summary
+            if normalize_arxiv_id(entry.id) in seen_ids:
+                continue
 
-        if not keyword_matches(f"{title} {abstract}", keywords):
-            continue
+            title = entry.title
+            abstract = entry.summary
 
-        papers.append({
-            "id": entry.id,
-            "title": re.sub(r"\s+", " ", title).strip(),
-            "abstract": re.sub(r"\s+", " ", abstract).strip(),
-            "authors": [a.name for a in entry.authors[:10]],
-            "published": published.isoformat(),
-            "pdf_url": get_pdf_url(entry),
-        })
+            if not keyword_matches(f"{title} {abstract}", keywords):
+                continue
+
+            papers.append({
+                "id": entry.id,
+                "title": re.sub(r"\s+", " ", title).strip(),
+                "abstract": re.sub(r"\s+", " ", abstract).strip(),
+                "authors": [a.name for a in entry.authors[:10]],
+                "published": published.isoformat(),
+                "pdf_url": get_pdf_url(entry),
+            })
+
+        if cutoff_crossed:
+            break
+    else:
+        log.warning("Hit MAX_PAGES=%d without crossing cutoff", MAX_PAGES)
+
     return papers
 
 
