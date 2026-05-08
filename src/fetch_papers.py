@@ -31,7 +31,7 @@ ARXIV_API = "https://export.arxiv.org/api/query"
 USER_AGENT = "inf-eco-agent/1.0 (mailto:frederik.meisner@gmail.com)"
 PAGE_SIZE = 200
 PAGE_SLEEP_SECONDS = 300
-MAX_PAGES = 5
+MAX_PAGES = 100
 
 
 def load_config():
