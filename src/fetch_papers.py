@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Fetch recent arXiv papers matching configured keywords and categories.
 
-Direct HTTP call against the arXiv API, parsed with feedparser. Bypasses
-the arxiv python library so we control retry, UA, and 429 handling.
+One direct HTTP call against the arXiv API, parsed with feedparser. Bypasses
+the arxiv python library so we control the request fully (single GET, no
+internal retry, custom User-Agent). Non-2xx propagates as an exception and
+fails the script — scan.sh decides how to react.
 """
 
 import json
@@ -26,7 +28,6 @@ log = logging.getLogger("fetch_papers")
 ROOT = Path(__file__).resolve().parent.parent
 ARXIV_API = "https://export.arxiv.org/api/query"
 USER_AGENT = "inf-eco-agent/1.0 (mailto:frederik.meisner@gmail.com)"
-TRANSIENT_STATUSES = {429, 500, 502, 503, 504}
 
 
 def load_config():
@@ -143,16 +144,7 @@ def fetch_papers(config: dict) -> list[dict]:
 
 def main():
     config = load_config()
-    try:
-        papers = fetch_papers(config)
-    except requests.HTTPError as e:
-        status = e.response.status_code if e.response is not None else None
-        if status in TRANSIENT_STATUSES:
-            log.warning("arXiv returned %s; emitting empty list (skip-day)", status)
-            json.dump([], sys.stdout)
-            sys.stdout.write("\n")
-            return
-        raise
+    papers = fetch_papers(config)
     json.dump(papers, sys.stdout, indent=2)
     sys.stdout.write("\n")
 
