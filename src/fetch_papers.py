@@ -158,7 +158,7 @@ def parse_record(record: ET.Element, categories: set[str], keywords: list[str],
         "abstract": re.sub(r"\s+", " ", abstract).strip(),
         "authors": authors,
         "published": published.isoformat(),
-        "pdf_url": f"http://arxiv.org/pdf/{arxiv_id}",
+        "pdf_url": f"https://arxiv.org/pdf/{arxiv_id}",
     }
 
 
