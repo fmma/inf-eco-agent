@@ -62,15 +62,15 @@ new_count=$(python -c "import json; print(len(json.load(open('/tmp/inf-eco-paper
 echo "Fetched $new_count new papers from arXiv"
 
 if [ "$new_count" -gt 0 ]; then
-  echo "Scoring papers with Claude Code in batches of 100..."
-  batch_size=100
-  # Split papers into batches and score each
+  echo "Scoring papers with Claude Code (max 6 parallel batches)..."
+  # Split papers into at most 6 batches; grow batch size if needed to stay under cap.
   python -c "
 import json, math
 papers = json.load(open('/tmp/inf-eco-papers.json'))
-n = math.ceil(len(papers) / $batch_size)
+batch_size = max(100, math.ceil(len(papers) / 6))
+n = math.ceil(len(papers) / batch_size)
 for i in range(n):
-    batch = papers[i*$batch_size:(i+1)*$batch_size]
+    batch = papers[i*batch_size:(i+1)*batch_size]
     json.dump(batch, open(f'/tmp/inf-eco-papers-batch-{i}.json', 'w'), indent=2)
 print(n)
 " > /tmp/inf-eco-batch-count
