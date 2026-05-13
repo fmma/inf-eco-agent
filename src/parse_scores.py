@@ -43,6 +43,38 @@ def parse_scores(path: str) -> list[dict]:
     return data
 
 
+def try_parse_scores(path: str) -> list[dict] | None:
+    """Like parse_scores, but returns None on any failure rather than exiting.
+
+    Used by the queue drainer to decide whether a Claude batch output is
+    salvageable. A None means the batch should stay queued for tomorrow.
+    """
+    try:
+        raw = open(path).read()
+    except OSError:
+        return None
+    text = raw.strip()
+    if not text:
+        return None
+    if text.startswith("```"):
+        parts = text.split("\n", 1)
+        if len(parts) < 2:
+            return None
+        text = parts[1]
+    if text.endswith("```"):
+        text = text.rsplit("```", 1)[0].strip()
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(data, list):
+        return None
+    for entry in data:
+        if not isinstance(entry, dict) or "id" not in entry:
+            return None
+    return data
+
+
 def _die(msg: str):
     print(f"Error: {msg}", file=sys.stderr)
     sys.exit(1)

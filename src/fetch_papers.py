@@ -55,6 +55,25 @@ def load_paper_db() -> list[dict]:
         return json.load(f)
 
 
+def load_queued_ids() -> set[str]:
+    """Return normalized arXiv IDs of papers awaiting scoring in data/queue/.
+
+    The queue holds batches that have been fetched but not yet scored
+    (daily scoring is capped to keep claude under its rate limit). Dedup
+    must include the queue so re-fetching the same window does not enqueue
+    the same papers again.
+    """
+    queue_dir = ROOT / "data" / "queue"
+    if not queue_dir.exists():
+        return set()
+    ids: set[str] = set()
+    for batch in sorted(queue_dir.glob("*.json")):
+        with open(batch) as f:
+            for paper in json.load(f):
+                ids.add(normalize_arxiv_id(paper["id"]))
+    return ids
+
+
 def get_cutoff(papers: list[dict], min_days: int = 3) -> datetime:
     """Compute the fetch cutoff from the most recent scored_date."""
     scored_dates = [p["scored_date"] for p in papers if "scored_date" in p]
@@ -168,6 +187,7 @@ def fetch_papers(config: dict) -> list[dict]:
 
     paper_db = load_paper_db()
     seen_ids = {normalize_arxiv_id(p["id"]) for p in paper_db}
+    seen_ids |= load_queued_ids()
     cutoff = get_cutoff(paper_db)
 
     params = {

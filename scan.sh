@@ -53,7 +53,17 @@ on_error() {
 
 trap 'on_error $LINENO' ERR
 
-# --- Scan: discover and score new papers ---
+# --- Scan: fetch → enqueue → drain queue ---
+#
+# The scoring step is rate-limited by claude's daily/per-minute quota, so we
+# decouple discovery from scoring. fetch_papers.py finds new papers (deduping
+# against papers.json and the queue); they get split into 100-paper batches
+# under data/queue/. Each run drains up to MAX_DRAIN of the oldest batches
+# sequentially; whatever doesn't fit waits until tomorrow.
+
+MAX_DRAIN=10
+
+mkdir -p data/queue
 
 echo "Fetching papers from arXiv..."
 python src/fetch_papers.py > /tmp/inf-eco-papers.json
@@ -62,66 +72,77 @@ new_count=$(python -c "import json; print(len(json.load(open('/tmp/inf-eco-paper
 echo "Fetched $new_count new papers from arXiv"
 
 if [ "$new_count" -gt 0 ]; then
-  echo "Scoring papers with Claude Code (max 6 parallel batches)..."
-  # Split papers into at most 6 batches; grow batch size if needed to stay under cap.
   python -c "
-import json, math
+import json, math, time
 papers = json.load(open('/tmp/inf-eco-papers.json'))
-batch_size = max(100, math.ceil(len(papers) / 6))
-n = math.ceil(len(papers) / batch_size)
+ts = int(time.time())
+n = math.ceil(len(papers) / 100)
 for i in range(n):
-    batch = papers[i*batch_size:(i+1)*batch_size]
-    json.dump(batch, open(f'/tmp/inf-eco-papers-batch-{i}.json', 'w'), indent=2)
-print(n)
-" > /tmp/inf-eco-batch-count
+    batch = papers[i*100:(i+1)*100]
+    json.dump(batch, open(f'data/queue/batch_{ts}_{i:03d}.json', 'w'), indent=2)
+print(f'Enqueued {len(papers)} papers as {n} batch(es).')
+"
+fi
 
-  num_batches=$(cat /tmp/inf-eco-batch-count)
-  rm -f /tmp/inf-eco-scores.json
+# Drain the oldest MAX_DRAIN queue files. Batch filenames embed a unix
+# timestamp prefix, so sorting by name is chronological.
+mapfile -t queue_batches < <(find data/queue -maxdepth 1 -name 'batch_*.json' | sort | head -n "$MAX_DRAIN")
+num_batches=${#queue_batches[@]}
+total_queued=$(find data/queue -maxdepth 1 -name 'batch_*.json' | wc -l)
+processed=()
+rm -f /tmp/inf-eco-scores-out-*.json /tmp/inf-eco-scores.json
 
-  # Score all batches in parallel
-  pids=()
-  for ((i = 0; i < num_batches; i++)); do
-    batch_file="/tmp/inf-eco-papers-batch-${i}.json"
-    batch_count=$(python -c "import json; print(len(json.load(open('$batch_file'))))")
-    echo "  Scoring batch $((i + 1))/$num_batches ($batch_count papers)..."
+if [ "$num_batches" -gt 0 ]; then
+  echo "Draining $num_batches of $total_queued queued batch(es) sequentially..."
+
+  for batch in "${queue_batches[@]}"; do
+    name=$(basename "$batch" .json)
+    out="/tmp/inf-eco-scores-out-${name}.json"
+    echo "  $name..."
     {
       cat score-prompt.md
       echo ""
       echo "## Papers JSON"
       echo '```json'
-      cat "$batch_file"
+      cat "$batch"
       echo '```'
-    } | claude --print --effort max > "/tmp/inf-eco-scores-batch-${i}.json" &
-    pids+=($!)
+    } | claude --print --effort max > "$out" || true
+
+    if python -c "
+import sys
+sys.path.insert(0, 'src')
+from parse_scores import try_parse_scores
+sys.exit(0 if try_parse_scores('$out') else 1)
+" 2> /dev/null; then
+      echo "    ok"
+      processed+=("$batch")
+    else
+      echo "    failed (likely rate-limited); leaving in queue"
+      rm -f "$out"
+    fi
   done
 
-  # Wait for all batches and fail if any failed
-  for pid in "${pids[@]}"; do
-    wait "$pid"
-  done
+  if [ ${#processed[@]} -gt 0 ]; then
+    printf '%s\n' "${processed[@]}" > /tmp/inf-eco-processed-list.txt
+    python src/finalize_score_run.py /tmp/inf-eco-processed-list.txt \
+      /tmp/inf-eco-papers-scored.json /tmp/inf-eco-scores.json
 
-  # Combine all batch scores
-  python -c "
-import json, glob, re, sys
-all_scores = []
-for f in sorted(glob.glob('/tmp/inf-eco-scores-batch-*.json'),
-                key=lambda x: int(re.search(r'(\d+)', x.rsplit('-',1)[1]).group())):
-    raw = open(f).read().strip()
-    if not raw:
-        sys.exit(f'Error: empty score batch {f} (claude returned no output)')
-    if raw.startswith('\`\`\`'): raw = raw.split('\n', 1)[1]
-    if raw.endswith('\`\`\`'): raw = raw.rsplit('\`\`\`', 1)[0].strip()
-    try:
-        all_scores.extend(json.loads(raw))
-    except json.JSONDecodeError as e:
-        sys.exit(f'Error: invalid JSON in {f}: {e}\n--- first 500 chars ---\n{raw[:500]}')
-json.dump(all_scores, open('/tmp/inf-eco-scores.json', 'w'), indent=2)
-"
-  echo "Merging scores..."
-  python src/merge_papers.py /tmp/inf-eco-papers.json /tmp/inf-eco-scores.json
-else
-  # Clear stale scores so news doesn't re-report old papers
-  rm -f /tmp/inf-eco-scores.json
+    echo "Merging scores..."
+    python src/merge_papers.py /tmp/inf-eco-papers-scored.json /tmp/inf-eco-scores.json
+
+    # Drop processed queue files (the scores are now in papers.json).
+    for batch in "${processed[@]}"; do
+      rm -f "$batch"
+    done
+
+    # Commit scoring progress before downstream steps so a hype/news failure
+    # doesn't roll back the day's actual work.
+    git add data/papers.json data/queue/
+    if ! git diff --cached --quiet; then
+      git -c commit.gpgsign=false commit -s --quiet \
+        -m "[Scan] Score ${#processed[@]} batch(es) — $(date +%Y-%m-%d)"
+    fi
+  fi
 fi
 
 # --- Hype signals: update from external sources ---
@@ -149,10 +170,10 @@ else
   echo "No papers with signal history to analyze."
 fi
 
-# --- Rescore + News (single Claude call, only for new papers) ---
+# --- Rescore + News (only when this run actually scored papers) ---
 
 HAS_NEWS=0
-if [ "$new_count" -gt 0 ]; then
+if [ -s /tmp/inf-eco-scores.json ]; then
   echo "Generating rescore + news..."
   python src/generate_news.py
   HAS_NEWS=1
@@ -207,9 +228,12 @@ fi
 if git diff --cached --quiet; then
   echo "Nothing changed, skipping commit."
 else
-  msg="scan: $(date +%Y-%m-%d)"
+  msg="[Scan] Daily $(date +%Y-%m-%d)"
+  remaining=$((total_queued - ${#processed[@]}))
   parts=()
-  [ "$new_count" -gt 0 ] && parts+=("$new_count new papers scored")
+  [ "$new_count" -gt 0 ] && parts+=("$new_count fetched")
+  [ ${#processed[@]} -gt 0 ] && parts+=("${#processed[@]} batch(es) scored")
+  [ "$remaining" -gt 0 ] && parts+=("$remaining still queued")
   [ "$HAS_HYPE" = "1" ] && parts+=("hype watch")
   [ ${#parts[@]} -eq 0 ] && parts+=("hype updated from external signals")
   msg="$msg — $(
@@ -217,7 +241,7 @@ else
     echo "${parts[*]}"
   )"
   echo "Committing..."
-  git commit -m "$msg"
+  git commit -s -m "$msg"
   git push
 
   # --- Notify via Discord ---
