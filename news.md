@@ -1,37 +1,30 @@
 # Inference Ecosystem — Flash News
 
-**2026-05-14** — 999 papers scanned · 8 read in full · 5 featured
+> 2026-05-15 · 999 new papers scanned, 20 scored, 8 read in full
 
----
+### [EEP: Surviving Partial Rank Failures in Expert-Parallel MoE Inference](https://arxiv.org/abs/2605.10670)
+Mutable-membership protocol for expert-parallel MoE serving that recovers from GPU rank failures in 11 seconds versus 348 seconds for a full restart. Integrated into SGLang and DeepEP, evaluated on DeepSeek-V3 671B across up to 32 GPUs. The key idea is redistributing orphaned experts to surviving ranks via a lightweight coordination layer, maintaining throughput within 5% of the healthy baseline during degraded operation. **Rescored: 94**
 
-### [ThinKV: Thought-Adaptive KV Cache Compression for Reasoning LLMs](https://arxiv.org/abs/2510.01290)
+### [Test-Time Speculation: Speculative Decoding with Adaptive Draft Models](https://arxiv.org/abs/2605.09329)
+Identifies a previously overlooked problem — speculative decoding acceptance rates decay as output length grows because the draft model drifts from the target's evolving distribution. TTS fixes this with online distillation: the draft model is fine-tuned on accepted tokens during inference using a stride schedule (every S tokens). On Qwen3.5-122B with Qwen3.5-3B draft, TTS achieves 1.54× throughput over vanilla speculative decoding, with acceptance-length improvements up to 72%. **Rescored: 93**
 
-ICLR 2026 from Georgia Tech and NVIDIA. Decomposes chain-of-thought into thought types (retrieval, exploration, thinking) and assigns per-type precision — important reasoning tokens get full precision while filler gets aggressively quantized or evicted. Achieves <5% KV cache retention with 5.8x throughput gain by extending PagedAttention with a "Continuous Thinking" kernel. If you're serving reasoning models, this is the first production-grade approach to taming their exploding KV footprint. **Rescored: 95**
+### [Patterns behind the Chaos: A Characterization of MoE Data Movement](https://arxiv.org/abs/2510.05497)
+ISCA 2026 paper profiling all-to-all data movement across four MoE models (235B–1000B parameters) and extracting six architectural insights — including that >60% of expert transfers are intra-node and token-to-expert mappings exhibit strong temporal locality. Guided by these patterns, a wafer-scale GPU prototype achieves 6.6× speedup over 8×H100 baselines, while even conventional multi-GPU setups gain 1.25× from locality-aware scheduling. Trace datasets are publicly released. **Rescored: 92**
 
-### [Continuum: Optimizing Multi-Turn Agent Serving with KV Cache TTL](https://arxiv.org/abs/2511.02230)
+### [Sieve: Dynamic Expert-Aware PIM Acceleration for MoE](https://arxiv.org/abs/2605.11277)
+Stanford group exploits the bimodal distribution of MoE token-to-expert assignments — a few "hot" experts handle most tokens while many "cold" experts see sparse traffic. Sieve dynamically routes hot experts to GPU and cold experts to Processing-in-Memory (PIM) units, achieving 1.3–1.6× latency improvement on Qwen3.5, GPT-OSS, and Qwen3 models. The scheduling algorithm adapts per-layer and per-iteration with <1% overhead. **Rescored: 85**
 
-UC Berkeley (Ion Stoica, Joseph Gonzalez). Introduces a KV cache TTL mechanism that models both reload cost and per-turn queueing delay for multi-turn agent workloads — the kind where an agent calls tools 10+ times per task. Built on vLLM, delivers 8x improvement on SWE-Bench and BFCL traces. The agentic serving problem is heating up fast, and this is the first system to properly formalize the cache-or-evict tradeoff for multi-turn conversations. **Rescored: 93**
-
-### [PARD-2: Dual-Mode Speculative Decoding with Confidence-Adaptive Optimization](https://arxiv.org/abs/2605.08632)
-
-AMD's single drafter supports both target-dependent and target-independent speculative decoding, switching modes on the fly. Confidence-Adaptive Token (CAT) optimization prunes low-confidence draft tokens before verification. Hits 6.94x lossless speedup on Llama3.1-8B, surpassing EAGLE-3 by 1.9x. The dual-mode flexibility matters — you get EAGLE-class accuracy when the target model is available and Medusa-class independence when it's not. **Rescored: 92**
-
-### [RDKV: Rate-Distortion Optimized KV Cache Compression](https://arxiv.org/abs/2605.08317)
-
-ETH Zurich brings information-theoretic rigor to KV cache compression. Frames joint eviction and quantization as a reverse water-filling problem, allocating bits where attention mass concentrates. TriZone packed decode layout enables 4.5x decode speedup and 1.9x memory reduction at 128K context on A100. The cleanest theoretical foundation for KV compression yet — and unlike most theory papers, the speedups are real. **Rescored: 90**
-
-### [TAPER: Per-Step Admission Control for Branch Parallelism in LLM Serving](https://arxiv.org/abs/2605.06914)
-
-Stanford and NVIDIA formalize "branch externality" — the throughput tax that intra-request parallelism (best-of-N, tree search, tool fan-out) imposes on co-located requests. TAPER's per-step admission controller achieves 1.77x goodput over naive IRP and >95% SLO attainment on Qwen3-32B. As agentic workloads drive more branching patterns, this is the scheduling primitive serving systems have been missing. **Rescored: 88**
+### [CATS: Cascaded Speculative Decoding for Edge Devices](https://arxiv.org/abs/2605.11186)
+Three-stage self-speculative pipeline (aggressive → conservative → verification) tuned to fit within edge DRAM budgets. Evaluated on Jetson AGX Orin with Llama-3 8B and Qwen2.5 7B, CATS delivers up to 5.08× wall-clock speedup by cascading increasingly selective draft stages, each gated by a lightweight confidence threshold. No auxiliary draft model needed — all stages reuse subsets of the target model's own layers. **Rescored: 82**
 
 ---
 
 ## Surge Watch
 
-[Mamba-3](https://arxiv.org/abs/2603.15569v1) is quietly becoming the most-cited paper in this tracker's recent batch — now at 21 citations with a second influential citation, up from 17 ten days ago. SSM architectures keep accumulating academic interest even without HuggingFace buzz.
+[Adaptive Block-Scaled Data Types](https://arxiv.org/abs/2603.28765v1) just broke out of two months of complete silence — 0 → 180 GitHub stars overnight on May 15. After being tracked since early April with zero signals across the board, something clearly surfaced this paper to the community. Worth watching whether this sustains or was a single-event spike.
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) (Kimi team) saw a citation burst from 8 to 13 in the last ~10 days, the sharpest recent jump in this cohort. Stars and upvotes are flat at 3.2k/184 — this is purely researcher-driven adoption, not community hype.
+[ServeGen](https://arxiv.org/abs/2505.09999) already carried serious academic weight (24 citations, 6 influential) but had no community presence until today — 127 GitHub stars appeared in a single day. Production LLM workload characterization hitting the practitioner radar after quietly accumulating researcher attention.
 
-[UniPrefill](https://arxiv.org/abs/2605.06221) from the FlashPrefill authors landed with 20 HF upvotes and 31 GitHub stars on its first day of tracking — the strongest day-one signal we've seen in weeks for a prefill optimization paper.
+[Continuum](https://arxiv.org/abs/2511.02230), the KV cache TTL paper for multi-turn agents, is following a similar pattern: 20 citations and 3 influential already in the bag, now 75 GitHub stars materialized on first tracking. Academic-to-practitioner crossover in progress.
 
-Meanwhile, the papers that dominated earlier cycles — [TriAttention](https://arxiv.org/abs/2604.04921v1) (713 stars), [MegaTrain](https://arxiv.org/abs/2604.05091v1) (566 stars), [DMax](https://arxiv.org/abs/2604.08302v1) (113 stars) — have all visibly plateaued. Growth curves flattened across the board over the past two weeks.
+[Memory-Efficient Looped Transformer](https://arxiv.org/abs/2605.07721) landed with 26 HF upvotes on day one — a strong debut for a paper decoupling compute from memory in looped architectures. Early signal only, but the topic is timely.
