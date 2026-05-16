@@ -1,30 +1,28 @@
 # Inference Ecosystem — Flash News
+**2026-05-16 — 782 papers scanned, 5 featured**
 
-> 2026-05-15 · 999 new papers scanned, 20 scored, 8 read in full
+### [ECHO: Elastic Speculative Decoding with Sparse Gating for High-Concurrency Scenarios](https://arxiv.org/abs/2604.09603)
+From Alibaba's Qwen team, ECHO reformulates speculative decoding as a budgeted scheduling problem and is the first dynamic-tree SD framework integrated into SGLang. Sparse confidence gating at calibrated "sweet spots" avoids misjudgment accumulation while an elastic budget scheduler reallocates verification compute across requests. On Qwen3-235B, ECHO delivers up to 5.35x wall-time speedup at BS=1 and 14.4% throughput gains at BS=256 over EAGLE-3 — critically, it is the only SD method that doesn't collapse at high concurrency on industrial-scale MoE models.
+Score: 95 (was 97)
 
-### [EEP: Surviving Partial Rank Failures in Expert-Parallel MoE Inference](https://arxiv.org/abs/2605.10670)
-Mutable-membership protocol for expert-parallel MoE serving that recovers from GPU rank failures in 11 seconds versus 348 seconds for a full restart. Integrated into SGLang and DeepEP, evaluated on DeepSeek-V3 671B across up to 32 GPUs. The key idea is redistributing orphaned experts to surviving ranks via a lightweight coordination layer, maintaining throughput within 5% of the healthy baseline during degraded operation. **Rescored: 94**
+### [Self-Pruned Key-Value Attention: Learning When to Write by Predicting Future Utility](https://arxiv.org/abs/2605.14037)
+Meta FAIR introduces SP-KV, a learned sparse-write mechanism that trains a lightweight utility predictor jointly with the LLM via next-token prediction — no auxiliary losses needed. At 8.1B scale with 32k context, it retains only ~30% of KV entries beyond a 128-token local window while maintaining -0.2% average benchmark degradation and perfect NIAH retrieval. The decode kernel delivers 2.1-4.6x speedups at batch size 16. Bonus: the learned per-head density patterns serve as an architectural probe, producing hybrid local/global attention layouts that outperform hand-designed interleaving at the same KV budget.
+Score: 94 (was 95)
 
-### [Test-Time Speculation: Speculative Decoding with Adaptive Draft Models](https://arxiv.org/abs/2605.09329)
-Identifies a previously overlooked problem — speculative decoding acceptance rates decay as output length grows because the draft model drifts from the target's evolving distribution. TTS fixes this with online distillation: the draft model is fine-tuned on accepted tokens during inference using a stride schedule (every S tokens). On Qwen3.5-122B with Qwen3.5-3B draft, TTS achieves 1.54× throughput over vanilla speculative decoding, with acceptance-length improvements up to 72%. **Rescored: 93**
+### [KVServe: Service-Aware KV Cache Compression for Communication-Efficient Disaggregated LLM Serving](https://arxiv.org/abs/2605.13734)
+Accepted at SIGCOMM'26, KVServe treats KV compression as a constraint-driven online decision problem rather than a static algorithm choice. A Bayesian profiling engine cuts offline search from 1000 GPU-hours to 20, producing a 3D Pareto frontier of compression-ratio/accuracy/latency. At runtime, an analytical latency model combined with a lightweight bandit selects the optimal profile under bandwidth and SLO constraints. Integrated into vLLM and tested across 4090 to H100 hardware: up to 9.13x JCT speedup in PD-separated serving and 32.8x TTFT reduction in KV-disaggregated serving.
+Score: 94 (was 95)
 
-### [Patterns behind the Chaos: A Characterization of MoE Data Movement](https://arxiv.org/abs/2510.05497)
-ISCA 2026 paper profiling all-to-all data movement across four MoE models (235B–1000B parameters) and extracting six architectural insights — including that >60% of expert transfers are intra-node and token-to-expert mappings exhibit strong temporal locality. Guided by these patterns, a wafer-scale GPU prototype achieves 6.6× speedup over 8×H100 baselines, while even conventional multi-GPU setups gain 1.25× from locality-aware scheduling. Trace datasets are publicly released. **Rescored: 92**
+### [MultiPath Memory Access: Breaking Host-GPU Bandwidth Bottlenecks in LLM Serving](https://arxiv.org/abs/2512.16056)
+MMA is the first software-defined multipath system for host-GPU memory copies, recruiting idle peer GPUs as relay nodes via their PCIe links and NVLink. Implemented as a ~3K-line C++ library activated via `LD_PRELOAD` — zero code changes for vLLM and LMCache. On an 8xH20 server, it achieves 245 GB/s peak H2D bandwidth (4.62x over single-PCIe baseline), cuts KV cache fetch TTFT by 1.14-2.38x and model wake-up latency by up to 2.48x. A drop-in win for anyone running KV cache offloading or model switching on multi-GPU nodes.
+Score: 93 (was 95)
 
-### [Sieve: Dynamic Expert-Aware PIM Acceleration for MoE](https://arxiv.org/abs/2605.11277)
-Stanford group exploits the bimodal distribution of MoE token-to-expert assignments — a few "hot" experts handle most tokens while many "cold" experts see sparse traffic. Sieve dynamically routes hot experts to GPU and cold experts to Processing-in-Memory (PIM) units, achieving 1.3–1.6× latency improvement on Qwen3.5, GPT-OSS, and Qwen3 models. The scheduling algorithm adapts per-layer and per-iteration with <1% overhead. **Rescored: 85**
-
-### [CATS: Cascaded Speculative Decoding for Edge Devices](https://arxiv.org/abs/2605.11186)
-Three-stage self-speculative pipeline (aggressive → conservative → verification) tuned to fit within edge DRAM budgets. Evaluated on Jetson AGX Orin with Llama-3 8B and Qwen2.5 7B, CATS delivers up to 5.08× wall-clock speedup by cascading increasingly selective draft stages, each gated by a lightweight confidence threshold. No auxiliary draft model needed — all stages reuse subsets of the target model's own layers. **Rescored: 82**
+### [ReasonCache: Accelerating Large Reasoning Model Serving through KV Cache Sharing](https://arxiv.org/abs/2507.21433)
+Exploits the observation that 15-40% of LRM reasoning steps are redundant (self-verification, state revisitation, infinite self-loops). A two-stage collaborative filtering algorithm identifies reusable KV cache blocks via lexical similarity then Euclidean distance verification, enabling zero-copy sharing through PagedAttention's reference counting. Across QwQ-32B, DeepSeek-R1-Distill-32B, and Phi-4-reasoning-plus: 40-60% average throughput improvement (peak 89.2%) while retaining 98%+ accuracy — consistently outperforming StreamingLLM, SnapKV, and Quest at comparable compression ratios.
+Score: 88 (was 95)
 
 ---
 
 ## Surge Watch
 
-[Adaptive Block-Scaled Data Types](https://arxiv.org/abs/2603.28765v1) just broke out of two months of complete silence — 0 → 180 GitHub stars overnight on May 15. After being tracked since early April with zero signals across the board, something clearly surfaced this paper to the community. Worth watching whether this sustains or was a single-event spike.
-
-[ServeGen](https://arxiv.org/abs/2505.09999) already carried serious academic weight (24 citations, 6 influential) but had no community presence until today — 127 GitHub stars appeared in a single day. Production LLM workload characterization hitting the practitioner radar after quietly accumulating researcher attention.
-
-[Continuum](https://arxiv.org/abs/2511.02230), the KV cache TTL paper for multi-turn agents, is following a similar pattern: 20 citations and 3 influential already in the bag, now 75 GitHub stars materialized on first tracking. Academic-to-practitioner crossover in progress.
-
-[Memory-Efficient Looped Transformer](https://arxiv.org/abs/2605.07721) landed with 26 HF upvotes on day one — a strong debut for a paper decoupling compute from memory in looped architectures. Early signal only, but the topic is timely.
+Nothing noteworthy in signal trends today.
