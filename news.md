@@ -1,39 +1,33 @@
 # Inference Ecosystem — Flash News
+**2026-05-21 | 303 papers scanned, 5 selected**
 
-**2026-05-20** · Scanning 334 papers
+## [NanoCP: Request-Level Dynamic Context Parallelism for Data-Expert Parallel Decoding](https://arxiv.org/abs/2605.21100)
 
----
+NanoCP decouples MoE communication from KV cache placement by assigning each request its own context-parallel degree — long requests spread attention across multiple DP instances while short ones stay local. An AOT graph engine and a custom routing-based communication backend make this dynamic parallelism compatible with CUDA Graphs and DeepEP's static-shape decode kernels. Evaluated on DeepSeek-V3 and Kimi-K2 across 32 H200 GPUs, NanoCP sustains 1.88--3.27x higher request rates under strict TPOT SLOs and cuts P99 tail latency by up to 2.12x versus vLLM baselines. This is the first system to make per-request CP practical for variable-length MoE decoding — directly relevant to anyone deploying DeepSeek-class models at scale.
+Score: 95 (was 95)
 
-[C2CServe: Serverless LLM Serving on MIG-Partitioned GPUs via NVLink-C2C](https://arxiv.org/abs/2605.19481)
-Turns GB200 NVLink-C2C into a serverless LLM serving platform by co-locating models on MIG partitions and fetching weights from a partner GPU over C2C on demand. The HybridGEMM kernel dynamically splits matrix ops across local HBM and remote C2C bandwidth, hiding cold-start latency. Achieves 7.1× cold-start reduction for dense models and 4.6× for MoE versus CPU offloading, with near-zero interference to co-resident workloads.
-`rescored: 94`
+## [Understanding and Improving Communication Performance in Multi-node LLM Inference](https://arxiv.org/abs/2511.09557)
 
-[SuperInfer: Serving LLMs on Superchips with Inter-Chip Communication](https://arxiv.org/abs/2601.20309)
-MLSys 2026 paper that builds an SLO-aware serving system for GH200 NVLink-C2C superchips. Introduces RotaSched, a rotary scheduler using a Virtual Lag Time metric to balance prefill/decode across the CPU–GPU boundary, plus DuplexKV — a full-duplex KV cache rotation engine that overlaps bidirectional C2C transfers. Improves TTFT SLO attainment by up to 74.7% over vLLM on Llama-3.1-70B. Code is open-sourced.
-`rescored: 93`
+NVRAR is a hierarchical all-reduce built on NVSHMEM that replaces NCCL's ring/tree algorithms with recursive doubling tuned for the 128KB--2MB message regime that dominates decode-phase tensor parallelism. It achieves 1.9--3.6x lower latency than NCCL on Slingshot and InfiniBand, translating to a 1.72x end-to-end batch latency reduction on Llama 3.1 405B across multi-node decode workloads. The paper also provides the most thorough public performance study of TP vs. hybrid parallelism at scale (up to 128 GPUs). If you run 405B-class models across nodes, this is immediately actionable — NVRAR is open-sourced and integrates into both YALIS and vLLM.
+Score: 95 (was 95)
 
-[SpecSA: Bridging Speculative Decoding and Sparse Attention for Efficient LLM Inference](https://arxiv.org/abs/2605.19893)
-EuroSys 2027 paper that fuses speculative decoding with Native Sparse Attention (NSA). Introduces compressed-KV-aware drafting so the draft model shares the target's sparse attention state, plus a fused verification-and-attention GPU kernel that eliminates redundant KV recomputation. On H100 with DeepSeek-R1, delivers 3.49× end-to-end throughput and 6.86× kernel-level speedup over standard sparse attention decoding.
-`rescored: 93`
+## [OCTOPUS: Optimized KV Cache via Octahedral Parametrization Under Optimal Squared Error Quantization](https://arxiv.org/abs/2605.21226)
 
-[KVBuffer: Efficient IO-Aware Serving for Linear Attention and Hybrid Models](https://arxiv.org/abs/2605.19049)
-Tackles the hidden IO bottleneck in linear-attention models like Qwen3-Next when served naively. Proposes chunkwise decoding that batches recurrence state updates to improve arithmetic intensity, integrated into SGLang. Cuts per-token latency by 45% and supports 5× more concurrent requests under speculative decoding by trading a small chunk of extra compute for dramatically less memory traffic.
-`rescored: 92`
+OCTOPUS quantizes the rotated KV cache in coordinate triplets using an octahedral map from computer graphics, splitting each triplet into direction (two scalars on [-1,1]^2) and norm, then applying Lloyd-Max quantizers with a non-uniform (b+1, b-1) bit allocation derived from a Lagrangian optimum. At 2-bit KV, it is the only rotation codec that does not collapse on 128K needle-in-a-haystack recall (0.81 vs. SnapKV 0.42) and retains usable video quality where competitors degrade to noise. A fused Triton kernel reconstructs keys on the fly without materializing the full tensor. The first KV codec validated across text, video, and audio modalities — fills a real gap for anyone pushing sub-4-bit KV budgets.
+Score: 93 (was 95)
 
-[Graft: Hybrid Tree Construction for Lossless Speculative Decoding](https://arxiv.org/abs/2605.20104)
-Combines top-k pruning with suffix-retrieval from a corpus-derived n-gram index to build richer speculation trees — training-free and lossless. The retrieval branch recovers high-probability continuations that greedy pruning misses, especially for factual and repetitive patterns. Reaches 5.41× wall-clock speedup on Qwen3-235B-A22B, improving 21.8% over EAGLE-3 with zero model modification.
-`rescored: 90`
+## [Frontier: Towards Comprehensive and Accurate LLM Inference Simulation](https://arxiv.org/abs/2605.21312)
+
+Frontier is a discrete-event simulator that models co-located, prefill-decode disaggregated (PDD), and attention-FFN disaggregated (AFD) serving with role-specific cluster workers, CUDA Graph padding, speculative decoding, and prefix caching as first-class runtime adapters. On a 16-H800 testbed, it achieves <4% throughput error and reduces end-to-end latency error from 44.9% to 6.4% under co-location and from 51.7% to 2.6% under PDD versus prior simulators. It scales to 1K+ GPUs on commodity CPUs, enabling Pareto-frontier searches across serving architectures, heterogeneous GPU placement, and RL rollout reconfiguration. If you are sizing disaggregated deployments or evaluating MoE parallelism plans without burning GPU-hours, this is the tool.
+Score: 90 (was 95)
+
+## [Mix-Quant: Quantized Prefilling, Precise Decoding for Agentic LLMs](https://arxiv.org/abs/2605.20315)
+
+Mix-Quant applies NVFP4 W4A4 quantization exclusively to the compute-bound prefill phase while keeping autoregressive decoding in BF16, exploiting the insight that prefill errors stay local while decode errors snowball across agentic trajectories. On Blackwell GPUs, it delivers up to 3x prefill speedup with negligible accuracy loss across BFCL v4, LongMemEval, and tau^2-bench — whereas uniform FP4 drops Qwen3.5-9B's agentic average from 77.3 to 70.4, Mix-Quant recovers it to 74.7. Naturally pairs with prefill-decode disaggregated serving via NIXL-based KV transfer. A straightforward win for anyone serving agentic workloads on Blackwell hardware where prefill is the bottleneck.
+Score: 88 (was 92)
 
 ---
 
 ## Surge Watch
 
-[Mamba-3](https://arxiv.org/abs/2603.15569v1) is seeing a sharp citation surge — jumped from 21 to 33 citations between May 14–18 after weeks of plateauing around 12–17. Three influential citations now. The SSM-vs-attention debate clearly isn't settled, and researchers are building on this.
-
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) from the Kimi Team had a similar burst: citations leapt from 13 to 19 in the same window (May 14–18), with a 4th influential citation. After stalling at 8 for most of April, renewed academic interest is clear.
-
-[Orthrus](https://arxiv.org/abs/2605.12825) (dual-view diffusion for parallel token generation) went from 13 to 260 GitHub stars overnight between May 16–18. Explosive early traction for a brand-new paper.
-
-[MinT](https://arxiv.org/abs/2605.13779) from Mind Lab landed with 202 HF upvotes on day one (May 16), climbing to 210 by May 18. Managed infrastructure for serving millions of LLMs clearly struck a nerve — one of the highest initial upvote counts in the tracker.
-
-[Adaptive Block-Scaled Data Types](https://arxiv.org/abs/2603.28765v1) spent six weeks at zero signals, then suddenly materialized with 180+ GitHub stars around May 15 and 2 citations (1 influential). Likely a delayed code release triggering belated discovery.
+Nothing noteworthy in signal trends today.
