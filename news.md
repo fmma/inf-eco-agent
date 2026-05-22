@@ -1,33 +1,36 @@
 # Inference Ecosystem — Flash News
-**2026-05-21 | 303 papers scanned, 5 selected**
+**2026-05-22 | 346 papers scanned**
 
-## [NanoCP: Request-Level Dynamic Context Parallelism for Data-Expert Parallel Decoding](https://arxiv.org/abs/2605.21100)
-
-NanoCP decouples MoE communication from KV cache placement by assigning each request its own context-parallel degree — long requests spread attention across multiple DP instances while short ones stay local. An AOT graph engine and a custom routing-based communication backend make this dynamic parallelism compatible with CUDA Graphs and DeepEP's static-shape decode kernels. Evaluated on DeepSeek-V3 and Kimi-K2 across 32 H200 GPUs, NanoCP sustains 1.88--3.27x higher request rates under strict TPOT SLOs and cuts P99 tail latency by up to 2.12x versus vLLM baselines. This is the first system to make per-request CP practical for variable-length MoE decoding — directly relevant to anyone deploying DeepSeek-class models at scale.
-Score: 95 (was 95)
-
-## [Understanding and Improving Communication Performance in Multi-node LLM Inference](https://arxiv.org/abs/2511.09557)
-
-NVRAR is a hierarchical all-reduce built on NVSHMEM that replaces NCCL's ring/tree algorithms with recursive doubling tuned for the 128KB--2MB message regime that dominates decode-phase tensor parallelism. It achieves 1.9--3.6x lower latency than NCCL on Slingshot and InfiniBand, translating to a 1.72x end-to-end batch latency reduction on Llama 3.1 405B across multi-node decode workloads. The paper also provides the most thorough public performance study of TP vs. hybrid parallelism at scale (up to 128 GPUs). If you run 405B-class models across nodes, this is immediately actionable — NVRAR is open-sourced and integrates into both YALIS and vLLM.
-Score: 95 (was 95)
-
-## [OCTOPUS: Optimized KV Cache via Octahedral Parametrization Under Optimal Squared Error Quantization](https://arxiv.org/abs/2605.21226)
-
-OCTOPUS quantizes the rotated KV cache in coordinate triplets using an octahedral map from computer graphics, splitting each triplet into direction (two scalars on [-1,1]^2) and norm, then applying Lloyd-Max quantizers with a non-uniform (b+1, b-1) bit allocation derived from a Lagrangian optimum. At 2-bit KV, it is the only rotation codec that does not collapse on 128K needle-in-a-haystack recall (0.81 vs. SnapKV 0.42) and retains usable video quality where competitors degrade to noise. A fused Triton kernel reconstructs keys on the fly without materializing the full tensor. The first KV codec validated across text, video, and audio modalities — fills a real gap for anyone pushing sub-4-bit KV budgets.
+### [WarmServe: Enabling One-for-Many GPU Prewarming for Multi-LLM Serving](https://arxiv.org/abs/2512.09472)
+Published at ICML 2026, WarmServe tackles the cold-start TTFT problem in multi-model serving clusters by proactively loading weights from multiple models onto the same GPU based on workload forecasts. The system uses CUDA VMM page-table tricks to switch between prewarmed models near-instantly, a KV cache reservation strategy to prewarm into idle cache space on still-active GPUs, and a placement algorithm that isolates high-priority models to avoid cross-eviction. Evaluation on Azure production traces shows up to 50.8x tail TTFT reduction vs. ServerlessLLM-GPU and 2.5x higher throughput vs. MuxServe. Built on vLLM, open-sourced.
 Score: 93 (was 95)
 
-## [Frontier: Towards Comprehensive and Accurate LLM Inference Simulation](https://arxiv.org/abs/2605.21312)
+### [Flashlight: PyTorch Compiler Extensions to Accelerate Attention Variants](https://arxiv.org/abs/2511.02043)
+Published at MLSys 2026, Flashlight extends TorchInductor to auto-generate fused FlashAttention-style Triton kernels from plain PyTorch attention code — no templates, no special APIs. It introduces unified reduction IR, algebraic fusion (online softmax derivation via homomorphism), and tiling-aware dimension elimination to fuse entire matmul-softmax-matmul chains into a single kernel. Critically, it handles attention variants FlexAttention cannot: differential attention, Evoformer (5x+ speedup on gated self-attention), and Invariant Point Attention. Just pass `enable_flashlight=True` to `torch.compile`.
+Score: 93 (was 92)
 
-Frontier is a discrete-event simulator that models co-located, prefill-decode disaggregated (PDD), and attention-FFN disaggregated (AFD) serving with role-specific cluster workers, CUDA Graph padding, speculative decoding, and prefix caching as first-class runtime adapters. On a 16-H800 testbed, it achieves <4% throughput error and reduces end-to-end latency error from 44.9% to 6.4% under co-location and from 51.7% to 2.6% under PDD versus prior simulators. It scales to 1K+ GPUs on commodity CPUs, enabling Pareto-frontier searches across serving architectures, heterogeneous GPU placement, and RL rollout reconfiguration. If you are sizing disaggregated deployments or evaluating MoE parallelism plans without burning GPU-hours, this is the tool.
-Score: 90 (was 95)
+### [STAND: Accelerated Test-Time Scaling with Model-Free Speculative Sampling](https://arxiv.org/abs/2506.04708)
+STAND exploits the massive n-gram redundancy in reasoning trajectories (97% bigram overlap across 16 trajectories) to build a model-free speculative decoder that needs no draft model. The key insight: stochastic drafting from stored logit distributions yields 5-8% higher acceptance rates than deterministic lookup. Combined with Gumbel-Top-K sampling and data-driven tree optimization, STAND cuts inference latency 60-65% on AIME/GPQA/LiveCodeBench while preserving accuracy. Works as a plug-and-play accelerator on any reasoning LLM — tested on DeepSeek-R1-Distill-Qwen 7B/14B.
+Score: 92 (was 93)
 
-## [Mix-Quant: Quantized Prefilling, Precise Decoding for Agentic LLMs](https://arxiv.org/abs/2605.20315)
+### [CacheClip: Accelerating RAG with Effective KV Cache Reuse](https://arxiv.org/abs/2510.10129)
+CacheClip solves the RAG TTFT bottleneck by precomputing per-chunk KV caches and selectively recomputing only the ~20% of tokens that matter for cross-chunk attention. The clever trick: a tiny auxiliary LLM (SmolLM2-135M) running on CPU identifies which tokens to recompute better than the primary model's own early layers — its last-layer attention has higher Jaccard overlap with the 14B model's deep layers. With shared-prefix calibration and sliding-window grouping, CacheClip retains 85-91% of full-attention quality while achieving 3.33x prefill speedup on Qwen2.5-14B.
+Score: 88 (was 90)
 
-Mix-Quant applies NVFP4 W4A4 quantization exclusively to the compute-bound prefill phase while keeping autoregressive decoding in BF16, exploiting the insight that prefill errors stay local while decode errors snowball across agentic trajectories. On Blackwell GPUs, it delivers up to 3x prefill speedup with negligible accuracy loss across BFCL v4, LongMemEval, and tau^2-bench — whereas uniform FP4 drops Qwen3.5-9B's agentic average from 77.3 to 70.4, Mix-Quant recovers it to 74.7. Naturally pairs with prefill-decode disaggregated serving via NIXL-based KV transfer. A straightforward win for anyone serving agentic workloads on Blackwell hardware where prefill is the bottleneck.
-Score: 88 (was 92)
+### [EdgeRazor: Mixed-Precision Quantization-Aware Distillation for LLMs](https://arxiv.org/abs/2605.04062)
+EdgeRazor pushes sub-2-bit LLM quantization to practical territory with three modules: super-group mixed-precision allocation (provably optimal discrepancy for training-time salience drift), adaptive feature distillation via structural similarity, and entropy-aware KL divergence that works with any data recipe. The 1.58-bit Qwen3-0.6B shrinks from 1.11GB to 0.19GB and decodes at 317 tok/s on Apple M4 Pro (15.16x over BF16), while the 1.88-bit variant beats all 2-bit and even 3-bit baselines across 14 tasks. Models and code released on GitHub and HuggingFace.
+Score: 87 (was 85)
 
 ---
 
 ## Surge Watch
 
-Nothing noteworthy in signal trends today.
+[Mamba-3](https://arxiv.org/abs/2603.15569v1) is on a citation tear — jumped from 21 to 33 citations between May 17–18, a +57% spike in a single reporting window. Now at 33 citations with 3 influential. The SSM community is clearly building on this one fast.
+
+[Attention Residuals](https://arxiv.org/abs/2603.15031v1) from the Kimi team saw a similar citation surge: 13 → 19 citations (and 3 → 4 influential) in the same May 17–18 window. Steady GitHub stars (~3.3k) and 185 HF upvotes provide the base, but the academic pickup is accelerating.
+
+[Orthrus](https://arxiv.org/abs/2605.12825) exploded on GitHub — from 13 stars on May 16 to 348 today. A dual-view diffusion approach to parallel token generation clearly struck a nerve with practitioners. Worth watching if this translates into citations.
+
+[MinT](https://arxiv.org/abs/2605.13779) (Mind Lab's managed LLM infrastructure paper) continues to hold one of the highest HF upvote counts in the tracker at 216, climbing steadily from 202 since May 16. Strong industry interest in production serving infrastructure.
+
+[Mamba-3](https://arxiv.org/abs/2603.15569v1)'s citation velocity in particular suggests it's becoming a key reference for hybrid architecture work — 10 → 33 citations in the last month with most of that growth concentrated in the last week.
