@@ -1,7 +1,9 @@
-[Orthrus](https://arxiv.org/abs/2605.12825) is the week's breakout — GitHub stars went from 13 to 348 in under a week (05-16 to 05-22), with a single-day jump of +247 stars. A dual-view diffusion approach to memory-efficient parallel token generation is clearly resonating with practitioners.
+[MinT](https://arxiv.org/abs/2605.13779) (Mind Lab) is the week's attention magnet — 202 HF upvotes on arrival (05-16), climbing to 216 by 05-22. A managed infrastructure system for training and serving millions of LLMs is clearly hitting a nerve with practitioners. GitHub stars growing from 32 to 37.
 
-[Mamba-3](https://arxiv.org/abs/2603.15569v1) saw a citation surge from 21 to 33 in one Semantic Scholar batch update (05-17 → 05-18), now at 33 citations with 3 influential. The SSM-transformer hybrid is accumulating academic traction faster than community engagement (only 6 HF upvotes), suggesting it's becoming a reference architecture in the research literature.
+[FlashAttention-4](https://arxiv.org/abs/2603.05451v1) continues a quiet but steady citation climb — 10 → 13 → 14 over the past two weeks, including a +3 batch jump on 05-18. Still only 1 HF upvote, but the algorithm/kernel co-design paper is becoming a standard academic reference without any community fanfare.
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031v1) (Kimi Team) jumped from 13 to 19 citations in the same batch, with influential citations climbing from 3 to 4. Combined with 185 HF upvotes and 3,282 GitHub stars, this is maturing into one of the most broadly adopted papers in the tracker.
+[Prefill-as-a-Service](https://arxiv.org/abs/2604.15039v1) went from 0 to 5 citations in a month, picking up +2 in a single batch on 05-18. Cross-datacenter KV cache transfer is carving out a distinct research niche.
 
-[Adaptive Block-Scaled Data Types](https://arxiv.org/abs/2603.28765v1) broke out of months of zero signals — a GitHub repo appeared around 05-15 and quickly reached 187 stars, plus 2 citations (1 influential). The MXFP4/block-scaling quantization space is heating up.
+[DiffAdapt](https://arxiv.org/abs/2510.19669) nearly doubled its citations — 5 to 10 between 05-14 and 05-25, with a +4 batch jump on 05-18. Difficulty-adaptive reasoning for token-efficient inference is getting picked up fast.
+
+Previous breakouts have cooled: [Orthrus](https://arxiv.org/abs/2605.12825) stabilized around 348 stars after its explosive +247 single-day surge, [Mamba-3](https://arxiv.org/abs/2603.15569v1) flat at 33 citations, and [Adaptive Block-Scaled Data Types](https://arxiv.org/abs/2603.28765v1) unchanged at 187 stars.
