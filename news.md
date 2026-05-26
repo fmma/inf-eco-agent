@@ -1,36 +1,32 @@
 # Inference Ecosystem — Flash News
-**2026-05-25 | 176 papers scanned**
+**2026-05-26 — 383 papers scanned, 5 selected**
 
-### [AlignedServe: Orchestrating Prefix-aware Batching for High-throughput LLM Serving](https://arxiv.org/abs/2605.23389)
-A SIGMOD 2026 paper that tackles a problem hiding in plain sight: tokens in the same decode batch have wildly different costs because their KV-cache lengths differ, creating iteration-level bubbles nobody else addresses. AlignedServe groups requests by prefix length using a quad-tree-based Density First Search, offloads KV-cache to CPU memory, and introduces a GPU-Prefetch-For-GPU architecture that shuttles cache via NVLink instead of PCIe. On H100s with real Azure/ShareGPT traces, it delivers **1.98x throughput** and **7.4x latency reduction** over vLLM, DistServe, and FastGen. The first work to seriously optimize within-iteration compute imbalance.
-Score: 93 (was 95)
+### [vAttention: Verified Sparse Attention](https://arxiv.org/abs/2510.05688)
+From Ion Stoica's group at Berkeley (published at ICLR 2026), vAttention is the first sparse attention mechanism with user-specified (ε, δ) approximation guarantees. It unifies top-k selection with uniform random sampling, adaptively sizing the sample per head per query via CLT-based budget computation. On RULER-HARD at 10% sparsity, it lifts HashAttention accuracy by 4.5 points on Llama-3.1-8B, and matches full-attention quality on AIME2024 at 10x sparsity with 32K-token generations on DeepSeek-R1-Distill. Near-linear wall-clock speedup demonstrated with CPU-offloaded KV caches. This sets a new bar: sparse attention you can actually trust in production.
+Score: 95 (was 92)
 
-### [FastKernels: Benchmarking GPU Kernel Generation in Production](https://arxiv.org/abs/2605.23215)
-Snowflake AI Research delivers a sobering reality check for the LLM-writes-CUDA hype. FastKernels is both a benchmark and a minimalistic inference framework covering 46 architectures across 8 categories (96.2% of HuggingFace Transformers), with interfaces matching vLLM/SGLang modules for direct deployment. The key finding: even the best kernel agent (OpenAI Codex) achieves only **0.94x aggregate speedup** against production baselines — gains evaporate once you compare against cuBLAS/FlashAttention3 instead of PyTorch eager. Includes the first multi-GPU communication kernel benchmarks. Essential reading for anyone building kernel agents.
+### [Optimus: Elastic Decoding for Efficient Diffusion LLM Serving](https://arxiv.org/abs/2605.24832)
+Optimus treats decoding granularity as a runtime control variable for diffusion LLM (DLLM) serving. Its chunked decoding decomposes fixed blocks into fine-grained execution units without retraining, while saturation-aware scheduling dynamically selects chunk sizes based on GPU load — riding the Pareto frontier between GPU utilization and token efficiency. On A100 with SDAR-8B, it delivers 6.1x throughput over autoregressive decoding and 4.3x over fixed-block diffusion, with 3.5x serving capacity improvement under SLO constraints. Scales to 100B parameters. If you're evaluating DLLM serving, this is the systems paper to read.
+Score: 94 (was 93)
+
+### [Prism: Spectral-Aware Block-Sparse Attention](https://arxiv.org/abs/2602.08426)
+Prism identifies a clean theoretical root cause for why mean-pooling-based block importance estimation fails: under RoPE, mean pooling acts as a low-pass filter that destroys high-frequency positional signals (slash patterns) via destructive interference. The fix is elegant — split estimation into high-frequency and low-frequency branches with energy-based temperature calibration. This is purely block-level (no token-level operations), making it faster than MInference, FlexPrefill, and XAttention at every sequence length tested. Achieves 5.1x prefill speedup at 128K tokens on Llama-3.1-8B while matching full-attention quality. Training-free and works on video generation (HunyuanVideo) too.
 Score: 92 (was 90)
 
-### [ZipMoE: Lossless Compression for On-Device MoE Serving](https://arxiv.org/abs/2601.21198)
-An ICML 2026 paper that cracks on-device MoE inference without lossy quantization. ZipMoE exploits the low-entropy exponent bits of BF16 parameters for lossless compression, then orchestrates CPU-parallel decompression overlapped with SSD I/O on unified-memory edge SoCs (Jetson AGX Orin). A cache-affinity scheduler with provable constant-factor approximation manages hierarchical cache pools across compression states. Results: **72.77% latency reduction** and **6.76x throughput** over MoE-Infinity and DeepSpeed on DeepSeekV2-Lite and Qwen1.5-MoE. Shifts MoE inference from I/O-bound to compute-centric on edge hardware.
-Score: 91 (was 92)
+### [Beyond the Target: From Imitation to Collaboration in Speculative Decoding](https://arxiv.org/abs/2605.24793)
+CoSpec flips the speculative decoding paradigm: instead of always deferring to the target model at mismatches, an RL-trained arbitration policy decides whether the draft or target token yields better task outcomes. On LLaMA-70B/8B, it simultaneously achieves 3.96x speedup and +1.7 accuracy improvement over target-only decoding on GSM8K/HumanEval/MBPP. The 94.1% agreement with oracle branch selection and cross-domain transfer (math training generalizes to code, QA, and dialogue) make the collaboration thesis convincing. A genuinely new direction for speculative decoding.
+Score: 91 (was 90)
 
-### [PBS-Attn: Sparser Block-Sparse Attention via Token Permutation](https://arxiv.org/abs/2510.21270)
-An ICML 2026 paper with an elegant insight: attention is permutation-invariant, so instead of passively selecting blocks from a chaotic attention matrix, actively restructure it. PBS-Attn sorts keys by global importance within segments to cluster "heavy hitter" tokens into contiguous blocks, using a segmented permutation strategy that preserves inter-segment causality. Custom permuted-FlashAttention Triton kernels achieve **up to 2.75x end-to-end prefilling speedup** on Llama-3.1-8B and Qwen-2.5-7B while closely matching full attention on LongBench, LongBenchv2, and RULER. Plug-and-play — works on top of any block selection method.
-Score: 90 (was 88)
-
-### [AMS: Adaptive Mass-Segmented KV Compression for Long-Context Reasoning](https://arxiv.org/abs/2605.23200)
-Identifies "Region Wipe-out" — where global top-k KV eviction annihilates entire reasoning blocks under tight budgets, causing problem drifting and repetition collapse. AMS shifts from token-level competition to region-aware quota allocation: attention mass defines adaptive segments, each gets a guaranteed minimum quota, then any existing scorer (TOVA, TriAttention, KeyDiff, R-KV) selects locally. On DeepSeek-R1-Distill-Qwen-7B, AMS-Expected beats AdaKV-ExpE2 by **+16 points** on MATH500 at budget 256 and even surpasses uncompressed Full KV at budgets 512/1024. Compatible with vLLM paged-KV serving at the same memory footprint as gather-based methods.
+### [IndexMem: Learned KV-Cache Eviction with Latent Memory](https://arxiv.org/abs/2605.25475)
+IndexMem pairs a lightweight learnable indexer (distilled from backbone attention) with a fast-weight latent memory that compresses evicted tokens into a compact state for residual readout. On RULER-16K with Qwen3-8B at 50% eviction, it scores 80.0 vs 62.8 for SnapKV — a 17-point gap. The latent memory module is orthogonal to the eviction policy and plugs into SnapKV for consistent gains. Validated across Qwen/Mistral/Llama at compression ratios up to 90%, with only 0.52M parameters for the memory module. Accepted at ICML 2026.
 Score: 88 (was 92)
 
 ---
 
 ## Surge Watch
 
-[MinT](https://arxiv.org/abs/2605.13779) (Mind Lab) is the week's attention magnet — 202 HF upvotes on arrival (05-16), climbing to 216 by 05-22. A managed infrastructure system for training and serving millions of LLMs is clearly hitting a nerve with practitioners. GitHub stars growing from 32 to 37.
+[Attention Residuals](https://arxiv.org/abs/2603.15031v1) (Kimi team) more than doubled its citation count in two weeks — 8 on 05-04 to 19 by 05-18, with a +6 single-batch jump on 05-18 and a fourth influential citation. Community signals (185 HF upvotes, 3,289 stars) have plateaued, but the academic pickup is accelerating — this paper is quietly becoming a standard reference for attention architecture modifications.
 
-[FlashAttention-4](https://arxiv.org/abs/2603.05451v1) continues a quiet but steady citation climb — 10 → 13 → 14 over the past two weeks, including a +3 batch jump on 05-18. Still only 1 HF upvote, but the algorithm/kernel co-design paper is becoming a standard academic reference without any community fanfare.
+[KVServe](https://arxiv.org/abs/2605.13734) is the fastest-moving new entry — 0 to 11 HF upvotes and 9 GitHub stars within its first week. Service-aware KV cache compression for disaggregated LLM serving is clearly hitting a nerve with the prefill-decode split crowd.
 
-[Prefill-as-a-Service](https://arxiv.org/abs/2604.15039v1) went from 0 to 5 citations in a month, picking up +2 in a single batch on 05-18. Cross-datacenter KV cache transfer is carving out a distinct research niche.
-
-[DiffAdapt](https://arxiv.org/abs/2510.19669) nearly doubled its citations — 5 to 10 between 05-14 and 05-25, with a +4 batch jump on 05-18. Difficulty-adaptive reasoning for token-efficient inference is getting picked up fast.
-
-Previous breakouts have cooled: [Orthrus](https://arxiv.org/abs/2605.12825) stabilized around 348 stars after its explosive +247 single-day surge, [Mamba-3](https://arxiv.org/abs/2603.15569v1) flat at 33 citations, and [Adaptive Block-Scaled Data Types](https://arxiv.org/abs/2603.28765v1) unchanged at 187 stars.
+Otherwise, a quiet cycle. Previously highlighted papers have all flatlined: [MinT](https://arxiv.org/abs/2605.13779) barely moved (216→217 HF upvotes), [FlashAttention-4](https://arxiv.org/abs/2603.05451v1) stuck at 14 citations, [DiffAdapt](https://arxiv.org/abs/2510.19669) stabilized at 10 citations, and [Prefill-as-a-Service](https://arxiv.org/abs/2604.15039v1) flat at 5 citations.

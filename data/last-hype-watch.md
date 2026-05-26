@@ -1,9 +1,5 @@
-[MinT](https://arxiv.org/abs/2605.13779) (Mind Lab) is the week's attention magnet — 202 HF upvotes on arrival (05-16), climbing to 216 by 05-22. A managed infrastructure system for training and serving millions of LLMs is clearly hitting a nerve with practitioners. GitHub stars growing from 32 to 37.
+[Attention Residuals](https://arxiv.org/abs/2603.15031v1) (Kimi team) more than doubled its citation count in two weeks — 8 on 05-04 to 19 by 05-18, with a +6 single-batch jump on 05-18 and a fourth influential citation. Community signals (185 HF upvotes, 3,289 stars) have plateaued, but the academic pickup is accelerating — this paper is quietly becoming a standard reference for attention architecture modifications.
 
-[FlashAttention-4](https://arxiv.org/abs/2603.05451v1) continues a quiet but steady citation climb — 10 → 13 → 14 over the past two weeks, including a +3 batch jump on 05-18. Still only 1 HF upvote, but the algorithm/kernel co-design paper is becoming a standard academic reference without any community fanfare.
+[KVServe](https://arxiv.org/abs/2605.13734) is the fastest-moving new entry — 0 to 11 HF upvotes and 9 GitHub stars within its first week. Service-aware KV cache compression for disaggregated LLM serving is clearly hitting a nerve with the prefill-decode split crowd.
 
-[Prefill-as-a-Service](https://arxiv.org/abs/2604.15039v1) went from 0 to 5 citations in a month, picking up +2 in a single batch on 05-18. Cross-datacenter KV cache transfer is carving out a distinct research niche.
-
-[DiffAdapt](https://arxiv.org/abs/2510.19669) nearly doubled its citations — 5 to 10 between 05-14 and 05-25, with a +4 batch jump on 05-18. Difficulty-adaptive reasoning for token-efficient inference is getting picked up fast.
-
-Previous breakouts have cooled: [Orthrus](https://arxiv.org/abs/2605.12825) stabilized around 348 stars after its explosive +247 single-day surge, [Mamba-3](https://arxiv.org/abs/2603.15569v1) flat at 33 citations, and [Adaptive Block-Scaled Data Types](https://arxiv.org/abs/2603.28765v1) unchanged at 187 stars.
+Otherwise, a quiet cycle. Previously highlighted papers have all flatlined: [MinT](https://arxiv.org/abs/2605.13779) barely moved (216→217 HF upvotes), [FlashAttention-4](https://arxiv.org/abs/2603.05451v1) stuck at 14 citations, [DiffAdapt](https://arxiv.org/abs/2510.19669) stabilized at 10 citations, and [Prefill-as-a-Service](https://arxiv.org/abs/2604.15039v1) flat at 5 citations.
