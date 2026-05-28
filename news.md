@@ -1,39 +1,46 @@
 # Inference Ecosystem — Flash News
-**2026-05-27 | 396 papers scanned, 5 selected**
 
-## [Qrita: High-performance Top-k and Top-p using Pivot-based Truncation and Selection](https://arxiv.org/abs/2602.01518)
+**2026-05-28** — 502 new papers scanned
 
-Qrita replaces the sorting step in Top-k/Top-p sampling with a Gaussian sigma-truncation pre-filter and a quaternary pivot search, eliminating the memory overhead that plagues GPU-based sort-and-filter pipelines. It's already **the default sampler in vLLM's GPU path**. End-to-end serving throughput improves up to 1.41x on GPT-OSS-20B via vLLM, with the biggest wins on MoE models where the active-param-to-vocab ratio is low. Works on H100, RTX 4090, and AMD MI355X — and it's deterministic, unlike FlashInfer's rejection sampling. From Ion Stoica's group at Berkeley.
-Score: 95 (was 95)
+---
 
-## [Stateful Inference for Low-Latency Multi-Agent Tool Calling](https://arxiv.org/abs/2605.26289)
+**xKV: Cross-Layer SVD Knocks KV Cache Down to Size**
+[arXiv:2503.18893](https://arxiv.org/abs/2503.18893) · Rescored relevance: 95
 
-Converts the O(n_t) per-turn prefill cost of agentic tool-calling into O(delta_t) by keeping a persistent KV cache across turns, using a radix prefix cache with metadata-only sequence aliasing, and adding prompt-lookup speculative decoding for structured JSON output. Benchmarked against vLLM and SGLang on Llama-3.1-8B: **2.1x faster per turn on a 6-turn workflow, 4.2x on median turn of a 35-turn coding workflow**, roughly halving wall time. The architecture nails the dominant agentic pattern — monotonically growing conversation prefixes — which existing prefix caching was never designed for.
-Score: 93 (was 95)
+ICML 2026. Discovers that KV cache matrices share aligned singular vectors across layers, then exploits this to compress via cross-layer SVD — no training, no calibration. Delivers 8× compression and 4.23× decoding speedup on Llama-3.1/Qwen2.5/DeepSeek-V2 with negligible quality loss. Plug-and-play compression at this ratio is rare; expect this to get adopted fast.
 
-## [HiSpec: Hierarchical Speculative Decoding for LLMs](https://arxiv.org/abs/2510.01336)
+**SiDP: Shared-Weight Data Parallelism for Offline Inference**
+[arXiv:2605.28095](https://arxiv.org/abs/2605.28095) · Rescored relevance: 93
 
-Tackles the verification bottleneck in speculative decoding (2-6.9x slower than drafting) by inserting an early-exit intermediate verifier at ~1/4 model depth. HiSpec reuses KV caches and hidden states across draft, intermediate verifier, and full model — no auxiliary model needed. On Llama3-8B with ShareGPT: **2.01x throughput vs. autoregressive**, beating LayerSkip, Lookahead, and SPRINTER while maintaining lossless output. Supports batched inference via paged attention, unlike prior hierarchical methods. Generalizes to post-training EE models (Qwen3, OPT).
-Score: 92 (was 95)
+Flips the standard DP model: instead of replicating weights per GPU, treats them as a shared NVLink-accessible resource and gives each GPU its own KV cache partition. Result is 1.8× KV capacity and 1.5× throughput over vLLM on H20/H200/B200 clusters. Purpose-built for the offline/batch regime where memory, not latency, is the bottleneck — exactly the economics driving most production workloads today.
 
-## ["Give Me BF16 or Give Me Death"? Accuracy-Performance Trade-Offs in LLM Quantization](https://arxiv.org/abs/2411.02355)
+**Fast KV Compaction via Attention Matching**
+[arXiv:2602.16284](https://arxiv.org/abs/2602.16284) · Rescored relevance: 92
 
-The most comprehensive quantization study yet: 500K+ evaluations across the full Llama-3.1 family (8B–405B) and DeepSeek-R1-Distill models. Key findings: FP8 is **effectively lossless**, well-tuned INT8 loses only 1-3% (not 10%+ as previously claimed), and GPTQ-based INT4 **outperforms AWQ on real-world tasks** — challenging a widely held assumption. Deployment verdict via vLLM benchmarks: W4A16 wins for synchronous/latency-sensitive serving, W8A8 dominates async continuous batching. From Dan Alistarh's group (SparseGPT/GPTQ fame) at Neural Magic/Red Hat AI.
-Score: 90 (was 92)
+ICML 2026. Formulates KV cache compaction as an attention-matching problem with closed-form solutions, achieving 50× compaction in seconds — orders of magnitude faster than Cartridges and other optimization-based methods. Near-lossless at extreme ratios. Makes on-the-fly KV compaction practical for deployment rather than just a research trick.
 
-## [Cassandra: Enabling Reasoning LLMs at Edge via Self-Speculative Decoding](https://arxiv.org/abs/2605.26558)
+**UNIQUE: Universal Sparse Attention Framework**
+[arXiv:2605.27740](https://arxiv.org/abs/2605.27740) · Rescored relevance: 90
 
-An algorithm-hardware co-designed self-speculative decoding framework for edge: constructs a training-free draft model via unstructured value pruning + mantissa truncation of the original weights and KV cache, paired with MX-format or unary-coded exponent compression. Achieves **2.41x speedup over BF16** on reasoning LLMs (DeepSeek-R1-Llama-8B, Qwen3) and **1.81x more tokens under fixed memory vs. Eagle-3** on RTX 4090. Includes a lightweight encoder-decoder hardware module (2% area overhead) for format conversion on GPUs/NPUs. First self-speculative approach specifically co-designed for low-batch edge inference.
-Score: 88 (was 95)
+A page-level top-k sparse attention framework that works across text and speech LLMs without model-specific tuning. 11.4× attention kernel speedup, 5.3× end-to-end decoding speedup over dense vLLM. The key insight is selecting at page granularity rather than individual tokens, which maps cleanly to GPU memory access patterns. Generality across modalities is the standout here.
+
+**HQMQ: Quaternion Quantization for KV Cache**
+[arXiv:2605.27646](https://arxiv.org/abs/2605.27646) · Rescored relevance: 88
+
+Calibration-free KV cache quantization using Hurwitz quaternion lattices as a multiplicative codebook. Matches KIVI-4 quality at 16% fewer bits (5.05× compression). Works out-of-the-box across Llama, Qwen, Mistral, Gemma, and Phi — no per-model tuning. Mathematically elegant and practically useful; the calibration-free property removes a real deployment friction point.
+
+---
+
+*Three ICML 2026 acceptances in one batch — KV cache compression is clearly the hottest subfield in inference right now. The common thread: methods that require zero training and drop into existing stacks. The era of "just quantize your weights" is giving way to compressing everything else too.*
 
 ---
 
 ## Surge Watch
 
-[Orthrus](https://arxiv.org/abs/2605.12825) is the runaway hit this cycle — its GitHub repo went from 13 stars to 260 overnight around 05-18, then climbed to 364 by 05-26. Memory-efficient parallel token generation via dual-view diffusion is clearly resonating with practitioners looking to speed up discrete diffusion LLMs.
+[MinT](https://arxiv.org/abs/2605.13779) landed with a staggering 202 HF upvotes on day one — by far the highest launch in our tracker this cycle. Mind Lab's managed infrastructure for training and serving millions of LLMs clearly struck a nerve; upvotes have since climbed to 217.
 
-Fresh KV cache quantization work is generating immediate buzz: [OScaR](https://arxiv.org/abs/2605.19660) landed 37 HF upvotes and 23 GitHub stars on day one, while [Mix-Quant](https://arxiv.org/abs/2605.20315) (quantized prefilling for agentic LLMs) pulled 23 upvotes and 21 stars out of the gate. The MoE efficiency crowd is equally active — [Post-Trained MoE Can Skip Half Experts](https://arxiv.org/abs/2605.18643) debuted at 29 HF upvotes and 22 stars via self-distillation.
+[Continuum](https://arxiv.org/abs/2511.02230) is accelerating in academic circles — citations jumped from 20 to 24 with a new influential citation in the 05-27/05-28 window alone, while GitHub stars ticked up from 75 to 80. KV cache TTL for multi-turn agent scheduling is proving timely as agentic workloads scale.
 
-[Mamba-3](https://arxiv.org/abs/2603.15569v1) quietly had a massive citation surge — jumping from 21 to 33 in the 05-18 batch alone (3 influential), now the most-cited SSM paper in our tracker. Academic adoption is outpacing community signals (still just 6 HF upvotes).
+[TEAM](https://arxiv.org/abs/2602.08404) saw a sharp citation spike from 1 to 4 overnight (05-27→05-28) — temporal-spatial expert activation for MoE diffusion LLM acceleration is suddenly getting noticed. [Capacity-Aware Inference](https://arxiv.org/abs/2503.05066) is on a similar trajectory, climbing from 9 to 12 citations with a second influential citation, as MoE straggler mitigation becomes a real production concern.
 
-[ThinKV](https://arxiv.org/abs/2510.01290) doubled its citation count from 3 to 6 on 05-27, picking up its first influential citation — thought-adaptive KV cache compression for reasoning models is gaining traction as long-CoT workloads grow. [Four Over Six](https://arxiv.org/abs/2512.02010) (NVFP4 quantization) continues its steady climb: 13 → 19 citations with 4 influential, up from 2 two weeks ago.
+Fresh launch to watch: [EdgeRazor](https://arxiv.org/abs/2605.04062) debuted at 27 HF upvotes and 44 GitHub stars — mixed-precision quantization-aware distillation for on-device LLMs is drawing immediate practitioner interest.
