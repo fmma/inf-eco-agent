@@ -1,46 +1,34 @@
 # Inference Ecosystem — Flash News
+**2026-05-29 | 503 papers scanned**
 
-**2026-05-28** — 502 new papers scanned
+### [RTP-LLM: High-Performance Alibaba LLM Inference Engine](https://arxiv.org/abs/2605.29639)
+Alibaba open-sources its production inference engine serving 100M+ users across Taobao, Tmall, and Cainiao. RTP-LLM integrates prefill-decode disaggregation, a 4-tier hierarchical KV cache (GPU → CPU → RDMA → 3FS distributed storage), modular speculative decoding (Medusa/Eagle/MTP/Prompt Lookup), and decoupled ViT-LLM multimodal processing. Production benchmarks against vLLM and SGLang are emphatic: 4.7-6.3x model loading speedup, 35-37% TTFT P95 reduction with 215% cache reuse improvement (enabling 75% reduction in prefill machines), and 1.86-2.52x multimodal throughput gains. The Qwen3-Coder-480B-FP8 deployment with PD disaggregation across 5 nodes is particularly notable — 4.72x TTFT speedup over SGLang and 5.33x over vLLM.
+Score: 96 (was 95)
 
----
+### [DFlash: Block Diffusion for Flash Speculative Decoding](https://arxiv.org/abs/2602.06036)
+DFlash repurposes diffusion models as parallel drafters for speculative decoding — and the results are stunning. A lightweight 5-layer block diffusion model generates 16 draft tokens in a single forward pass, conditioned on target-model hidden features injected directly into the drafter's KV cache at every layer. This KV injection (not input fusion like EAGLE-3) is the key design choice enabling acceptance length to scale with drafter depth. On Qwen3-8B, DFlash hits 6.08x speedup on MATH-500 and 5.51x on LiveCodeBench — roughly 2.5x faster than EAGLE-3. On SGLang with FA4, it delivers 5.1x throughput gains at concurrency 1 on Qwen3-8B. The insight that diffusion models are *better* as speculative drafters than as standalone generators could reshape how the community thinks about dLLMs.
+Score: 95 (was 93)
 
-**xKV: Cross-Layer SVD Knocks KV Cache Down to Size**
-[arXiv:2503.18893](https://arxiv.org/abs/2503.18893) · Rescored relevance: 95
+### [Draft-OPD: On-Policy Distillation for Speculative Draft Models](https://arxiv.org/abs/2605.29343)
+Identifies a critical limitation: SFT for draft models plateaus because training uses target-generated trajectories while inference evaluates draft-induced states. Draft-OPD fixes this with target-assisted rollouts plus error-position replay — the draft model proposes blocks, rejected tokens are recorded, and the target re-scores those draft-generated prefixes. An acceptance-aware loss uses forward KL for accepted tokens and reverse KL for rejected ones. On Qwen3 models with thinking mode, Draft-OPD achieves 5x+ lossless speedup, improving over EAGLE-3 by 23% and DFlash by 13%. SGLang throughput gains of 8-17% hold across concurrency levels up to 32.
+Score: 93 (was 94)
 
-ICML 2026. Discovers that KV cache matrices share aligned singular vectors across layers, then exploits this to compress via cross-layer SVD — no training, no calibration. Delivers 8× compression and 4.23× decoding speedup on Llama-3.1/Qwen2.5/DeepSeek-V2 with negligible quality loss. Plug-and-play compression at this ratio is rare; expect this to get adopted fast.
+### [Bastion: Budget-Aware Speculative Decoding with Tree-structured Block Diffusion Drafting](https://arxiv.org/abs/2605.29727)
+Builds on DFlash by constructing dynamic prefix trees from block-diffusion logits instead of committing to a single greedy path. Three components work in concert: a path-confidence surrogate estimating expected acceptance length, a roofline-calibrated latency estimator, and best-first tree expansion that stops when marginal gains no longer justify verification cost. The result is training-free, distribution-preserving, and hardware-adaptive. On Qwen3-8B: 6.61x average speedup over autoregressive decoding (vs. 4.76x for DFlash, 2.70x for EAGLE-3). Gains hold across A100, H100, A6000, and RTX PRO 6000 Blackwell.
+Score: 93 (was 93)
 
-**SiDP: Shared-Weight Data Parallelism for Offline Inference**
-[arXiv:2605.28095](https://arxiv.org/abs/2605.28095) · Rescored relevance: 93
-
-Flips the standard DP model: instead of replicating weights per GPU, treats them as a shared NVLink-accessible resource and gives each GPU its own KV cache partition. Result is 1.8× KV capacity and 1.5× throughput over vLLM on H20/H200/B200 clusters. Purpose-built for the offline/batch regime where memory, not latency, is the bottleneck — exactly the economics driving most production workloads today.
-
-**Fast KV Compaction via Attention Matching**
-[arXiv:2602.16284](https://arxiv.org/abs/2602.16284) · Rescored relevance: 92
-
-ICML 2026. Formulates KV cache compaction as an attention-matching problem with closed-form solutions, achieving 50× compaction in seconds — orders of magnitude faster than Cartridges and other optimization-based methods. Near-lossless at extreme ratios. Makes on-the-fly KV compaction practical for deployment rather than just a research trick.
-
-**UNIQUE: Universal Sparse Attention Framework**
-[arXiv:2605.27740](https://arxiv.org/abs/2605.27740) · Rescored relevance: 90
-
-A page-level top-k sparse attention framework that works across text and speech LLMs without model-specific tuning. 11.4× attention kernel speedup, 5.3× end-to-end decoding speedup over dense vLLM. The key insight is selecting at page granularity rather than individual tokens, which maps cleanly to GPU memory access patterns. Generality across modalities is the standout here.
-
-**HQMQ: Quaternion Quantization for KV Cache**
-[arXiv:2605.27646](https://arxiv.org/abs/2605.27646) · Rescored relevance: 88
-
-Calibration-free KV cache quantization using Hurwitz quaternion lattices as a multiplicative codebook. Matches KIVI-4 quality at 16% fewer bits (5.05× compression). Works out-of-the-box across Llama, Qwen, Mistral, Gemma, and Phi — no per-model tuning. Mathematically elegant and practically useful; the calibration-free property removes a real deployment friction point.
-
----
-
-*Three ICML 2026 acceptances in one batch — KV cache compression is clearly the hottest subfield in inference right now. The common thread: methods that require zero training and drop into existing stacks. The era of "just quantize your weights" is giving way to compressing everything else too.*
+### [FarSkip-Collective: Unhobbling Blocking Communication in MoE Models](https://arxiv.org/abs/2511.11505)
+Modifies MoE architecture connectivity so that attention and MLP sub-blocks consume "outdated" or "partial" activations, decoupling communication from computation. Converts Llama 4 Scout (109B) via self-distillation with only 1% average accuracy loss. Overlapped implementations in Megatron-LM achieve 88.9% all-to-all communication overlap during EP training; in SGLang inference, DeepSeek-V3 gets 32.6% TTFT speedup at EP=8 with 97.3% communication overlap during prefill. Multi-node DeepSeek-V3 decode at EP=16 shows 1.25x speedup. As MoE sparsity increases beyond DeepSeek-V3's 32x, projected benefits grow further.
+Score: 92 (was 93)
 
 ---
 
 ## Surge Watch
 
-[MinT](https://arxiv.org/abs/2605.13779) landed with a staggering 202 HF upvotes on day one — by far the highest launch in our tracker this cycle. Mind Lab's managed infrastructure for training and serving millions of LLMs clearly struck a nerve; upvotes have since climbed to 217.
+[ThinKV](https://arxiv.org/abs/2510.01290) just doubled its citation count — 3 citations for weeks, then 6→7 in the 05-27/05-29 window with a first influential citation. Thought-adaptive KV cache compression is hitting a nerve as reasoning models become the default workload.
 
-[Continuum](https://arxiv.org/abs/2511.02230) is accelerating in academic circles — citations jumped from 20 to 24 with a new influential citation in the 05-27/05-28 window alone, while GitHub stars ticked up from 75 to 80. KV cache TTL for multi-turn agent scheduling is proving timely as agentic workloads scale.
+[OScaR](https://arxiv.org/abs/2605.19660) debuted at 37 HF upvotes and 23 GitHub stars — the strongest launch for a KV cache quantization paper in this cycle. Extreme low-bit KV quantization via Occam's-style simplicity clearly resonates. Two other KV-quant papers launched the same day: [OSCAR](https://arxiv.org/abs/2605.17757) (5 upvotes, 12 stars) and [OCTOPUS](https://arxiv.org/abs/2605.21226) (6 upvotes) — the space is getting crowded fast.
 
-[TEAM](https://arxiv.org/abs/2602.08404) saw a sharp citation spike from 1 to 4 overnight (05-27→05-28) — temporal-spatial expert activation for MoE diffusion LLM acceleration is suddenly getting noticed. [Capacity-Aware Inference](https://arxiv.org/abs/2503.05066) is on a similar trajectory, climbing from 9 to 12 citations with a second influential citation, as MoE straggler mitigation becomes a real production concern.
+[REAP the Experts](https://arxiv.org/abs/2510.13999) spiked from 12 to 15 citations on 05-29 alone, with influential citations climbing from 4 to 5. One-shot MoE compression via pruning is now the most-cited approach in the expert pruning cluster. [Post-Trained MoE Can Skip Half Experts](https://arxiv.org/abs/2605.18643) launched alongside at 29 HF upvotes and 22 stars — MoE efficiency is clearly the theme of the week.
 
-Fresh launch to watch: [EdgeRazor](https://arxiv.org/abs/2605.04062) debuted at 27 HF upvotes and 44 GitHub stars — mixed-precision quantization-aware distillation for on-device LLMs is drawing immediate practitioner interest.
+[Mix-Quant](https://arxiv.org/abs/2605.20315) opened at 23 HF upvotes and 21 GitHub stars with a sharp angle: quantized prefilling but precise decoding, explicitly targeting agentic LLM workloads. The prefill/decode split is becoming a first-class design axis.
