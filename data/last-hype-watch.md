@@ -1,7 +1,9 @@
-[ThinKV](https://arxiv.org/abs/2510.01290) just doubled its citation count — 3 citations for weeks, then 6→7 in the 05-27/05-29 window with a first influential citation. Thought-adaptive KV cache compression is hitting a nerve as reasoning models become the default workload.
+[Mamba-3](https://arxiv.org/abs/2603.15569) is on a tear — citations jumped from 33 to 43 on 05-30 with influential citations climbing from 3 to 5. That's +10 in a single observation window, the steepest acceleration in this cycle. SSM-based architectures are clearly being taken seriously as attention alternatives.
 
-[OScaR](https://arxiv.org/abs/2605.19660) debuted at 37 HF upvotes and 23 GitHub stars — the strongest launch for a KV cache quantization paper in this cycle. Extreme low-bit KV quantization via Occam's-style simplicity clearly resonates. Two other KV-quant papers launched the same day: [OSCAR](https://arxiv.org/abs/2605.17757) (5 upvotes, 12 stars) and [OCTOPUS](https://arxiv.org/abs/2605.21226) (6 upvotes) — the space is getting crowded fast.
+[Attention Residuals](https://arxiv.org/abs/2603.15031) (Kimi team) saw citations go from 19 to 25 on 05-30, but the real signal is influential citations doubling from 4 to 8. People aren't just citing this — they're building on it.
 
-[REAP the Experts](https://arxiv.org/abs/2510.13999) spiked from 12 to 15 citations on 05-29 alone, with influential citations climbing from 4 to 5. One-shot MoE compression via pruning is now the most-cited approach in the expert pruning cluster. [Post-Trained MoE Can Skip Half Experts](https://arxiv.org/abs/2605.18643) launched alongside at 29 HF upvotes and 22 stars — MoE efficiency is clearly the theme of the week.
+[FlashAttention-4](https://arxiv.org/abs/2603.05451) spiked from 14 to 20 citations on 05-30, its largest single-window jump. The FA lineage remains the gravitational center for GPU attention optimization.
 
-[Mix-Quant](https://arxiv.org/abs/2605.20315) opened at 23 HF upvotes and 21 GitHub stars with a sharp angle: quantized prefilling but precise decoding, explicitly targeting agentic LLM workloads. The prefill/decode split is becoming a first-class design axis.
+[Continuum](https://arxiv.org/abs/2511.02230) keeps climbing — 20→22→24→25 citations over the last week with influential going from 3 to 4. KV cache TTL for multi-turn agent serving is quietly becoming one of the most-cited scheduling papers in this tracker.
+
+[IndexCache](https://arxiv.org/abs/2603.12201) doubled its citation count from 3 to 6 on 05-30 after weeks of stagnation. Cross-layer sparse attention index reuse is finding its audience as long-context workloads proliferate.
