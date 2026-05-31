@@ -1,9 +1,9 @@
-[Mamba-3](https://arxiv.org/abs/2603.15569) is on a tear — citations jumped from 33 to 43 on 05-30 with influential citations climbing from 3 to 5. That's +10 in a single observation window, the steepest acceleration in this cycle. SSM-based architectures are clearly being taken seriously as attention alternatives.
+[OSCAR](https://arxiv.org/abs/2605.17757) is this cycle's breakout — HF upvotes surged from 5 to 63 and GitHub stars from 12 to 242 between 05-22 and 05-31. 2-bit KV cache quantization via spectral rotation is clearly hitting a nerve as long-context memory pressure intensifies.
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031) (Kimi team) saw citations go from 19 to 25 on 05-30, but the real signal is influential citations doubling from 4 to 8. People aren't just citing this — they're building on it.
+[Full Attention Strikes Back](https://arxiv.org/abs/2605.16928) went from zero signals to 93 HF upvotes in under 10 days. Training-free full-to-sparse attention transfer in ~100 steps is the kind of drop-in win that gets immediate adoption interest.
 
-[FlashAttention-4](https://arxiv.org/abs/2603.05451) spiked from 14 to 20 citations on 05-30, its largest single-window jump. The FA lineage remains the gravitational center for GPU attention optimization.
+[Gated DeltaNet-2](https://arxiv.org/abs/2605.22791) jumped from 3 to 30 HF upvotes and 19 to 182 GitHub stars in the same window. Decoupling erase/write in linear attention is gaining traction fast — the efficient-attention design space keeps expanding beyond pure SSMs.
 
-[Continuum](https://arxiv.org/abs/2511.02230) keeps climbing — 20→22→24→25 citations over the last week with influential going from 3 to 4. KV cache TTL for multi-turn agent serving is quietly becoming one of the most-cited scheduling papers in this tracker.
+[Qwen3-Coder-Next](https://arxiv.org/abs/2603.00729) saw citations leap from 18 to 28 on 05-30 (+10 in a single observation), matching Mamba-3's acceleration from last cycle. Primarily a code model, but the inference architecture choices are being widely referenced.
 
-[IndexCache](https://arxiv.org/abs/2603.12201) doubled its citation count from 3 to 6 on 05-30 after weeks of stagnation. Cross-layer sparse attention index reuse is finding its audience as long-context workloads proliferate.
+[ThinKV](https://arxiv.org/abs/2510.01290) quietly doubled its citations from 3 to 7 between 05-25 and 05-28, picking up its first influential citation. Thought-adaptive KV cache compression for reasoning models is finding its moment as chain-of-thought workloads balloon context windows.
