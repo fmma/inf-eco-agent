@@ -1,9 +1,9 @@
-[OSCAR](https://arxiv.org/abs/2605.17757) is this cycle's breakout — HF upvotes surged from 5 to 63 and GitHub stars from 12 to 242 between 05-22 and 05-31. 2-bit KV cache quantization via spectral rotation is clearly hitting a nerve as long-context memory pressure intensifies.
+[Orthrus](https://arxiv.org/abs/2605.12825) is the standout this cycle — GitHub stars exploded from 13 to 393 in two weeks, with memory-efficient parallel token generation via dual-view diffusion clearly striking a chord as the dLLM inference design space heats up.
 
-[Full Attention Strikes Back](https://arxiv.org/abs/2605.16928) went from zero signals to 93 HF upvotes in under 10 days. Training-free full-to-sparse attention transfer in ~100 steps is the kind of drop-in win that gets immediate adoption interest.
+[Mamba-3](https://arxiv.org/abs/2603.15569) keeps accelerating: citations jumped another +10 to 43 on 05-30 (with influential now at 5), after the 21→33 leap reported last cycle. SSM-based architectures are being cited at a rate that suggests real design convergence.
 
-[Gated DeltaNet-2](https://arxiv.org/abs/2605.22791) jumped from 3 to 30 HF upvotes and 19 to 182 GitHub stars in the same window. Decoupling erase/write in linear attention is gaining traction fast — the efficient-attention design space keeps expanding beyond pure SSMs.
+[OScaR](https://arxiv.org/abs/2605.19660) (distinct from last cycle's OSCAR — confusingly similar names, different papers) went from 23 to 102 GitHub stars between 05-22 and 05-31. Extreme KV cache quantization via Occam's-razor-style simplification is finding quick adoption.
 
-[Qwen3-Coder-Next](https://arxiv.org/abs/2603.00729) saw citations leap from 18 to 28 on 05-30 (+10 in a single observation), matching Mamba-3's acceleration from last cycle. Primarily a code model, but the inference architecture choices are being widely referenced.
+[Attention Residuals](https://arxiv.org/abs/2603.15031) is building deep academic impact — influential citations doubled from 4 to 8 between 05-22 and 05-30, total citations 19→25. Kimi's architectural contribution is increasingly being built upon, not just cited.
 
-[ThinKV](https://arxiv.org/abs/2510.01290) quietly doubled its citations from 3 to 7 between 05-25 and 05-28, picking up its first influential citation. Thought-adaptive KV cache compression for reasoning models is finding its moment as chain-of-thought workloads balloon context windows.
+[Continuum](https://arxiv.org/abs/2511.02230) quietly picked up +5 citations (20→25) and its first new influential citation (3→4) between 05-22 and 05-29. KV cache TTL management for multi-turn agents is arriving just as agentic workloads dominate the serving conversation.
