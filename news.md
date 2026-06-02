@@ -1,45 +1,40 @@
-The permission system seems to be blocking my attempts. Let me proceed with the detailed abstracts available — they contain substantial technical detail for a solid bulletin.
+I can't access the PDFs due to missing poppler-utils and blocked Python commands. I'll write the bulletin based on the detailed abstracts provided, which contain sufficient technical detail for accurate rescoring.
 
 # Inference Ecosystem — Flash News
-**2026-06-01 | 326 papers scanned**
+**2026-06-02 | 440 papers scanned**
 
 ---
 
-### [Speculative Pipeline Decoding: Higher-Accuracy and Zero-Bubble Speculation via Pipeline Parallelism](https://arxiv.org/abs/2605.30852)
+### [DFlare: Scaling Up Draft Capacity for Block Diffusion Speculative Decoding](https://arxiv.org/abs/2606.02091)
 
-SPD rethinks speculative decoding by partitioning the target LLM into *n* pipeline stages, processing *n* tokens in parallel with zero latency bubbles. Unlike standard draft-then-verify, the speculation module aggregates intermediate features across pipeline depths — bounding prediction difficulty and achieving higher acceptance rates than multi-token prediction baselines. Code is released. If your serving stack already uses pipeline parallelism, this is a near-free upgrade path.
-**Score: 93 (was 92)**
+Tencent's DFlare breaks the conditioning bottleneck in block diffusion speculative decoding. Where DFlash forces all draft layers to share one fused target representation, DFlare gives each draft layer its own learnable combination of target layers — a lightweight layer-wise fusion that scales draft depth with consistent gains. Result: **5.52x wall-clock speedup** on Qwen3-4B and 5.46x on Qwen3-8B across math, code, and conversation benchmarks, beating DFlash by 8–11%. Code is open at [AngelSlim](https://github.com/Tencent/AngelSlim). Score: 95 (was 95)
 
-### [Token Sparse Attention: Efficient Long-Context Inference with Interleaved Token Selection](https://arxiv.org/abs/2602.03216)
+### [Albireo: Scaling LLM Inference Beyond Amdahl's Limits](https://arxiv.org/abs/2606.01927)
 
-Tackles the quadratic attention wall at 128K context with a per-head token-level sparsification that compresses Q/K/V to a reduced set, then decompresses back — letting evicted tokens be reconsidered in later layers (unlike permanent eviction methods). Fully compatible with FlashAttention and composable with existing sparse kernels. 3.23x attention speedup at 128K with <1% accuracy drop. The interleaved selection/decompression design is the key differentiator here — it avoids the irreversible early-layer decisions that plague other approaches.
-**Score: 92 (was 90)**
+Albireo identifies the empirical optimal tensor-parallelism degree where cross-GPU communication overhead balances KV-cache memory benefits, then pushes that optimum higher by overlapping scheduling/IO with compute and adding sequence-parallel sampling. Against vLLM: **up to 1.9x throughput, 48% lower latency, 54% lower energy** — and 2x throughput in production. No model changes required. A clean systems win for anyone running TP inference. Score: 96 (was 95)
 
-### [StiefAttention: KV Cache Low-Rank Approximation over the Stiefel Manifold](https://arxiv.org/abs/2601.21686)
+### [Move the Query, Not the Cache: Cross-Instance MLA on H100 Clusters](https://arxiv.org/abs/2606.01502)
 
-Post-training KV cache compression that learns orthonormal projection bases by minimizing decoder-layer output reconstruction error — not a proxy SVD objective. Constructs per-layer error-rank profiles for budget-constrained rank allocation. On Llama3-8B at iso-compression, beats EigenAttention by 4.2 perplexity points (C4) and 8.9 points on 0-shot MMLU. The principled Stiefel manifold optimization makes this more robust than heuristic approaches, and the rank allocation mechanism is a practical tool for hitting specific HBM budgets.
-**Score: 91 (was 92)**
+First real characterization of cross-instance Multi-head Latent Attention on H100 RDMA fabrics. Key insight: MLA compresses each token's KV into ~1 KB, making it cheaper to route the query than fetch the cache — inverting the conventional wisdom. The paper delivers a topology-aware cost model and a closed-form route/fetch predicate that tracks real IBGDA round-trips within ~7%. Directly applicable to DeepSeek-V3/V4 and GLM-5.1 distributed serving. Score: 93 (was 95)
 
-### [GRKV: Global Regression for Training-Free KV Cache Compression](https://arxiv.org/abs/2605.31105)
+### [ConServe: Conversation-Level Disaggregated Scheduling for Agentic Serving](https://arxiv.org/abs/2606.01839)
 
-Training-free KV cache merging via ridge regression that directly minimizes the gap between compressed-cache and full-cache attention outputs. Addresses a real problem: span-based retention methods concentrate merges on boundary tokens, causing over-merging. GRKV distributes evicted information across all retained tokens with regularization. Only merging method that actually improves overall performance on both LongBench and RULER — no training, minimal overhead. Drop-in upgrade for existing eviction pipelines.
-**Score: 90 (was 92)**
+Existing multi-turn schedulers predict per-turn decode cost — and get it wrong. ConServe lifts scheduling to the conversation level, observing that every agentic conversation has the same two-phase structure: compute-bound first prefill, then a long memory-bound tail. Route prefill to a high-throughput node, transfer KV once, pin the rest. **51% reduction in p95 time-to-first-effective-token**, 7.5% energy savings, and heterogeneous GPU tiering adds another 22.75% energy efficiency. No learned cost model needed. Score: 92 (was 95)
 
-### [Reducing the GPU Memory Bottleneck with Lossless Compression for ML](https://arxiv.org/abs/2605.30728)
+### [NanoSpec: Accelerating Speculative Decoding with Minimalist Vocabularies](https://arxiv.org/abs/2605.26444)
 
-Invariant Bit Packing (IBP) identifies and eliminates invariant bits across tensor groups, compressing PCIe transfers with GPU-optimized decompression using warp parallelism and async transfers. 24% faster LLM inference, 180% faster DLRM embedding lookup, 74% faster GNN training — all lossless, no accuracy tradeoff. Unlike lossy quantization, this is a pure systems win you can stack on top of existing optimizations. Easy-to-use APIs already integrated into LLM inference frameworks.
-**Score: 88 (was 85)**
+The LM head's 100K+ vocab projection is a hidden bottleneck in speculative decoding drafters. NanoSpec dynamically constructs a context-aware active vocabulary of **<3K tokens** (40x reduction) per step by exploiting temporal locality — no training needed. A co-designed async gather + GPU-resident state system turns that sparsity into real hardware gains: **51.6% draft time reduction**, 1.17–1.29x end-to-end speedup over EAGLE-2/EAGLE-3. Plug-and-play on any spec-decode setup. Score: 93 (was 95)
 
 ---
 
 ## Surge Watch
 
-[Orthrus](https://arxiv.org/abs/2605.12825) is the standout this cycle — GitHub stars exploded from 13 to 393 in two weeks, with memory-efficient parallel token generation via dual-view diffusion clearly striking a chord as the dLLM inference design space heats up.
+[OSCAR](https://arxiv.org/abs/2605.17757) (Offline Spectral Covariance-Aware Rotation) is the breakout of the cycle — 12 → 295 GitHub stars and 5 → 63 HF upvotes in ten days. 2-bit KV cache quantization via learned rotations is clearly hitting a nerve as extreme quantization becomes table stakes for long-context serving.
 
-[Mamba-3](https://arxiv.org/abs/2603.15569) keeps accelerating: citations jumped another +10 to 43 on 05-30 (with influential now at 5), after the 21→33 leap reported last cycle. SSM-based architectures are being cited at a rate that suggests real design convergence.
+[Gated DeltaNet-2](https://arxiv.org/abs/2605.22791) followed a similar trajectory: 19 → 185 GitHub stars and 3 → 30 HF upvotes since 05-22. Decoupled erase-write mechanics in linear attention are drawing real implementation interest — the community is actively shopping for sub-quadratic alternatives.
 
-[OScaR](https://arxiv.org/abs/2605.19660) (distinct from last cycle's OSCAR — confusingly similar names, different papers) went from 23 to 102 GitHub stars between 05-22 and 05-31. Extreme KV cache quantization via Occam's-razor-style simplification is finding quick adoption.
+[FlashAttention-4](https://arxiv.org/abs/2603.05451) quietly crossed 20 citations, gaining +7 in a single week (14 → 21 between 05-25 and 06-02). For an attention kernel paper, academic uptake at this rate signals that FA4's pipeline co-design approach is becoming a reference architecture.
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031) is building deep academic impact — influential citations doubled from 4 to 8 between 05-22 and 05-30, total citations 19→25. Kimi's architectural contribution is increasingly being built upon, not just cited.
+[Full Attention Strikes Back](https://arxiv.org/abs/2605.16928) debuted with 93 HF upvotes on its first observation — transferring dense attention into sparse within a hundred training steps clearly resonates with practitioners who want sparsity without the usual quality tax.
 
-[Continuum](https://arxiv.org/abs/2511.02230) quietly picked up +5 citations (20→25) and its first new influential citation (3→4) between 05-22 and 05-29. KV cache TTL management for multi-turn agents is arriving just as agentic workloads dominate the serving conversation.
+[Orthrus](https://arxiv.org/abs/2605.12825) growth is decelerating: after the 13 → 393 star explosion reported last cycle, the pace has slowed to ~17 stars/day. Still climbing, but the initial surge has cooled — the dLLM inference crowd has moved from discovery to evaluation.
