@@ -1,39 +1,58 @@
+I'm unable to read the PDFs directly — `poppler-utils` isn't installed and my file write/script permissions are being denied. I'll rescore and write the bulletin based on the detailed abstracts provided, which contain substantial technical detail.
+
+**Rescored relevance** (abstract-based adjustment):
+
+| Paper | Original | Rescored | Notes |
+|-------|----------|----------|-------|
+| YOCO/CLSA (2606.06467) | 93 | 96 | 7.6x decode + 17.1x throughput at 128K — most impactful single result |
+| Vortex (2606.06453) | 92 | 94 | Programmable sparse attention + AI-agent-driven search, B200 results |
+| Tangram (2606.06302) | 95 | 94 | Clean system design, 2.6x throughput, open-source |
+| RedKnot (2606.06256) | 95 | 88 | Ambitious scope but abstract is heavy on vision, light on benchmarks |
+| SlidingServe (2606.05933) | 95 | 90 | Solid SLO-aware scheduling, 30% capacity gain |
+| QCFuse (2606.05875) | 92 | 90 | Practical RAG prefill speedup in SGLang |
+| Prefill-Decode Control (2602.02987) | 95 | 82 | Theoretical framework — strong but less immediately deployable |
+| AdaPLD (2606.05742) | 90 | 85 | Good spec-dec results but incremental over prior retrieval-based methods |
+
+Top 5 selected: CLSA, Vortex, Tangram, SlidingServe, QCFuse.
+
 # Inference Ecosystem — Flash News
-**2026-06-04 | 761 papers scanned, 5 featured**
+**2026-06-05 — 361 papers scanned**
 
-## [SparDA: Sparse Decoupled Attention for Efficient Long-Context LLM Inference](https://arxiv.org/abs/2606.04511)
+## [You Only Index Once: Cross-Layer Sparse Attention with Shared Routing](https://arxiv.org/abs/2606.06467)
 
-NVIDIA and Song Han's group introduce a fourth per-layer projection — the Forecast — that predicts which KV blocks the *next* layer needs, decoupling sparse selection from attention and enabling asynchronous CPU-to-GPU prefetch via a persistent UVA Triton kernel. On MiniCPM4.1-8B and NOSA-8B at 128K context, SparDA delivers 1.25x prefill speedup, 1.7x decode speedup over sparse-offload baselines, and up to 5.3x higher decode throughput by unlocking larger feasible batch sizes on a single GPU. Only 0.41% extra parameters; code at NVlabs/SparDA. This reframes sparsity from a compute trick into an offloading-friendly memory-access schedule — the direction long-context serving needs.
-**Score: 96 (was 95)**
+Microsoft Research (Furu Wei's group) extends the YOCO KV-sharing architecture with cross-layer sparse attention (CLSA): a single indexer computes token-level top-k selection once and reuses the routing index across all cross-decoder layers, amortizing the cost that usually kills token-sparse methods. The result is **7.6x decoding speedup and 17.1x overall throughput improvement at 128K context** — the kind of numbers that make you rethink your long-context serving stack. This is the most complete architectural answer yet for jointly solving prefill, KV storage, and decode bottlenecks in long-context models.
+**Score: 96 (was 93)**
 
-## [KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accumulation in Reasoning Tasks](https://arxiv.org/abs/2606.03458)
+## [Vortex: Efficient and Programmable Sparse Attention Serving for AI Agents](https://arxiv.org/abs/2606.06453)
 
-Huawei identifies that KV-cache quantization errors accumulate across autoregressive timesteps because of incorrect per-token scaling — the top 5% of outlier errors cause more end-to-end KL divergence than the other 95%. KVarN applies Hadamard rotation plus a calibration-free Sinkhorn dual-scaling variance normalization, crushing token-magnitude errors at 2-bit precision. New SOTA on MATH500, AIME24, and HumanEval across Qwen3-4B, Llama-3.1-8B, and Phi-4-14B, with only 0.18% measured quantization overhead in vLLM. If you're running reasoning models with long chain-of-thought, this is the 2-bit KV method to beat.
+Beidi Chen's group ships a system that splits sparse attention into a Python-embedded frontend language (for rapid algorithm prototyping) and an efficient backend integrated into production serving stacks. The killer feature: AI agents use Vortex to *automatically search* for sparse attention algorithms, with the best found variant hitting **3.46x throughput over full attention** while preserving accuracy. Tested on MLA-based GLM-4.7-Flash (4.7x throughput) and the 229B MiniMax-M2.7 on B200 GPUs. This turns sparse attention from a research exercise into a deployable, searchable design space.
+**Score: 94 (was 92)**
+
+## [Tangram: Unlocking Non-Uniform KV Cache for Efficient Multi-turn LLM Serving](https://arxiv.org/abs/2606.06302)
+
+Makes non-uniform KV compression actually work in production serving. Three techniques — deterministic per-head budget allocation (eliminating dynamic scheduling overhead), head-group paging (maximizing memory reclamation), and ahead-of-time load balancing — solve the fragmentation and scheduling nightmares that previously made heterogeneous KV cache impractical. Delivers **2.6x throughput improvement** over baselines with no accuracy loss. Code is open-source at [github.com/aiha-lab/TANGRAM](https://github.com/aiha-lab/TANGRAM).
 **Score: 94 (was 95)**
 
-## [SSSD: Simply-Scalable Speculative Decoding](https://arxiv.org/abs/2411.05894)
+## [Beyond Greedy Chunking: SLO-Aware Sliding-Window Scheduling for LLM Inference](https://arxiv.org/abs/2606.05933)
 
-Huawei's training-free speculative decoding combines a CPU-side suffix-array datastore with prompt/self-output n-gram matching and a roofline-derived hardware-aware speculation length rule (sq = I_knee / batch_size). Up to 2.9x latency reduction on Llama-3.3-70B coding tasks, matching or beating EAGLE-3 on math and German-language benchmarks while requiring zero data prep, training, or tuning. Cold-start from an empty datastore still gives 1.1-1.23x speedup; after 1K conversations it hits 1.6-1.8x for non-English languages. The deployability story — just point it at your serving stack — is the real differentiator over trained drafters.
-**Score: 93 (was 95)**
+SlidingServe introduces a sliding-window scheduler that looks ahead to the next iteration when deciding chunk sizes, paired with a lightweight batch latency predictor and dynamic-programming-based request selection under SLO pressure. The combination yields **30% higher service capacity** and **16–53% fewer SLO violations** under heavy load compared to existing chunked-prefill schedulers. Practical for anyone running SLO-bound serving where greedy chunking leaves throughput on the table.
+**Score: 90 (was 95)**
 
-## [FlashMLA-ETAP: Efficient Transpose Attention Pipeline for Accelerating MLA Inference on NVIDIA H20 GPUs](https://arxiv.org/abs/2506.01969)
+## [QCFuse: Query-Aware Cache Fusion via Compressed View for Efficient RAG Serving](https://arxiv.org/abs/2606.05875)
 
-A clever dimension-swap trick for DeepSeek-R1 671B on memory-constrained H20 GPUs: ETAP transposes attention computation so the KV context length aligns with the M-dimension in WGMMA ops, eliminating the 75%+ redundant padding that plagued FlashMLA when 128 heads are split across 8 GPUs. Result: 2.78x over FlashMLA at 64K (batch 16), 5.24x over FlashAttention-3, with 15.2x lower RMSE. Directly addresses the "how do I actually run R1-671B on my H20 box" question many teams face right now.
-**Score: 88 (was 95)**
-
-## [Hybrid Verified Decoding: Learning to Allocate Verification in Speculative Decoding](https://arxiv.org/abs/2606.01019)
-
-Tackles the runtime decision problem in speculative decoding: should you verify a cache-based draft or fall back to a model-based drafter like EAGLE3? A lightweight MLP predicts the accepted length of each cache draft *before* verification, routing high-payoff drafts to cache verification and low-payoff ones to EAGLE3. Across 3 LLMs and 16 datasets, it averages 2.73x speedup on agentic workloads — beating EAGLE3 in every agentic setting tested. The insight that high-payoff cache drafts concentrate in <9% of decoding states, and a small predictor can find them, points toward runtime draft selection as the next frontier for spec decode.
-**Score: 88 (was 93)**
+Tackles the RAG prefill bottleneck in SGLang with a compressed-view selector: chunk-anchor query probing conditions user-query states on compact per-chunk anchors, while critical-layer profiling identifies which tokens to recompute — all without stalling the layer-wise cache-fusion pipeline. Achieves **1.7x prefill speedup** over full prefill and 1.5x over ProphetKV across four LLMs and six datasets, matching full-prefill quality. If you're serving RAG workloads, this is the KV-reuse approach to watch.
+**Score: 90 (was 92)**
 
 ---
 
 ## Surge Watch
 
-[Continuum](https://arxiv.org/abs/2511.02230) (KV Cache TTL for multi-turn agents) is this cycle's standout — flat at 20 citations through 05-22, then surged to 29 by 06-04 with influential citations doubling from 3 to 6. Multi-turn agent scheduling is clearly becoming a reference problem, and this paper is consolidating as the canonical formulation.
+[DFlash](https://arxiv.org/abs/2602.06036) (Block Diffusion for Flash Speculative Decoding) is this cycle's breakout — 27 citations with 13 influential (48% influential ratio) as of 06-05, up from 21/8 just five days earlier. When nearly half your citers consider you a key reference, you're becoming foundational infrastructure for diffusion LLM decoding. 4,750+ GitHub stars confirm production-level interest.
 
-[Mamba-3](https://arxiv.org/abs/2603.15569) continues its relentless climb: 46 citations (5 influential), up from 33 just two weeks ago. For a state space model paper, that pace of academic uptake signals SSM-transformer hybrids are no longer niche — they're entering the production conversation.
+[dMoE](https://arxiv.org/abs/2605.30876) (dLLMs with Learnable Block Experts) is catching fire fresh off the press — 21→36 HF upvotes in 3 days with a new paper that fuses MoE routing into diffusion LLMs. The dLLM design space is clearly still in its rapid expansion phase.
 
-[TokenCake](https://arxiv.org/abs/2510.18586) (KV-Cache-centric multi-agent serving) quietly doubled from 5 to 9 citations in two weeks — the multi-agent serving stack is drawing sustained implementation interest beyond Continuum.
+[Act While Thinking](https://arxiv.org/abs/2603.18897) quietly climbed to 8 citations (from 0 in early April), all on speculative tool execution for LLM agents. The agentic inference stack — not just serving, but tool-call acceleration — is becoming its own citation cluster.
 
-Previous cycle's breakouts are settling into plateau: OSCAR, Gated DeltaNet-2, and Orthrus all returned empty signal data on 06-04, consistent with the discovery-to-evaluation transition noted last time. The initial attention spikes have passed; now it's about who ships integrations.
+[Hyperloop Transformers](https://arxiv.org/abs/2604.21254) went from 0 to 6 citations (2 influential) in six weeks, a fast ramp for a novel recurrent-in-depth architecture. Weight sharing for inference efficiency is drawing early adopters.
+
+Previous cycle's standouts have entered plateau: Continuum, Mamba-3, and TokenCake all held flat on their last readings (29, 46, and 9 citations respectively). The initial surge is over — now it's about who integrates.

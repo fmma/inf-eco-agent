@@ -1,7 +1,9 @@
-[Continuum](https://arxiv.org/abs/2511.02230) (KV Cache TTL for multi-turn agents) is this cycle's standout — flat at 20 citations through 05-22, then surged to 29 by 06-04 with influential citations doubling from 3 to 6. Multi-turn agent scheduling is clearly becoming a reference problem, and this paper is consolidating as the canonical formulation.
+[DFlash](https://arxiv.org/abs/2602.06036) (Block Diffusion for Flash Speculative Decoding) is this cycle's breakout — 27 citations with 13 influential (48% influential ratio) as of 06-05, up from 21/8 just five days earlier. When nearly half your citers consider you a key reference, you're becoming foundational infrastructure for diffusion LLM decoding. 4,750+ GitHub stars confirm production-level interest.
 
-[Mamba-3](https://arxiv.org/abs/2603.15569) continues its relentless climb: 46 citations (5 influential), up from 33 just two weeks ago. For a state space model paper, that pace of academic uptake signals SSM-transformer hybrids are no longer niche — they're entering the production conversation.
+[dMoE](https://arxiv.org/abs/2605.30876) (dLLMs with Learnable Block Experts) is catching fire fresh off the press — 21→36 HF upvotes in 3 days with a new paper that fuses MoE routing into diffusion LLMs. The dLLM design space is clearly still in its rapid expansion phase.
 
-[TokenCake](https://arxiv.org/abs/2510.18586) (KV-Cache-centric multi-agent serving) quietly doubled from 5 to 9 citations in two weeks — the multi-agent serving stack is drawing sustained implementation interest beyond Continuum.
+[Act While Thinking](https://arxiv.org/abs/2603.18897) quietly climbed to 8 citations (from 0 in early April), all on speculative tool execution for LLM agents. The agentic inference stack — not just serving, but tool-call acceleration — is becoming its own citation cluster.
 
-Previous cycle's breakouts are settling into plateau: OSCAR, Gated DeltaNet-2, and Orthrus all returned empty signal data on 06-04, consistent with the discovery-to-evaluation transition noted last time. The initial attention spikes have passed; now it's about who ships integrations.
+[Hyperloop Transformers](https://arxiv.org/abs/2604.21254) went from 0 to 6 citations (2 influential) in six weeks, a fast ramp for a novel recurrent-in-depth architecture. Weight sharing for inference efficiency is drawing early adopters.
+
+Previous cycle's standouts have entered plateau: Continuum, Mamba-3, and TokenCake all held flat on their last readings (29, 46, and 9 citations respectively). The initial surge is over — now it's about who integrates.
