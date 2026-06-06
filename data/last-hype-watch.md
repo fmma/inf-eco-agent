@@ -1,9 +1,9 @@
-[DFlash](https://arxiv.org/abs/2602.06036) (Block Diffusion for Flash Speculative Decoding) is this cycle's breakout — 27 citations with 13 influential (48% influential ratio) as of 06-05, up from 21/8 just five days earlier. When nearly half your citers consider you a key reference, you're becoming foundational infrastructure for diffusion LLM decoding. 4,750+ GitHub stars confirm production-level interest.
+[OSCAR](https://arxiv.org/abs/2605.17757) (2-bit KV cache via spectral rotation) is this cycle's breakout — 12→295 GitHub stars and 5→63 HF upvotes in 10 days. Rotation-based KV quantization that actually holds quality is hitting a nerve.
 
-[dMoE](https://arxiv.org/abs/2605.30876) (dLLMs with Learnable Block Experts) is catching fire fresh off the press — 21→36 HF upvotes in 3 days with a new paper that fuses MoE routing into diffusion LLMs. The dLLM design space is clearly still in its rapid expansion phase.
+[Orthrus](https://arxiv.org/abs/2605.12825) exploded from 13 to 393 GitHub stars in two weeks — memory-efficient parallel token generation for dLLMs is drawing serious implementor interest.
 
-[Act While Thinking](https://arxiv.org/abs/2603.18897) quietly climbed to 8 citations (from 0 in early April), all on speculative tool execution for LLM agents. The agentic inference stack — not just serving, but tool-call acceleration — is becoming its own citation cluster.
+[Attention Residuals](https://arxiv.org/abs/2603.15031) (Kimi Team) doubled its influential citations to 8 out of 26 total (31% ratio). Quietly becoming a reference for attention architecture design.
 
-[Hyperloop Transformers](https://arxiv.org/abs/2604.21254) went from 0 to 6 citations (2 influential) in six weeks, a fast ramp for a novel recurrent-in-depth architecture. Weight sharing for inference efficiency is drawing early adopters.
+[FlashAttention-4](https://arxiv.org/abs/2603.05451) hit 21 citations with a 6-citation burst in 5 days (05-25 to 05-30). The pipelined attention baseline that everyone now cites.
 
-Previous cycle's standouts have entered plateau: Continuum, Mamba-3, and TokenCake all held flat on their last readings (29, 46, and 9 citations respectively). The initial surge is over — now it's about who integrates.
+The dLLM decoding cluster keeps widening: [Dependency-Aware Parallel Decoding](https://arxiv.org/abs/2603.12996) went 0→5 citations since 05-30, while [DMax](https://arxiv.org/abs/2604.08302) doubled to 4 — parallel decoding strategies for diffusion LLMs are becoming their own active subfield.
