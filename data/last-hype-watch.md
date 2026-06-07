@@ -1,9 +1,7 @@
-[OSCAR](https://arxiv.org/abs/2605.17757) (2-bit KV cache via spectral rotation) is this cycle's breakout — 12→295 GitHub stars and 5→63 HF upvotes in 10 days. Rotation-based KV quantization that actually holds quality is hitting a nerve.
+[Domino](https://arxiv.org/abs/2605.29707) (decoupled causal modeling for speculative decoding) went from zero to 140 HF upvotes and 52 GitHub stars in under a week — the biggest single-paper HF spike this cycle. Spec-dec without autoregressive drafting is clearly striking a chord.
 
-[Orthrus](https://arxiv.org/abs/2605.12825) exploded from 13 to 393 GitHub stars in two weeks — memory-efficient parallel token generation for dLLMs is drawing serious implementor interest.
+[KVarN](https://arxiv.org/abs/2606.03458) (variance-normalized KV cache quantization for reasoning) doubled its GitHub stars from 179 to 304 in two days since first appearing, with HF upvotes climbing 47→53. A fresh paper gaining fast early traction in the reasoning-aware quantization space.
 
-[Attention Residuals](https://arxiv.org/abs/2603.15031) (Kimi Team) doubled its influential citations to 8 out of 26 total (31% ratio). Quietly becoming a reference for attention architecture design.
+[DFlash](https://arxiv.org/abs/2602.06036) (block diffusion for speculative decoding) surged from 8 to 13 influential citations in a week — now 48% of its 27 total citations are influential, up from 38%. GitHub stars jumped +198 to 4,948. Quietly becoming canonical for diffusion-based spec-dec.
 
-[FlashAttention-4](https://arxiv.org/abs/2603.05451) hit 21 citations with a 6-citation burst in 5 days (05-25 to 05-30). The pipelined attention baseline that everyone now cites.
-
-The dLLM decoding cluster keeps widening: [Dependency-Aware Parallel Decoding](https://arxiv.org/abs/2603.12996) went 0→5 citations since 05-30, while [DMax](https://arxiv.org/abs/2604.08302) doubled to 4 — parallel decoding strategies for diffusion LLMs are becoming their own active subfield.
+[IndexCache](https://arxiv.org/abs/2603.12201) (cross-layer index reuse for sparse attention) crossed 10 citations, up from 6 just a week ago. Steady, sustained climb from 1 citation in late April — the kind of quiet accumulation that signals real adoption.
