@@ -1,45 +1,43 @@
-I need either `poppler-utils` or `pymupdf` to read the PDFs. Could you approve one of these install commands? Alternatively, if you'd prefer, I can write the bulletin based on the detailed abstracts provided in the paper data.
-
-In the meantime, let me proceed with writing the bulletin using the rich abstract and metadata information available, which contains substantial technical detail.
+I'm unable to read the PDFs directly — poppler-utils isn't installed and no PDF Python library is available. I'll write the bulletin based on the detailed abstracts and metadata provided, which contain substantial technical detail for all papers.
 
 # Inference Ecosystem — Flash News
-**2026-06-09 | 404 papers scanned**
+**2026-06-10 | 294 papers scanned**
 
 ---
 
-### [FlashMemory-DeepSeek-V4: Lightning Index Ultra-Long Context via Lookahead Sparse Attention](https://arxiv.org/abs/2606.09079)
+### [Achieving Cloud-Grade SLOs for Local MoE Inference through CPU-GPU Hybrid Design](https://arxiv.org/abs/2606.10493)
 
-The headline act this cycle. LSA introduces a Neural Memory Indexer that proactively predicts which KV chunks a query will need, trained via a backbone-free dual-encoder strategy — you never load DeepSeek-V4's full weights during indexer training. The result: physical KV cache compressed to **13.5%** of baseline on average, with **90%+ reduction at 500K context length**, while slightly *improving* accuracy (+0.6% across LongBench-v2, LongMemEval, RULER). This is the "less is more" paradigm done right — if you're serving long-context workloads, this changes your memory planning math entirely.
+A CPU-GPU hybrid system that runs **intact FP8 DeepSeek-V3** on consumer hardware — dual-socket CPUs + RTX 5090s — hitting cloud-grade SLOs: 1,800 tok/s prefill (45K prompts in 30s via distributed stream-loading with SmallEP), 21.5 tok/s decode on unquantized FP8, and a novel AVX-512 FP8 GEMV kernel delivering 4–5x lower CPU latency. Prefill-decode disaggregation with zero-copy shared weights sustains concurrency with <15% latency increase. This is the most complete local MoE serving paper we've seen — it doesn't just benchmark, it solves the full SLO stack (TTFT, throughput, concurrency) without distillation or rerouting.
 **Score: 95 (was 95)**
 
-### [APEX4: Efficient Pure W4A4 LLM Inference via Intra-SM Compute Rebalancing](https://arxiv.org/abs/2606.08761)
+### [SpenseGPT: Practical One-shot Pruning Enabling Sparse and Dense GEMMs for LLM Inference](https://arxiv.org/abs/2606.10445)
 
-Finally answers *why* W4A4 works on some GPUs and not others: it's the Tensor-to-CUDA Core throughput ratio (ρ). On high-ρ chips like A100 (ρ=64), group dequantization on CUDA Cores bottlenecks the INT4 Tensor Cores. APEX4 co-designs pure INT4 GEMM kernels with ρ-aware granularity adaptation, ships as a **drop-in vLLM replacement**, and delivers **2.09x end-to-end speedup on A40**, 1.78x on RTX 3090, while recovering A100 to 1.2–1.4x via mixed-granularity mode. Perplexity within 0.63 of FP16 on LLaMA-2-70B. The most deployment-ready W4A4 story yet.
-**Score: 95 (was 95)**
+First demonstrated **real end-to-end decoding speedup from semi-structured sparsity** on B200 GPUs. The Spense format splits weight matrices into a 2:4 sparse region and a dense region — no custom compiler, no activation expansion — just standard sparse and dense GEMM libraries. One-shot post-training pruning on Qwen3-32B and Seed-OSS-36B yields 1.2x end-to-end speedup at FP8 on B200 while preserving accuracy. Co-authored by Samyam Rajbhandari (DeepSpeed). The significance: after years of theoretical sparsity gains, someone finally shows it working end-to-end on the latest hardware with real models.
+**Score: 92 (was 92)**
 
-### [STAR-KV: Low-Rank KV Cache Compression via Soft Thresholding for Adaptive Rank Control](https://arxiv.org/abs/2606.08382)
+### [Express Language Modeling](https://arxiv.org/abs/2606.10944)
 
-Differentiable soft-thresholding for per-head, per-block rank selection in KV cache low-rank projection — no more fixed-rank guesswork. Combines hybrid key/value decomposition with low-rank-aware mixed-precision quantization for up to **20x total KV cache reduction**. Custom Triton kernels deliver **6.9x attention speedup** and **3.1x end-to-end throughput**. Code is open-source. Pairs naturally with systems like FlashMemory for compounding gains.
-**Score: 92 (was 95)**
+Express converts any non-causal attention approximation into a causal one with matching guarantees, then pairs it with an I/O-aware Triton kernel that **beats FlashAttention 2** on long-context workloads. Applied to four inference bottlenecks simultaneously: long-context prefill, KV cache compression, memory-constrained decoding, and compute-constrained decoding. Achieves O(s) memory with log^(3/2)(n)/s approximation error — a meaningful theoretical advance backed by practical kernel implementations. From Lester Mackey's group at Microsoft Research.
+**Score: 90 (was 92)**
 
-### [Variational Speculative Decoding: Rethinking Draft Training from Token Likelihood to Sequence Acceptance](https://arxiv.org/abs/2602.05774)
+### [ReasonAlloc: Hierarchical KV Cache Budget Allocation for Reasoning Models](https://arxiv.org/abs/2606.11164)
 
-Reframes draft model training as variational inference over latent draft paths, maximizing marginal acceptance probability rather than token-level likelihood. The EM procedure with Adaptive Rejection Weighting and Confidence-Aware Regularization yields **9.6% speedup over EAGLE-3** across both LLMs and MLLMs. Theoretically grounded and practically meaningful — speculative decoding keeps getting better, and VSD advances the Pareto frontier.
-**Score: 90 (was 95)**
+Training-free, plug-and-play KV cache compression for long chain-of-thought reasoning. Discovers a "Reasoning Wave" pattern — layer-wise attention demand that shifts predictably during autoregressive reasoning — and exploits it with offline layer preallocation + online head-wise reallocation. Tested on DeepSeek-R1-Distill models (8B, 14B) and AceReason-14B, outperforming SnapKV and Pyramid-RKV especially at tight budgets (128–512 tokens). The key insight: uniform budgets across layers are wrong for reasoning, and static profiles are wrong for decoding. Negligible overhead.
+**Score: 88 (was 92)**
 
-### [ART: Attention Run-time Termination for Efficient LLM Decoding](https://arxiv.org/abs/2606.00024)
+### [K-Forcing: Joint Next-K-Token Decoding via Push-Forward Language Modeling](https://arxiv.org/abs/2606.10820)
 
-Elegantly simple idea: monitor the accumulated attention output *during kernel execution* and terminate KV block access once further contributions are negligible. A stability criterion tracks both magnitude and directional changes, with theoretical truncation error bounds. Stacks on top of existing dense or sparse attention — **up to 20% throughput boost** on LongBench/RULER with zero quality loss. This is the kind of "free lunch" optimization that belongs in every long-context serving stack.
-**Score: 90 (was 95)**
+Distills an AR model into a push-forward mapping that generates k=4 tokens per forward pass by transforming uniform noise into joint future-token samples. Delivers **2.4–3.5x speedup** across batch sizes while reusing the AR teacher backbone and staying compatible with standard serving infrastructure — no draft model, no rejection sampling. Trained via progressive self-forcing distillation. Evaluated on LM1B and OpenWebText with standard causal Transformers. The batch-serving compatibility is the differentiator: speculative decoding helps latency but not throughput under load, while K-Forcing directly reduces forward passes per token in high-load regimes.
+**Score: 88 (was 90)**
 
 ---
 
 ## Surge Watch
 
-[Domino](https://arxiv.org/abs/2605.29707) (decoupling causal modeling from autoregressive drafting in speculative decoding) just had the most explosive debut this cycle — 0 to 140 HF upvotes and 52 GitHub stars in under a week. That's the kind of instant community resonance that signals a real pain point being hit.
+[Orthrus](https://arxiv.org/abs/2605.12825) (memory-efficient parallel token generation via dual-view diffusion) quietly became the biggest GitHub story in the diffusion LLM space — from 13 to 412 stars in three weeks (May 16–Jun 8), far outpacing its modest 12 HF upvotes. Practitioners are clearly experimenting with this one.
 
-The KV cache quantization wave keeps building. [KVarN](https://arxiv.org/abs/2606.03458) (variance-normalized KV quant for reasoning tasks) more than doubled its GitHub stars from 179 to 373 in just 4 days, with HF upvotes climbing from 47 to 57. Another entry in the sub-4-bit KV compression race that OSCAR and OScaR kicked off — this one specifically targeting reasoning workloads where quantization errors compound.
+[Gated DeltaNet-2](https://arxiv.org/abs/2605.22791) (decoupling erase and write in linear attention) went from 19 to 185 GitHub stars and 3 to 30 HF upvotes in about 10 days (May 22–Jun 2). The linear attention design space is heating up fast — this plus Parallax and MDN suggest the community is converging on practical sub-quadratic alternatives.
 
-[Attention Sink survey](https://arxiv.org/abs/2604.10098v1) saw a late-breaking GitHub spike from 83 to 113 stars in 4 days (June 5–9) after months of near-flat activity. Renewed practitioner interest in understanding attention sink mechanics as sparse/compressed attention methods proliferate.
+[Draft-OPD](https://arxiv.org/abs/2605.29343) (on-policy distillation for speculative draft models) had a sharp debut — 0 to 32 HF upvotes and 31 GitHub stars in 5 days (Jun 2–7). Speculative decoding continues to attract new training-side innovations, and this one landed with immediate community interest.
 
-[DFlash](https://arxiv.org/abs/2602.06036) continues its steady academic build — citations up from 21 to 28 with influential citations jumping from 8 to 13 over two weeks. Block diffusion speculative decoding is becoming an established subfield, and Domino's arrival confirms the momentum.
+[IndexCache](https://arxiv.org/abs/2603.12201) is building quiet academic momentum — citations jumped from 6 to 10 in 10 days (May 30–Jun 10), with influential citations now at a notable level. Cross-layer index reuse for sparse attention is getting validated as a real technique.
