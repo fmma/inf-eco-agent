@@ -1,7 +1,9 @@
-[Orthrus](https://arxiv.org/abs/2605.12825) (memory-efficient parallel token generation via dual-view diffusion) quietly became the biggest GitHub story in the diffusion LLM space — from 13 to 412 stars in three weeks (May 16–Jun 8), far outpacing its modest 12 HF upvotes. Practitioners are clearly experimenting with this one.
+[KVarN](https://arxiv.org/abs/2606.03458) (variance-normalized KV cache quantization for reasoning tasks) exploded onto the scene — 179 to 373 GitHub stars in just 4 days (Jun 5–9) with 57 HF upvotes. The reasoning-aware quantization angle is clearly resonating with practitioners.
 
-[Gated DeltaNet-2](https://arxiv.org/abs/2605.22791) (decoupling erase and write in linear attention) went from 19 to 185 GitHub stars and 3 to 30 HF upvotes in about 10 days (May 22–Jun 2). The linear attention design space is heating up fast — this plus Parallax and MDN suggest the community is converging on practical sub-quadratic alternatives.
+[Domino](https://arxiv.org/abs/2605.29707) (decoupling causal modeling from autoregressive drafting in speculative decoding) went from 2 to 140 HF upvotes in 5 days (Jun 2–7). One of the sharpest community receptions we've tracked for a spec-decode paper.
 
-[Draft-OPD](https://arxiv.org/abs/2605.29343) (on-policy distillation for speculative draft models) had a sharp debut — 0 to 32 HF upvotes and 31 GitHub stars in 5 days (Jun 2–7). Speculative decoding continues to attract new training-side innovations, and this one landed with immediate community interest.
+[OSCAR](https://arxiv.org/abs/2605.17757) (spectral covariance-aware rotation for 2-bit KV quantization) rocketed from 12 to 295 GitHub stars and 5 to 63 HF upvotes in 10 days (May 22–Jun 2). The extreme KV compression space is getting crowded but this one broke through decisively.
 
-[IndexCache](https://arxiv.org/abs/2603.12201) is building quiet academic momentum — citations jumped from 6 to 10 in 10 days (May 30–Jun 10), with influential citations now at a notable level. Cross-layer index reuse for sparse attention is getting validated as a real technique.
+[Attention Sink in Transformers](https://arxiv.org/abs/2604.10098) (survey on utilization, interpretation, and mitigation) saw renewed practitioner attention — GitHub stars jumped from 83 to 127 in 6 days (Jun 5–11) after being flat for a month. Surveys don't usually get this kind of delayed traction.
+
+[DFlash](https://arxiv.org/abs/2602.06036) continues building academic credibility — influential citations doubled from 8 to 13 in 10 days (May 31–Jun 11), with total citations hitting 29. Block diffusion speculative decoding is becoming a validated research direction.
