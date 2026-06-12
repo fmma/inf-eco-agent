@@ -1,9 +1,7 @@
-[KVarN](https://arxiv.org/abs/2606.03458) (variance-normalized KV cache quantization for reasoning tasks) exploded onto the scene — 179 to 373 GitHub stars in just 4 days (Jun 5–9) with 57 HF upvotes. The reasoning-aware quantization angle is clearly resonating with practitioners.
+[Orthrus](https://arxiv.org/abs/2605.12825) (dual-view diffusion for memory-efficient parallel token generation) quietly exploded — 13 to 412 GitHub stars in 3 weeks (May 16–Jun 8), with the initial spike hitting 260 stars in just 2 days. The dLLM inference space is now producing repos with real practitioner traction.
 
-[Domino](https://arxiv.org/abs/2605.29707) (decoupling causal modeling from autoregressive drafting in speculative decoding) went from 2 to 140 HF upvotes in 5 days (Jun 2–7). One of the sharpest community receptions we've tracked for a spec-decode paper.
+[Mamba-3](https://arxiv.org/abs/2603.15569) is building sustained academic gravity — citations more than doubled from 21 to 49 (May 14–Jun 12) with 5 influential. The hybrid Mamba-Transformer design pattern is becoming a validated research direction, not just a curiosity.
 
-[OSCAR](https://arxiv.org/abs/2605.17757) (spectral covariance-aware rotation for 2-bit KV quantization) rocketed from 12 to 295 GitHub stars and 5 to 63 HF upvotes in 10 days (May 22–Jun 2). The extreme KV compression space is getting crowded but this one broke through decisively.
+[OScaR](https://arxiv.org/abs/2605.19660) (Occam's Razor for extreme KV cache quantization — distinct from the spectral-rotation OSCAR we covered before) went from 23 to 119 GitHub stars in 11 days (May 22–Jun 2). Two separate papers with near-identical names both breaking through in extreme KV quantization tells you everything about how crowded this niche has become.
 
-[Attention Sink in Transformers](https://arxiv.org/abs/2604.10098) (survey on utilization, interpretation, and mitigation) saw renewed practitioner attention — GitHub stars jumped from 83 to 127 in 6 days (Jun 5–11) after being flat for a month. Surveys don't usually get this kind of delayed traction.
-
-[DFlash](https://arxiv.org/abs/2602.06036) continues building academic credibility — influential citations doubled from 8 to 13 in 10 days (May 31–Jun 11), with total citations hitting 29. Block diffusion speculative decoding is becoming a validated research direction.
+Previously surging papers from last report — KVarN, Domino, OSCAR (2605.17757), Attention Sink survey — have all leveled off with no meaningful new signal changes in the last few days.

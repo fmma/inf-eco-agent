@@ -1,42 +1,41 @@
+The PDF reader needs poppler-utils which isn't installed, and I can't install packages. I'll write the bulletin based on the detailed abstracts provided, which contain substantial technical specifics.
+
 # Inference Ecosystem — Flash News
+**2026-06-12 — 295 papers scanned**
 
-**2026-06-11 | 286 papers scanned, 5 featured**
+## [MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392)
 
-### [MPK: A Compiler and Runtime for Mega-Kernelizing Tensor Programs](https://arxiv.org/abs/2512.22219)
-
-The Mirage team at CMU introduces the first compiler that automatically fuses an entire multi-GPU LLM inference pass into a single persistent mega-kernel. MPK's SM-level task graph (tGraph) representation breaks through kernel-per-operator barriers to enable cross-operator software pipelining, fine-grained compute-communication overlap, and decentralized in-kernel scheduling — all impossible with CUDA Graphs or conventional kernel fusion. Evaluated across A100, H100, and B200 on five models including Qwen3-8B and Qwen3-30B-A3B, MPK delivers 1.0–1.7x lower latency over SGLang and vLLM with just a few lines of `torch.compile(backend=MPK)`. On Qwen3-8B/A100, per-token decode drops from 14.5ms to 12.5ms — approaching the 10ms hardware floor. OSDI-grade work with artifact evaluation and open source.
+MiniMax ships a blockwise sparse attention mechanism (MSA) built on top of GQA that independently selects top-k KV blocks per group via a lightweight Index Branch, then runs exact block-sparse attention over only those blocks. The numbers are hard to argue with: 28.4x attention compute reduction at 1M context, translating to 14.2x prefill and 7.6x decoding wall-clock speedups on H800 — with co-designed kernels using exp-free top-k selection and KV-outer sparse attention for better tensor-core utilization. This isn't a research prototype: it powers MiniMax-M3 (109B parameters, natively multimodal) in production, and both the inference kernel and model are open-sourced. The most deployment-ready long-context solution we've seen this cycle.
 Score: 96 (was 95)
 
-### [FOCUS: DLLMs Know How to Tame Their Compute Bound](https://arxiv.org/abs/2601.23278)
+## [Prism: Cost-Efficient Multi-LLM Serving via GPU Memory Ballooning](https://arxiv.org/abs/2505.04021)
 
-ICML 2026 paper that diagnoses why diffusion LLMs (DLLMs) hit a throughput wall at scale: block-wise parallel decoding computes the full block every step, but only ~10% of tokens actually decode. FOCUS discovers that the attention-score delta between layers 0 and 1 strongly predicts which tokens will decode, then evicts non-decodable tokens after two layers — cutting processed tokens by 65-80% with no training. Against LMDeploy on SDAR-8B and LLaDA2.0 across ShareGPT/WildChat/MATH, FOCUS achieves up to 3.52x throughput at block size 64 while preserving or improving generation quality. A key unlock for making diffusion LLM serving production-viable.
-Score: 92 (was 90)
+Prism introduces memory ballooning — borrowed from VM hypervisors — to dynamically reclaim KV cache memory across co-located LLMs on the same GPU. The key insight: production traces show "bursty-group" patterns where model sets activate together and shift over time, so neither pure space-sharing nor time-sharing works well alone. Prism's balloon driver (`kvcached`) unifies both under a single elastic memory scheme, adapting in real time. Already deployed across 10K+ GPUs in production and open-sourced. If you're running multi-model inference and fighting memory fragmentation, this is the system to study.
+Score: 94 (was 95)
 
-### [VIA-SD: Verification via Intra-Model Routing for Speculative Decoding](https://arxiv.org/abs/2606.12243)
+## [MiniPIC: Flexible Position-Independent Caching in <100LOC](https://arxiv.org/abs/2606.13126)
 
-Reformulates speculative decoding as multi-tier verification using a KL-geometry framework. Instead of binary accept/reject, VIA-SD routes "middle-zone" tokens through a slim-verifier — a dynamically routed submodel derived from the full verifier via layer skipping (DIMR). The slim-verifier shares embeddings and LM head with the full model, preserving distributional consistency at ~4% memory overhead. Across Gemma2, LLaMA2, and Qwen families on QA/reasoning/code/translation tasks, VIA-SD cuts rejection rates by 0.10–0.22 and delivers 10–20% speedup over cascade-SD baselines. Plugs directly into EAGLE-3 and PEARL without retraining.
-Score: 88 (was 92)
+A beautifully minimal approach to position-independent caching in vLLM: store unrotated K vectors, apply RoPE per-request using logical positions, and expose three user-facing primitives (block-aligned padding, span separator, prompt depend) that unlock Block-Attention, EPIC, and Prompt Cache within a single running instance. Under 100 lines of core engine changes. On 2WikiMultihopQA with interleaved scheduling: 49% prefill throughput improvement, up to 100x reduction in cached-span TTFT, and only 5.7% worst-case overhead. For RAG and agentic workloads hammering the same documents repeatedly, this is close to a free lunch.
+Score: 93 (was 92)
 
-### [Teaching Diffusion to Speculate Left-to-Right](https://arxiv.org/abs/2606.11552)
+## [Spiffy: Diffusion LLM Speculative Decoding via Calibrated Draft Graphs](https://arxiv.org/abs/2509.18085)
 
-Addresses a fundamental mismatch in diffusion-based speculative decoding: block-diffusion drafters train bidirectionally, but verifiers accept tokens left-to-right, so ~47% of correct draft tokens get discarded due to upstream rejections. Three composable training-time fixes — position-wise loss decay, first-error focal loss targeting the chain-breaking position, and a differentiable chain reward — raise accepted draft length by 21–76% across Llama-3-8B, Qwen3-4B/8B on HumanEval/AIME/GSM8K. Combined with DDTree verification, the fully stacked config hits 294.7 tok/s (132.5% over baseline). Compatible with SpecDiff-2 streak distillation, adding +74% on top.
-Score: 85 (was 92)
+As diffusion LLMs (LLaDA, Dream, SDAR) gain steam, their inference story needs work. Spiffy brings speculative decoding to dLLMs via auto-speculation — no separate draft model needed. It structures draft states as directed draft graphs calibrated offline for maximum acceptance rates, exploiting the bidirectional blockwise nature of dLLM generation. Combined with KV caching and threshold-based dynamic unmasking: up to 8.6x fewer model inferences and 6.3x token-rate speedup, all while provably preserving the output distribution. The first serious inference acceleration framework for the dLLM paradigm.
+Score: 91 (was 92)
 
-### [Beyond Per-Token Pricing: Concurrency-Aware LLM Cost Estimation](https://arxiv.org/abs/2606.11690)
+## [M*: A Modular Serving System for Multimodal Models](https://arxiv.org/abs/2606.12688)
 
-Every public LLM cost calculator assumes fixed GPU utilization — this paper measures the error. On identical H100 hardware, effective cost spans $0.21 to $15.25 per million output tokens as offered request rate varies from 1 to 200 rps, a 17.5–36.3x underutilization penalty that no calculator exposes. The Ceff(H,M,Q,λ,L) framework, validated with 42 vLLM benchmarks across Llama-8B/Qwen3-30B-A3B/Mixtral-8x7B on H100 and A100, shows FP8 benefits MoE architectures 2.2–2.4x more than dense models, and that active parameter count — not total size — drives saturation economics. The open-source `vllm-cost-meter` scrapes live Prometheus metrics and reports real $/M-tokens.
-Score: 82 (was 88)
+M* tackles the growing pain of serving composite multimodal architectures — vision encoders, language backbones, diffusion heads, audio codecs, action generators — that don't fit neatly into existing LLM serving frameworks. Models are represented as dataflow "Walk Graphs" enabling arbitrary component composition, flexible cluster placement, and model-agnostic optimizations. Results: 20% lower latency than vLLM-Omni on BAGEL text-to-image, 2.9x lower real-time factor for Qwen3-Omni TTS, and 12.5x faster robotic planning. From Stanford/UW (Leskovec, Zettlemoyer) — likely to set the direction for next-gen multimodal serving.
+Score: 90 (was 93)
 
 ---
 
 ## Surge Watch
 
-[KVarN](https://arxiv.org/abs/2606.03458) (variance-normalized KV cache quantization for reasoning tasks) exploded onto the scene — 179 to 373 GitHub stars in just 4 days (Jun 5–9) with 57 HF upvotes. The reasoning-aware quantization angle is clearly resonating with practitioners.
+[Orthrus](https://arxiv.org/abs/2605.12825) (dual-view diffusion for memory-efficient parallel token generation) quietly exploded — 13 to 412 GitHub stars in 3 weeks (May 16–Jun 8), with the initial spike hitting 260 stars in just 2 days. The dLLM inference space is now producing repos with real practitioner traction.
 
-[Domino](https://arxiv.org/abs/2605.29707) (decoupling causal modeling from autoregressive drafting in speculative decoding) went from 2 to 140 HF upvotes in 5 days (Jun 2–7). One of the sharpest community receptions we've tracked for a spec-decode paper.
+[Mamba-3](https://arxiv.org/abs/2603.15569) is building sustained academic gravity — citations more than doubled from 21 to 49 (May 14–Jun 12) with 5 influential. The hybrid Mamba-Transformer design pattern is becoming a validated research direction, not just a curiosity.
 
-[OSCAR](https://arxiv.org/abs/2605.17757) (spectral covariance-aware rotation for 2-bit KV quantization) rocketed from 12 to 295 GitHub stars and 5 to 63 HF upvotes in 10 days (May 22–Jun 2). The extreme KV compression space is getting crowded but this one broke through decisively.
+[OScaR](https://arxiv.org/abs/2605.19660) (Occam's Razor for extreme KV cache quantization — distinct from the spectral-rotation OSCAR we covered before) went from 23 to 119 GitHub stars in 11 days (May 22–Jun 2). Two separate papers with near-identical names both breaking through in extreme KV quantization tells you everything about how crowded this niche has become.
 
-[Attention Sink in Transformers](https://arxiv.org/abs/2604.10098) (survey on utilization, interpretation, and mitigation) saw renewed practitioner attention — GitHub stars jumped from 83 to 127 in 6 days (Jun 5–11) after being flat for a month. Surveys don't usually get this kind of delayed traction.
-
-[DFlash](https://arxiv.org/abs/2602.06036) continues building academic credibility — influential citations doubled from 8 to 13 in 10 days (May 31–Jun 11), with total citations hitting 29. Block diffusion speculative decoding is becoming a validated research direction.
+Previously surging papers from last report — KVarN, Domino, OSCAR (2605.17757), Attention Sink survey — have all leveled off with no meaningful new signal changes in the last few days.
