@@ -1,7 +1,7 @@
-[Orthrus](https://arxiv.org/abs/2605.12825) (dual-view diffusion for memory-efficient parallel token generation) quietly exploded — 13 to 412 GitHub stars in 3 weeks (May 16–Jun 8), with the initial spike hitting 260 stars in just 2 days. The dLLM inference space is now producing repos with real practitioner traction.
+[DFlash](https://arxiv.org/abs/2602.06036) (block diffusion speculative decoding) is building serious academic weight — citations climbed from 21 to 31 with influential citations nearly doubling from 8 to 14 (May 31–Jun 12), while GitHub stars pushed past 4,900. The block diffusion × speculative decoding intersection is attracting deep research engagement, not just stargazers.
 
-[Mamba-3](https://arxiv.org/abs/2603.15569) is building sustained academic gravity — citations more than doubled from 21 to 49 (May 14–Jun 12) with 5 influential. The hybrid Mamba-Transformer design pattern is becoming a validated research direction, not just a curiosity.
+[FlashMemory-DeepSeek-V4](https://arxiv.org/abs/2606.09079) (lookahead sparse attention for ultra-long context on DeepSeek-V4) debuted with 58 HF upvotes and 61 GitHub stars overnight on Jun 13 — a hot entrance signaling immediate practitioner interest in DeepSeek-V4 inference optimization.
 
-[OScaR](https://arxiv.org/abs/2605.19660) (Occam's Razor for extreme KV cache quantization — distinct from the spectral-rotation OSCAR we covered before) went from 23 to 119 GitHub stars in 11 days (May 22–Jun 2). Two separate papers with near-identical names both breaking through in extreme KV quantization tells you everything about how crowded this niche has become.
+Correction from last report: the [Attention Sink survey](https://arxiv.org/abs/2604.10098) did **not** level off. GitHub stars surged from 83 to 128 (Jun 5–Jun 13), a 54% jump after sitting flat at ~77–83 for the prior month. Late-breaking discovery by a new audience.
 
-Previously surging papers from last report — KVarN, Domino, OSCAR (2605.17757), Attention Sink survey — have all leveled off with no meaningful new signal changes in the last few days.
+Previously surging papers — Orthrus, OScaR (2605.17757), Domino, KVarN — show no meaningful new signal movement in the current window.
