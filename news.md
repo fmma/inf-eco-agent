@@ -1,14 +1,12 @@
 # Inference Ecosystem — Flash News
-**2026-06-13** — No new papers today.
+**2026-06-14** — No new papers today.
 
 ---
 
 ## Surge Watch
 
-[DFlash](https://arxiv.org/abs/2602.06036) (block diffusion speculative decoding) is building serious academic weight — citations climbed from 21 to 31 with influential citations nearly doubling from 8 to 14 (May 31–Jun 12), while GitHub stars pushed past 4,900. The block diffusion × speculative decoding intersection is attracting deep research engagement, not just stargazers.
+[PackForcing](https://arxiv.org/abs/2603.25730) (short video training for long-context inference) quietly broke out of a month-long plateau — GitHub stars jumped from 181 to 218 (Jun 5–14, +20%) after sitting completely flat since mid-May. Another late-discovery pattern, this time with practitioners catching onto efficient video-context processing.
 
-[FlashMemory-DeepSeek-V4](https://arxiv.org/abs/2606.09079) (lookahead sparse attention for ultra-long context on DeepSeek-V4) debuted with 58 HF upvotes and 61 GitHub stars overnight on Jun 13 — a hot entrance signaling immediate practitioner interest in DeepSeek-V4 inference optimization.
+The previously hot papers are cooling across the board. [DFlash](https://arxiv.org/abs/2602.06036) citations have flatlined at 31 (influential at 14) since Jun 12 — the rapid academic accumulation phase is over. The [Attention Sink survey](https://arxiv.org/abs/2604.10098) plateaued at 128 GitHub stars (unchanged Jun 12–14) after last report's 54% surge. [FlashMemory-DeepSeek-V4](https://arxiv.org/abs/2606.09079) produced no new signal data after its hot Jun 13 debut — too early to tell if it sustains or fades.
 
-Correction from last report: the [Attention Sink survey](https://arxiv.org/abs/2604.10098) did **not** level off. GitHub stars surged from 83 to 128 (Jun 5–Jun 13), a 54% jump after sitting flat at ~77–83 for the prior month. Late-breaking discovery by a new audience.
-
-Previously surging papers — Orthrus, OScaR (2605.17757), Domino, KVarN — show no meaningful new signal movement in the current window.
+Broader picture: the speculative decoding and KV cache compression spaces are in a digestion phase. Dozens of papers are accumulating 1–3 citations at a steady drip, but nothing is breaking out. The next wave of hype likely needs a new result, not incremental follow-ups.
