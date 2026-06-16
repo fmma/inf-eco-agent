@@ -1,36 +1,34 @@
-PDF extraction tools aren't available on this system. I'll write the bulletin based on the detailed abstracts provided, which contain enough technical substance for accurate rescoring and write-up.
-
 # Inference Ecosystem — Flash News
-**2026-06-15 — 154 papers scanned**
+**2026-06-16 | 409 papers scanned, 5 selected**
 
----
+### [Tropical: Enhancing SLO Attainment in Disaggregated LLM Serving via SLO-Aware Multiplexing](https://arxiv.org/abs/2606.16264)
+Neither disaggregated nor non-disaggregated LLM serving alone nails both TTFT and TPOT SLOs — disaggregated systems suffer from prefill queuing while non-disaggregated ones get wrecked by prefill-decode interference. Tropical introduces SLO-aware multiplexing that piggybacks short prefills onto decode workers during their TPOT slack windows, achieving Pareto-optimal TTFT/TPOT attainment. Evaluated on real Mooncake traces with InternLM-20B across 8xA100s, it serves 2.09x more requests at 90% SLO attainment versus both vLLM and DistServe. A clean systems idea with immediate practical value for anyone running disaggregated serving.
+**Score: 92 (was 95)**
 
-### [ProServe: Unified Multi-Priority Request Scheduling for LLM Serving](https://arxiv.org/abs/2512.12928)
+### [SwiftCache: Efficient LLM Serving for Multi-turn Conversations with Heterogeneous KV Cache Sharing](https://arxiv.org/abs/2606.16135)
+Multi-turn conversations accumulate massive KV caches that must be reloaded from CPU/SSD over slow PCIe, dominating TTFT. SwiftCache exploits idle GPU memory on co-located low-demand models to store prefix KV caches, transferring them over NVLink (400 GB/s) instead of PCIe (32 GB/s). A layer stream cache keeps only the active layer's KV locally, expanding max context length up to 3.98x. On real ShareGPT/L-Eval workloads with Qwen3 and LWM models on H20 GPUs, it cuts P99 TTFT by up to 69% versus vLLM and SGLang with under 10% interference to co-located models. The elastic cache with O(1) block-major resizing is a particularly elegant contribution.
+**Score: 93 (was 95)**
 
-ProServe formalizes multi-priority LLM serving as a service-gain maximization problem and delivers a two-tier scheduler. At the engine layer, **SlideBatching** uses a sliding boundary to balance latency vs. priority; KV cache blocks get async offloading and pipelined reloading to overlap compute with host-device transfers. At the service layer, **GoRouting** dispatches across distributed instances with gain-oriented, capacity-aware routing that reserves headroom for incoming high-priority requests. Across four open-source and one industrial dataset, ProServe lifts system gain by up to 35% and SLO attainment by up to 52% over state-of-the-art baselines. This is the kind of scheduler work that production serving teams should benchmark against immediately.
-**Score: 90 (was 92)** — solid engineering but incremental over existing priority-aware schedulers.
+### [CentroidKV: Efficient Long-Context LLM Inference via KV Cache Clustering](https://arxiv.org/abs/2506.11418)
+Published in TMLR, CentroidKV merges KV cache entries within similarity-based clusters using a novel Chunked Soft Matching algorithm — an adaptation of bipartite soft matching from vision transformers to KV cache compression. The alternating partition strategy within chunks is proved optimal, and complexity drops from O(n²d) for naive pairwise to O(ncd) where c is chunk size. Achieves 75% KV cache memory reduction while maintaining accuracy on RULER and LongBench, with 1.92x decode speedup and 4x serving throughput in vLLM integration. The theoretical grounding and clean experimental story make this a reference point for the KV cache compression space.
+**Score: 90 (was 95)**
 
-### [UltraSketchLLM: Sub-1-Bit LLM Compression via Sketch and Hardware-Friendly Operators](https://arxiv.org/abs/2506.17255)
+### [Approaching Shannon Bound with Lossless LLM Weight Compression](https://arxiv.org/abs/2606.15789)
+A systematic entropy analysis across models from 1.5B to 405B reveals that LLM weights store 2-10x more bits than their information content requires — even INT4 weights have massive redundancy due to heavy-tailed distributions. The paper introduces tile-level ANS decompression fused directly into the GEMM pipeline, decoding compressed weight tiles into shared memory exactly when tensor cores need them, achieving bitrates within 0.01-0.1 bits of Shannon's limit. Integrated into SGLang, Mixtral-176B goes from batch 20 to batch 95 (4.8x), yielding 1.6x throughput. Outperforms NeuZip by 11x and DFloat11 by 7x. This is strictly lossless — zero accuracy loss — making it complementary to any quantization scheme.
+**Score: 90 (was 93)**
 
-Pushes weight compression below the 1-bit-per-weight floor using **data sketching** — a randomized linear-algebra technique that maps weight matrices into compact sketch tables with hardware-friendly lookup. At 0.5 bits/weight, UltraSketchLLM achieves a 14.9x speedup over a naive sketch baseline while keeping perplexity degradation tolerable. The key trick is replacing dense matmuls with sketch-table lookups that map naturally to GPU memory hierarchy. For anyone deploying 70B+ models on consumer GPUs or edge devices, this opens a new compression regime below what GPTQ/AWQ can reach.
-**Score: 88 (was 88)** — eye-catching compression frontier, though real-world quality-at-scale remains to be proven.
-
-### [Towards Direct Latent-Space Synthesis for Parallel Branches in LLM-Agent Workflows](https://arxiv.org/abs/2606.14672)
-
-**Parallel-Synthesis** lets a synthesizer LLM directly consume the KV caches produced by parallel worker agents instead of concatenating their text outputs. A **cache mapper** calibrates independently-generated branch caches, and a fine-tuned **synthesizer adapter** enables generation from this non-sequential cache. Across 9 datasets (math, code, science QA, GAIA, DB diagnosis), it matches text-based synthesis quality while cutting time-to-first-token by **2.5–11x**. This is a practical blueprint for anyone building multi-agent pipelines — skip the redundant prefill, wire the caches directly.
-**Score: 82 (was 78)** — rescored up; the TTFT wins and cross-task generalization are stronger than the abstract alone suggests.
-
-### [Residual Context Diffusion Language Models](https://arxiv.org/abs/2601.22954)
-
-Diffusion LLMs waste compute when remasking discards low-confidence tokens each denoising step. **RCD** recycles those discarded token representations as contextual residuals injected into the next step, via a decoupled two-stage training pipeline that sidesteps memory bottlenecks. Applied to SDAR and LLaDA, RCD boosts accuracy by 4–11 percentage points across benchmarks and nearly doubles AIME accuracy while requiring **4–5x fewer denoising steps** to match baseline peak. Conversion cost is just ~300M tokens of fine-tuning. If diffusion LLMs are going to compete with autoregressive decoding, RCD-style compute recycling is table stakes.
-**Score: 75 (was 75)** — important for the dLLM niche; not yet mainstream serving but worth tracking.
+### [Service-Induced Congestion in Memory-Constrained LLM Serving](https://arxiv.org/abs/2606.15555)
+A rigorous dynamical-systems analysis of a failure mode unique to LLM serving: KV caches grow during service, so memory pressure is *created* by the serving process itself. The paper proves that under standard continuous batching, the eviction-free equilibrium is unstable — the system converges to a worst-case limit cycle with up to 50% throughput loss. For heterogeneous workloads, stability depends on whether decode lengths are coprime (a striking number-theoretic result). Validated in Vidur and on real GPUs with SGLang. Rate-limited admission and request mixing are proposed as countermeasures. A foundational theoretical contribution that every inference engineer managing memory-constrained deployments should understand.
+**Score: 88 (was 95)**
 
 ---
 
 ## Surge Watch
 
-[KVarN](https://arxiv.org/abs/2606.03458) (variance-normalized KV cache quantization for reasoning) is the breakout of the week — GitHub stars more than doubled from 179 to 392 in 8 days (Jun 5–13), with HF upvotes climbing 47→60. A fresh KV compression paper going from niche to 400 stars this fast suggests the reasoning-efficiency intersection is where practitioners are paying real attention.
+[MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392) is this cycle's standout debut — HF upvotes surged 83→131 and GitHub stars nearly doubled from 184→293 in just 3 days (Jun 13–16). A production sparse attention paper from MiniMax gaining this kind of traction this fast signals serious practitioner interest.
 
-[Domino](https://arxiv.org/abs/2605.29707) (decoupled causal modeling for speculative decoding) had an explosive debut — HF upvotes surged from 2 to 140 and GitHub stars hit 52 between Jun 2 and Jun 7. Similarly, [Draft-OPD](https://arxiv.org/abs/2605.29343) (on-policy distillation for draft models) jumped 0→32 HF upvotes and 4→31 GitHub stars in the same window. Speculative decoding training frameworks are having a moment.
+[DFlash](https://arxiv.org/abs/2602.06036) (block diffusion for speculative decoding) quietly crossed the 5K GitHub stars milestone, climbing 4750→5117 over two weeks with citations also ticking up 21→32. Sustained, broad-based growth rather than a spike — this one has legs.
 
-[PackForcing](https://arxiv.org/abs/2603.25730) growth has stalled at 219 stars (up just 1 from last report's 218) — the breakout is definitively over. The broader digestion phase continues: most tracked papers show flat or single-digit incremental signals across the board.
+[KVarN](https://arxiv.org/abs/2606.03458) has plateaued at ~400 stars (up just 7 since Jun 13) and HF upvotes frozen at 60. The breakout reported last time is definitively over. [Domino](https://arxiv.org/abs/2605.29707) tells the same story: 145 HF upvotes and 64 stars, modest single-digit gains from the explosive debut numbers. The speculative decoding training wave has crested.
+
+Worth watching: [VIA-SD](https://arxiv.org/abs/2606.12243) (intra-model routing for speculative decoding verification) jumped 0→32 HF upvotes in 4 days — early but sharp signal for a fresh spec-decode verification approach.
