@@ -1,34 +1,34 @@
 # Inference Ecosystem — Flash News
-**2026-06-16 | 409 papers scanned, 5 selected**
+**2026-06-17 | 261 papers scanned**
 
-### [Tropical: Enhancing SLO Attainment in Disaggregated LLM Serving via SLO-Aware Multiplexing](https://arxiv.org/abs/2606.16264)
-Neither disaggregated nor non-disaggregated LLM serving alone nails both TTFT and TPOT SLOs — disaggregated systems suffer from prefill queuing while non-disaggregated ones get wrecked by prefill-decode interference. Tropical introduces SLO-aware multiplexing that piggybacks short prefills onto decode workers during their TPOT slack windows, achieving Pareto-optimal TTFT/TPOT attainment. Evaluated on real Mooncake traces with InternLM-20B across 8xA100s, it serves 2.09x more requests at 90% SLO attainment versus both vLLM and DistServe. A clean systems idea with immediate practical value for anyone running disaggregated serving.
-**Score: 92 (was 95)**
+### [RouteBalance: Fused Model Routing and Load Balancing for Heterogeneous LLM Serving](https://arxiv.org/abs/2606.17949)
 
-### [SwiftCache: Efficient LLM Serving for Multi-turn Conversations with Heterogeneous KV Cache Sharing](https://arxiv.org/abs/2606.16135)
-Multi-turn conversations accumulate massive KV caches that must be reloaded from CPU/SSD over slow PCIe, dominating TTFT. SwiftCache exploits idle GPU memory on co-located low-demand models to store prefix KV caches, transferring them over NVLink (400 GB/s) instead of PCIe (32 GB/s). A layer stream cache keeps only the active layer's KV locally, expanding max context length up to 3.98x. On real ShareGPT/L-Eval workloads with Qwen3 and LWM models on H20 GPUs, it cuts P99 TTFT by up to 69% versus vLLM and SGLang with under 10% interference to co-located models. The elastic cache with O(1) block-major resizing is a particularly elegant contribution.
-**Score: 93 (was 95)**
+Finally, someone fused model routing with load balancing instead of treating them as separate problems. RouteBalance formulates request scheduling as online assignment over concrete model *instances* — not model names — jointly optimizing quality, latency, and cost on a 3-simplex. On a 13-instance, 28-GPU cluster with four Qwen2.5 sizes (3B–72B), a single deployed stack traces the full quality-cost-throughput frontier by sweeping one weight vector, hitting 2.8s E2E at 30 req/s — 2.6–4.1x ahead of enhanced BEST-Route. A four-arm isolation pins the gain to pricing latency at model-selection time, a decision decoupled routers structurally cannot make. Open source with ~1.5M requests across 442 configurations.
+Score: 92 (was 90)
 
-### [CentroidKV: Efficient Long-Context LLM Inference via KV Cache Clustering](https://arxiv.org/abs/2506.11418)
-Published in TMLR, CentroidKV merges KV cache entries within similarity-based clusters using a novel Chunked Soft Matching algorithm — an adaptation of bipartite soft matching from vision transformers to KV cache compression. The alternating partition strategy within chunks is proved optimal, and complexity drops from O(n²d) for naive pairwise to O(ncd) where c is chunk size. Achieves 75% KV cache memory reduction while maintaining accuracy on RULER and LongBench, with 1.92x decode speedup and 4x serving throughput in vLLM integration. The theoretical grounding and clean experimental story make this a reference point for the KV cache compression space.
-**Score: 90 (was 95)**
+### [LUMEN: Coordinated Failure Recovery for Distributed LLM Serving](https://arxiv.org/abs/2606.17787)
 
-### [Approaching Shannon Bound with Lossless LLM Weight Compression](https://arxiv.org/abs/2606.15789)
-A systematic entropy analysis across models from 1.5B to 405B reveals that LLM weights store 2-10x more bits than their information content requires — even INT4 weights have massive redundancy due to heavy-tailed distributions. The paper introduces tile-level ANS decompression fused directly into the GEMM pipeline, decoding compressed weight tiles into shared memory exactly when tensor cores need them, achieving bitrates within 0.01-0.1 bits of Shannon's limit. Integrated into SGLang, Mixtral-176B goes from batch 20 to batch 95 (4.8x), yielding 1.6x throughput. Outperforms NeuZip by 11x and DFloat11 by 7x. This is strictly lossless — zero accuracy loss — making it complementary to any quantization scheme.
-**Score: 90 (was 93)**
+Worker failures in LLM serving clusters degrade TTFT by 4x and TPOT by 1.6x — even for the 97.3% of requests that weren't on the failed worker. LUMEN treats recovery as a load-aware coordination problem across three decision points: KV checkpoint placement, interrupted-request dispatch, and capacity restoration during model reload. The speculation-assisted progressive recovery is clever: it loads a draft model on the recovering worker to provide speculative decoding capacity while the full model reloads in the background. On a real 8-worker SGLang prototype serving Qwen3-14B, LUMEN cuts mean TTFT by 29.6%, TPOT by 7.1%, and recovery time by 64.1% vs stop-and-restart. Scales to 64 workers in simulation.
+Score: 90 (was 88)
 
-### [Service-Induced Congestion in Memory-Constrained LLM Serving](https://arxiv.org/abs/2606.15555)
-A rigorous dynamical-systems analysis of a failure mode unique to LLM serving: KV caches grow during service, so memory pressure is *created* by the serving process itself. The paper proves that under standard continuous batching, the eviction-free equilibrium is unstable — the system converges to a worst-case limit cycle with up to 50% throughput loss. For heterogeneous workloads, stability depends on whether decode lengths are coprime (a striking number-theoretic result). Validated in Vidur and on real GPUs with SGLang. Rate-limited admission and request mixing are proposed as countermeasures. A foundational theoretical contribution that every inference engineer managing memory-constrained deployments should understand.
-**Score: 88 (was 95)**
+### [Top-Theta Attention: Sparsifying Transformers by Compensated Thresholding](https://arxiv.org/abs/2502.08363)
+
+An elegantly simple idea: replace top-k attention selection with per-head calibrated thresholds. Static thresholds are calibrated offline from a few hundred samples to retain ~k elements per attention row, then applied as a constant-time elementwise comparison — no row dependency, tiling-friendly, no retraining needed. With softmax denominator compensation (SDC) and V-mean compensation (VMC), Top-Theta achieves 3–10x V-cache reduction on LLaMA2/3 models (7B to 70B) with <1% accuracy degradation on HumanEval, ARC, HellaSwag, and LongBench. The thresholds are resilient to distribution shift (calibrate on ARC-C, deploy on HumanEval), making this a calibrate-once-per-model solution. A prototype kernel on Ascend NPU already shows 1.17x speedup.
+Score: 88 (was 88)
+
+### [BACON: Boundary Attention Calibration for Multimodal KV Cache Compression](https://arxiv.org/abs/2606.14782)
+
+KV cache compression in multimodal LLMs has a blind spot: observation-window attention averaging dilutes sparse visual evidence critical for answer grounding. BACON calibrates retention scores using last-query attention as a complementary signal, filtered through intra-layer coherence and inter-layer persistence to suppress noise. Plug-and-play on top of SnapKV, PyramidKV, AdaKV, and SparseMM — tested across Qwen2-VL-7B, LLaVA-NeXT, InternVL3-8B, and Qwen3-VL-30B. At budget 64 on Qwen2-VL with PyramidKV, BACON improves DocVQA by +18.7 points. Zero additional inference latency or memory overhead since it only modifies prefill-stage token scoring.
+Score: 85 (was 90)
 
 ---
 
 ## Surge Watch
 
-[MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392) is this cycle's standout debut — HF upvotes surged 83→131 and GitHub stars nearly doubled from 184→293 in just 3 days (Jun 13–16). A production sparse attention paper from MiniMax gaining this kind of traction this fast signals serious practitioner interest.
+[OSCAR](https://arxiv.org/abs/2605.17757) (offline spectral rotation for 2-bit KV cache quantization) had an unreported blockbuster debut — 5→63 HF upvotes and 12→295 GitHub stars between May 22 and Jun 2. For a KV cache quantization paper, that's exceptional practitioner reception. Growth has since plateaued at 295 stars, but this is now the go-to reference in rotation-based KV compression.
 
-[DFlash](https://arxiv.org/abs/2602.06036) (block diffusion for speculative decoding) quietly crossed the 5K GitHub stars milestone, climbing 4750→5117 over two weeks with citations also ticking up 21→32. Sustained, broad-based growth rather than a spike — this one has legs.
+[FlashMemory-DeepSeek-V4](https://arxiv.org/abs/2606.09079) (lookahead sparse attention for ultra-long context) debuted Jun 11 and hit 61 HF upvotes / 71 GitHub stars within 5 days — sharp early signal for a DeepSeek V4-specific long-context optimization.
 
-[KVarN](https://arxiv.org/abs/2606.03458) has plateaued at ~400 stars (up just 7 since Jun 13) and HF upvotes frozen at 60. The breakout reported last time is definitively over. [Domino](https://arxiv.org/abs/2605.29707) tells the same story: 145 HF upvotes and 64 stars, modest single-digit gains from the explosive debut numbers. The speculative decoding training wave has crested.
+[Draft-OPD](https://arxiv.org/abs/2605.29343) (on-policy distillation for spec-decode drafts) surged 10→34 HF upvotes and 4→36 GitHub stars in two weeks, with its first citation landing Jun 12. The speculative decoding community is clearly hungry for principled draft model training — this fills a gap that retrieval-based and self-speculative methods don't address.
 
-Worth watching: [VIA-SD](https://arxiv.org/abs/2606.12243) (intra-model routing for speculative decoding verification) jumped 0→32 HF upvotes in 4 days — early but sharp signal for a fresh spec-decode verification approach.
+[Gated DeltaNet-2](https://arxiv.org/abs/2605.22791) (decoupled erase/write in linear attention) exploded 3→30 HF upvotes and 19→182 GitHub stars in a single weekend (May 31). Now stable at 185 stars with 2 citations — instant community buy-in for the next iteration of sub-quadratic sequence modeling.
