@@ -1,34 +1,43 @@
+I'll proceed with the detailed abstracts to write the bulletin. The abstracts contain specific methods, speedups, and benchmarks sufficient for rescoring and news generation.
+
 # Inference Ecosystem — Flash News
-**2026-06-17 | 261 papers scanned**
+**2026-06-18 | 223 papers scanned**
 
-### [RouteBalance: Fused Model Routing and Load Balancing for Heterogeneous LLM Serving](https://arxiv.org/abs/2606.17949)
+---
 
-Finally, someone fused model routing with load balancing instead of treating them as separate problems. RouteBalance formulates request scheduling as online assignment over concrete model *instances* — not model names — jointly optimizing quality, latency, and cost on a 3-simplex. On a 13-instance, 28-GPU cluster with four Qwen2.5 sizes (3B–72B), a single deployed stack traces the full quality-cost-throughput frontier by sweeping one weight vector, hitting 2.8s E2E at 30 req/s — 2.6–4.1x ahead of enhanced BEST-Route. A four-arm isolation pins the gain to pricing latency at model-selection time, a decision decoupled routers structurally cannot make. Open source with ~1.5M requests across 442 configurations.
-Score: 92 (was 90)
+### [JetFlow: Breaking the Scaling Ceiling of Speculative Decoding with Parallel Tree Drafting](https://arxiv.org/abs/2606.18394)
 
-### [LUMEN: Coordinated Failure Recovery for Distributed LLM Serving](https://arxiv.org/abs/2606.17787)
+JetFlow solves the causality-efficiency dilemma in speculative decoding by training a causal parallel draft head over fused hidden states from the frozen target model — giving you one-forward drafting efficiency with branch-wise causal conditioning. On H100 GPUs with Qwen3 models, it hits **9.64x speedup on MATH-500** and **4.58x on conversational workloads**, consistently beating both bidirectional-head and tree-based SD baselines. Ships with vLLM integration for realistic serving loads, code and models open. This is the new bar for speculative decoding.
+**Score: 94 (was 95)**
 
-Worker failures in LLM serving clusters degrade TTFT by 4x and TPOT by 1.6x — even for the 97.3% of requests that weren't on the failed worker. LUMEN treats recovery as a load-aware coordination problem across three decision points: KV checkpoint placement, interrupted-request dispatch, and capacity restoration during model reload. The speculation-assisted progressive recovery is clever: it loads a draft model on the recovering worker to provide speculative decoding capacity while the full model reloads in the background. On a real 8-worker SGLang prototype serving Qwen3-14B, LUMEN cuts mean TTFT by 29.6%, TPOT by 7.1%, and recovery time by 64.1% vs stop-and-restart. Scales to 64 workers in simulation.
-Score: 90 (was 88)
+### [Beyond Prediction: Tail-Aware Scheduling for LLM Inference](https://arxiv.org/abs/2606.18431)
 
-### [Top-Theta Attention: Sparsifying Transformers by Compensated Thresholding](https://arxiv.org/abs/2502.08363)
+Throws out decode-length prediction entirely and replaces it with distribution-aware priority boosting driven by lightweight statistical signals. The result: **P99 TTLT drops 35–50%** versus SRPT *even with perfect length knowledge*, and TTFT improves 34–47% across reasoning-heavy and chat workloads. The co-optimized cache-aware preemption handles memory-coupled decode dynamics that prediction-based schedulers ignore. If you're chasing tail latency in production, this paper just made predict-then-schedule look obsolete.
+**Score: 95 (was 95)**
 
-An elegantly simple idea: replace top-k attention selection with per-head calibrated thresholds. Static thresholds are calibrated offline from a few hundred samples to retain ~k elements per attention row, then applied as a constant-time elementwise comparison — no row dependency, tiling-friendly, no retraining needed. With softmax denominator compensation (SDC) and V-mean compensation (VMC), Top-Theta achieves 3–10x V-cache reduction on LLaMA2/3 models (7B to 70B) with <1% accuracy degradation on HumanEval, ARC, HellaSwag, and LongBench. The thresholds are resilient to distribution shift (calibrate on ARC-C, deploy on HumanEval), making this a calibrate-once-per-model solution. A prototype kernel on Ascend NPU already shows 1.17x speedup.
-Score: 88 (was 88)
+### [ReMP: Low-Downtime Runtime Model-Parallelism Reconfiguration for LLM Serving](https://arxiv.org/abs/2606.18741)
 
-### [BACON: Boundary Attention Calibration for Multimodal KV Cache Compression](https://arxiv.org/abs/2606.14782)
+Currently, changing TP/PP topology means restarting the service — minutes of downtime, KV cache lost, recomputation overhead. ReMP decouples parallelism topology from runtime state and migrates KV cache across both TP and PP dimensions. Topology switches complete in **1–7 seconds on 7B–70B models** (up to 100x faster than restart). Under dynamic workloads it significantly beats fixed-configuration baselines on TTFT, TPOT, and throughput. Essential for anyone operating multi-tenant GPU clusters with shifting traffic patterns.
+**Score: 91 (was 93)**
 
-KV cache compression in multimodal LLMs has a blind spot: observation-window attention averaging dilutes sparse visual evidence critical for answer grounding. BACON calibrates retention scores using last-query attention as a complementary signal, filtered through intra-layer coherence and inter-layer persistence to suppress noise. Plug-and-play on top of SnapKV, PyramidKV, AdaKV, and SparseMM — tested across Qwen2-VL-7B, LLaVA-NeXT, InternVL3-8B, and Qwen3-VL-30B. At budget 64 on Qwen2-VL with PyramidKV, BACON improves DocVQA by +18.7 points. Zero additional inference latency or memory overhead since it only modifies prefill-stage token scoring.
-Score: 85 (was 90)
+### [ShuntServe: Cost-Efficient LLM Serving on Heterogeneous Spot GPU Clusters](https://arxiv.org/abs/2606.18600)
+
+Makes heterogeneous spot GPU clusters viable for LLM serving by combining a roofline-model performance estimator with DP-based placement optimization across mixed GPU types. Fault tolerance via output-preserving request migration with concurrent initialization through a shared tensor store. On AWS with L4/A10G/L40S serving Llama-3.1-70B and Qwen3-32B: **1.42x throughput over baselines** and **~31% cost savings** versus on-demand. If you're spending real money on GPU inference, this is the heterogeneous spot playbook.
+**Score: 88 (was 92)**
+
+### [EfficientRollout: System-Aware Self-Speculative Decoding for RL Rollouts](https://arxiv.org/abs/2606.18967)
+
+Applies self-speculative decoding to RL rollout generation — the latency bottleneck in RLHF-style post-training. Uses a quantized drafter induced from the target model (no separate pretraining), plus a system-aware toggle that activates speculation only in memory-bound regimes where it actually helps. Cuts **rollout latency by 19.6%** and **end-to-end training latency by 12.7%** while preserving final model quality. Niche but timely as RL post-training scales up.
+**Score: 80 (was 85)**
 
 ---
 
 ## Surge Watch
 
-[OSCAR](https://arxiv.org/abs/2605.17757) (offline spectral rotation for 2-bit KV cache quantization) had an unreported blockbuster debut — 5→63 HF upvotes and 12→295 GitHub stars between May 22 and Jun 2. For a KV cache quantization paper, that's exceptional practitioner reception. Growth has since plateaued at 295 stars, but this is now the go-to reference in rotation-based KV compression.
+[MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392) had the hottest debut this cycle — 83→131 HF upvotes and 184→293 GitHub stars in just 3 days (Jun 13–16). Production-ready sparse attention from a major lab is clearly in demand.
 
-[FlashMemory-DeepSeek-V4](https://arxiv.org/abs/2606.09079) (lookahead sparse attention for ultra-long context) debuted Jun 11 and hit 61 HF upvotes / 71 GitHub stars within 5 days — sharp early signal for a DeepSeek V4-specific long-context optimization.
+[KVarN](https://arxiv.org/abs/2606.03458) (variance-normalized KV cache quantization) surged from 179→399 GitHub stars in 11 days (Jun 5–16). The "mitigates error accumulation in reasoning tasks" angle is resonating — practitioners want KV quantization that doesn't break chain-of-thought.
 
-[Draft-OPD](https://arxiv.org/abs/2605.29343) (on-policy distillation for spec-decode drafts) surged 10→34 HF upvotes and 4→36 GitHub stars in two weeks, with its first citation landing Jun 12. The speculative decoding community is clearly hungry for principled draft model training — this fills a gap that retrieval-based and self-speculative methods don't address.
+[Domino](https://arxiv.org/abs/2605.29707) (decoupling causal modeling from autoregressive drafting) went viral: 2→145 HF upvotes between Jun 2 and Jun 7, now at 145 upvotes / 64 GitHub stars. A clean architectural insight for speculative decoding that clearly struck a nerve.
 
-[Gated DeltaNet-2](https://arxiv.org/abs/2605.22791) (decoupled erase/write in linear attention) exploded 3→30 HF upvotes and 19→182 GitHub stars in a single weekend (May 31). Now stable at 185 stars with 2 citations — instant community buy-in for the next iteration of sub-quadratic sequence modeling.
+[DFlash](https://arxiv.org/abs/2602.06036) (block diffusion flash speculative decoding) crossed 5K GitHub stars — up from 4,750 on May 31 to 5,117 by Jun 16, with citations climbing 21→32 (14 influential). This is becoming the de facto infrastructure layer for diffusion LLM acceleration.
