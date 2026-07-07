@@ -106,7 +106,7 @@ if [ "$num_batches" -gt 0 ]; then
       echo '```json'
       cat "$batch"
       echo '```'
-    } | claude --print --effort high > "$out" || true
+    } | claude --print --model claude-opus-4-8 --effort high > "$out" || true
 
     if python -c "
 import sys
@@ -158,7 +158,7 @@ python src/rescore_hype.py
 HAS_HYPE=0
 if python src/build_hype_prompt.py > /tmp/inf-eco-hype-prompt.md 2> /dev/null; then
   echo "Generating hype watch..."
-  claude --print --effort max < /tmp/inf-eco-hype-prompt.md > /tmp/inf-eco-hype-watch.md
+  claude --print --model claude-opus-4-8 --effort max < /tmp/inf-eco-hype-prompt.md > /tmp/inf-eco-hype-watch.md
   # Persist for next run's prompt context
   cp /tmp/inf-eco-hype-watch.md data/last-hype-watch.md
   if ! grep -q "NO_HYPE" /tmp/inf-eco-hype-watch.md; then

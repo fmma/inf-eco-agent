@@ -175,7 +175,7 @@ def main():
     print(f"Invoking Claude ({len(pdf_paths)} PDFs referenced in prompt)...")
 
     result = subprocess.run(
-        ["claude", "--print", "--effort", "max", "--allowedTools", "Read",
+        ["claude", "--print", "--model", "claude-opus-4-8", "--effort", "max", "--allowedTools", "Read",
          "--append-system-prompt",
          "You have the Read tool available. Use it to read PDF files when asked. "
          "Do not claim that tools are unavailable or that you cannot read PDFs."],
