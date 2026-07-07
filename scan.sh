@@ -106,7 +106,7 @@ if [ "$num_batches" -gt 0 ]; then
       echo '```json'
       cat "$batch"
       echo '```'
-    } | claude --print --effort max > "$out" || true
+    } | claude --print --effort high > "$out" || true
 
     if python -c "
 import sys
