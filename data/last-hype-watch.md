@@ -1,9 +1,5 @@
-[TokenPilot](https://arxiv.org/abs/2606.17016) is this cycle's breakout: 4 → 16 HF upvotes and 0 → 36 GitHub stars in three weeks, starting from nothing. Cache-efficient context management for agents is exactly the pain point everyone shipping long-horizon agent loops is hitting right now.
+[DFlash](https://arxiv.org/abs/2602.06036) is the quiet compounding story this cycle: citations 32 → 43 and influential citations 14 → 18 over three weeks, and still ticking up day-to-day. Block-diffusion speculative decoding is graduating from novelty to a cited baseline — the healthiest kind of adoption, with almost no social noise driving it.
 
-[Domino](https://arxiv.org/abs/2605.29707) has flipped modes. HF upvotes plateaued (145 → 152), but GitHub stars nearly doubled — 64 → 114. The hype phase is over and the "people are actually integrating it" phase has begun. That's the healthier signal.
+[Gated DeltaNet-2](https://arxiv.org/abs/2605.22791) (NVIDIA) just found academic footing after weeks of flatline: 2 → 6 citations with its first 2 influential ones, and GitHub stars 185 → 233. The erase/write decoupling in linear attention is starting to get picked up rather than just admired.
 
-[Mamba-3](https://arxiv.org/abs/2603.15569) is compounding academically: 50 → 61 citations with influential citations jumping 5 → 8. Almost no social buzz (6 HF upvotes, ever) — this is pure researcher-to-researcher adoption.
-
-[SPEED-Bench](https://arxiv.org/abs/2604.09557) crossed 3K GitHub stars (2,934 → 3,157) and picked up its first influential citation. Speculative decoding is getting a standard yardstick, which usually precedes a wave of comparable papers.
-
-[MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392) has cooled — 131 → 150 upvotes over three weeks, after gaining 48 in three days. Strong debut, normal decay. Stars still climbing (293 → 371), so the interest converted.
+[TokenPilot](https://arxiv.org/abs/2606.17016) keeps accelerating past last cycle's breakout — GitHub stars jumped 36 → 45 in a single day. Cache-efficient agent context management remains the pain point everyone's racing to solve.
