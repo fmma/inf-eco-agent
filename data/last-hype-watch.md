@@ -1,7 +1,5 @@
-[KVarN](https://arxiv.org/abs/2606.03458) is the cycle's biggest star magnet: GitHub stars rocketed 179 → 434 and HF upvotes 47 → 67 since early June, though the curve is flattening now as it matures. Variance-normalized KV-cache quantization that survives reasoning tasks clearly struck a nerve.
+[DFlash](https://arxiv.org/abs/2602.06036) is the cycle's academic runaway: citations nearly doubled 21 → 45 and influential cites leapt 8 → 20 since late May, with stars now past 5,400. Block-diffusion speculative decoding is landing in follow-up work, not just demos — and [Block Diffusion Draft Trees](https://arxiv.org/abs/2604.12989) is compounding right alongside it (7 → 10 citations this week and its first 2 influential cites, on just 8 HF upvotes). Diffusion-based drafting is turning into a genuine research thread.
 
-[Domino](https://arxiv.org/abs/2605.29707) is still climbing — stars surged 64 → 114 since mid-June, HF upvotes reached 152, and it logged its first citations (3, one influential) on 07-10. Decoupling causal modeling from autoregressive drafting is moving past social buzz into cited work.
+New face worth watching: [FlashMemory-DeepSeek-V4](https://arxiv.org/abs/2606.09079), the DeepSeek-V4-branded lookahead sparse-attention paper, has climbed to 65 HF upvotes and 88 stars since its mid-June debut.
 
-[MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392) crossed 150 HF upvotes (up from 83) with stars doubling 184 → 372 since mid-June — big-lab sparse attention getting genuine community pickup rather than a launch-day spike.
-
-Quietly, [Mamba-3](https://arxiv.org/abs/2603.15569) keeps stacking citations with near-zero social noise: 50 → 62 total and 5 → 8 influential in three weeks — the same healthy, low-hype adoption curve.
+Meanwhile last cycle's star magnets have cooled: [KVarN](https://arxiv.org/abs/2606.03458) (67 upvotes / 434 stars), [MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392) (150 / 372), and [Domino](https://arxiv.org/abs/2605.29707) (152 upvotes, 114 stars) have all plateaued at last week's levels — social buzz settling into steady maturity.

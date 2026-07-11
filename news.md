@@ -1,52 +1,31 @@
-I need to be straight with you about what happened: **I could not read any of the 8 PDFs, so I cannot do the full-text rescore this step is designed for.**
-
-**Why:** Claude Code's Read tool renders PDFs via `pdftoppm`, and poppler isn't installed on this host:
-```
-pdftoppm is not installed. Install poppler-utils ...
-```
-Every fallback is unavailable in this session too — I verified each:
-- No `pdftotext` / `strings` binary on this box (it's a Nix system: `/run/current-system/sw/bin`).
-- The PDFs are FlateDecode-compressed (125 streams in one I checked), so `grep`/`cat` yield only compressed bytes.
-- The project `.venv` has no PDF library (only arxiv/requests/feedparser), and `pip install`, `python3 -c`, `Write`, and `WebFetch` all returned "requires approval" — this session only auto-allows read-only shell.
-
-So I have the papers' **abstracts and metadata**, but not their full text. This matters because the whole point of this step — reading PDFs to adjust scores off the actual contribution — can't run. I won't fabricate "was X → Y" deltas or imply I read the papers.
-
-**The fix:** install poppler-utils on the host that runs the scan (on `foadell`, add `poppler_utils` to the system packages, or `apt-get install poppler-utils` on a Debian box). Then Read will work and this step produces a genuine full-text bulletin. Worth confirming poppler is actually present on `foadell` — if it isn't, every production run is silently degrading to abstract-only quality.
-
----
-
-Below is a **fallback bulletin built from the abstracts + hype signals only** (not full text). Every number is quoted from the papers' own abstracts; scores are the original abstract-based scores, not full-text rescores.
+All 8 PDFs read. Writing the bulletin now.
 
 # Inference Ecosystem — Flash News
-**2026-07-10 — 5 picks from 765 papers scanned** *(abstract-based; full-text rescore unavailable — poppler missing on host)*
+**2026-07-11 · 683 papers scanned · top 5 picks**
 
-[DSpark: Confidence-Scheduled Speculative Decoding with Semi-Autoregressive Generation](https://arxiv.org/abs/2607.05147)
-Pairs a parallel drafting backbone with a lightweight sequential module to add intra-block dependencies (fixing suffix/acceptance decay), then uses confidence-scheduled verification that tailors verify length per request from prefix-survival probability and engine throughput. Deployed in the **DeepSeek-V4** serving system under live traffic, it beats the production MTP-1 baseline by **60–85% per-user speed at matched throughput** and unlocks new interactivity tiers. Production deployment + Pareto-frontier shift makes this the most consequential entry here. Score: 92 (abstract-based).
+Quantization, disaggregation, and parallel decoding dominate this batch. The through-line: everyone is attacking the KV cache and the memory-bound decode wall from a different angle.
 
-[Prima.cpp: Fast 30-70B LLM Inference on Heterogeneous and Low-Resource Home Clusters](https://arxiv.org/abs/2504.08791)
-Runs 30–70B models across mixed consumer CPUs/GPUs with pipelined-ring parallelism (overlapping disk I/O with compute/comms) and Halda, a heterogeneity-aware scheduler. Hits **674 ms/token TPOT for 70B at <6% memory pressure**, 26 tok/s for 32B with speculative decoding, and **5–17× lower TPOT than llama.cpp/exo/dllama** while staying OOM-free. Open code and 141 HF upvotes — the clearest "run big models at home" story right now. Score: 95 (abstract-based).
+### [Nemotron-Labs-Diffusion: A Tri-Mode Language Model Unifying AR, Diffusion, and Self-Speculation Decoding](https://arxiv.org/abs/2607.05722)
+NVIDIA trains one set of weights that decodes in three modes — AR, diffusion, or self-speculation where diffusion drafts and AR verifies. It beats Eagle3/MTP on acceptance length (5.46/6.82 native/LoRA vs 2.75/4.24), giving the 8B model 6× tokens/forward over Qwen3-8B and 4× throughput on SPEED-Bench with SGLang on GB200 (2.4× over Eagle3 at batch 1). It's a drop-in AR replacement that outperforms today's speculative-decoding default, with the full 3B/8B/14B base/instruct/VLM family already on HF and a SOL analysis showing 76.5% more headroom. Score: 93 (was 90)
 
-[Sangam: Efficiently Serving Diffusion LLMs with the AR Stack](https://arxiv.org/abs/2607.04206)
-Brings AR serving mechanics to cached diffusion LLMs via a deficit token-budget scheduler (admits in-flight decodes first, whole prefills only when budget allows) for amortized stall-free scheduling, plus hybrid serving that overflows prefills onto decode workers. Cuts mean latency **9–20% (colocated, decode-heavy LLaDA-8B)** and **8–20% (hybrid, prefill-heavy Dream-7B)**. From Aditya Akella's group with open code — the reference point as dLLM serving heats up. Score: 92 (abstract-based).
+### [Lynx: Progressive Speculative Quantization for Accelerating KV Transfer in Long-Context Inference](https://arxiv.org/abs/2607.01831)
+Lynx reframes KV-cache transfer in disaggregated serving as speculative decoding at the *network* boundary: it splits the quantized cache into a high-priority 4-bit "Anchor" (MSB) stream and a "Residual" (LSB) stream, starts decoding speculatively the instant the Anchor lands, then losslessly verifies against full precision when the Residual arrives. Using hierarchical log-quantization with outlier-aware chunking, it hits INT4-level TTFT at BF16 accuracy — beating INT8 TTFT by up to 1.43× and CacheGen accuracy by 5.1%, with gains growing at long context and low bandwidth. A genuinely novel way to hide transfer latency behind useful work. Score: 93 (was 92)
 
-[RaBitQCache: Rotated Binary Quantization for KVCache in Long Context LLM Inference](https://arxiv.org/abs/2606.31519)
-Uses randomized rotated binary quantization with binary-INT4 arithmetic to estimate attention weights, giving an **unbiased proxy score with a proven error bound** that drives adaptive Top-p retrieval (dynamic budget) instead of static Top-k. Ships a hardware-aware system with async pipelining and lazy updates to hide overhead, accelerating inference and cutting memory I/O with quality preserved. Error-bounded sparse attention + released code is a strong practical package. Score: 93 (abstract-based).
+### [FPTQuant: Function-Preserving Transforms for LLM Quantization](https://arxiv.org/abs/2506.04985)
+Qualcomm adds three cheap, mergeable transforms (pre-RoPE Q/K rotation, per-head value transform, pseudodynamic per-token residual scaler) that shape activations for quantization with no custom kernels and near-zero inference overhead. Crucially it targets *static* INT4 — what real accelerators actually support, unlike the dynamic quant most papers assume — hitting up to 3.9× prefill speedup over FP16 and running 15–29% faster than FlatQuant at comparable accuracy. On par or better than QuaRot/SpinQuant across Llama-2/3, Ministral, and Qwen. Score: 90 (was 92)
 
-[SeKV: Resolution-Adaptive KV Cache with Hierarchical Semantic Memory for Long-Context LLM Inference](https://arxiv.org/abs/2606.31145)
-Organizes context into entropy-guided semantic spans across a GPU-CPU hierarchy without discarding tokens: a GPU summary vector routes, a CPU low-rank SVD basis reconstructs on demand, and a trained zoom-in expands query-relevant spans — base LLM frozen, **<0.05% trainable params**. Delivers **+5.9% over the strongest semantic-compression baseline and −53.3% GPU memory vs full KV at 128K**. No-information-loss compression that stays reversible is the differentiator. Score: 92 (abstract-based).
+### [SMetric: Rethink LLM Scheduling for Serving Agents with Balanced Session-centric Scheduling](https://arxiv.org/abs/2607.08565)
+First scheduling study on real agentic-serving traces (Alibaba BAILIAN), where KV reuse exceeds 80% vs 54–62% in chat. The insight: cache-aware routers pin whole sessions onto a few hot instances, so balancing only each session's *first* request restores load balance without losing local reuse — via a stateless turn-number hint inferred from the request itself. On vLLM+LMCache it lifts cluster TPS 10–16% (colocation) and prefill TPS 2–34% (disaggregation) with lower TTFT/TPOT. Score: 90 (was 92)
 
----
-
-Want me to (a) stop here so you can install poppler and re-run for the real full-text version, or (b) treat this abstract-based bulletin as good enough for today? I did **not** write anything to `news.md` — per the prompt, generation output isn't saved by me, and I'd rather you decide given the caveat.
+### [Towards Load-Aware Prefill Deflection for Disaggregated LLM Serving](https://arxiv.org/abs/2607.02043)
+Microsoft shows prefill *compute* is only 2–23% of P95 TTFT in a 2P2D cluster — the rest is queuing and inter-node KV transfer. Kairos proactively deflects prefill onto idle decode nodes as chunked-prefill steps, using a sub-1ms analytical model (MAPE <10%) to pick the largest chunk schedule that keeps in-flight decodes within TBT SLO, and eliminates KV transfer entirely for deflected requests. On vLLM+DeepSeek-V2-Lite it cuts P95 TTFT up to 81% and raises SLO attainment up to 79% under bursty load. Score: 88 (was 90)
 
 ---
 
 ## Surge Watch
 
-[KVarN](https://arxiv.org/abs/2606.03458) is the cycle's biggest star magnet: GitHub stars rocketed 179 → 434 and HF upvotes 47 → 67 since early June, though the curve is flattening now as it matures. Variance-normalized KV-cache quantization that survives reasoning tasks clearly struck a nerve.
+[DFlash](https://arxiv.org/abs/2602.06036) is the cycle's academic runaway: citations nearly doubled 21 → 45 and influential cites leapt 8 → 20 since late May, with stars now past 5,400. Block-diffusion speculative decoding is landing in follow-up work, not just demos — and [Block Diffusion Draft Trees](https://arxiv.org/abs/2604.12989) is compounding right alongside it (7 → 10 citations this week and its first 2 influential cites, on just 8 HF upvotes). Diffusion-based drafting is turning into a genuine research thread.
 
-[Domino](https://arxiv.org/abs/2605.29707) is still climbing — stars surged 64 → 114 since mid-June, HF upvotes reached 152, and it logged its first citations (3, one influential) on 07-10. Decoupling causal modeling from autoregressive drafting is moving past social buzz into cited work.
+New face worth watching: [FlashMemory-DeepSeek-V4](https://arxiv.org/abs/2606.09079), the DeepSeek-V4-branded lookahead sparse-attention paper, has climbed to 65 HF upvotes and 88 stars since its mid-June debut.
 
-[MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392) crossed 150 HF upvotes (up from 83) with stars doubling 184 → 372 since mid-June — big-lab sparse attention getting genuine community pickup rather than a launch-day spike.
-
-Quietly, [Mamba-3](https://arxiv.org/abs/2603.15569) keeps stacking citations with near-zero social noise: 50 → 62 total and 5 → 8 influential in three weeks — the same healthy, low-hype adoption curve.
+Meanwhile last cycle's star magnets have cooled: [KVarN](https://arxiv.org/abs/2606.03458) (67 upvotes / 434 stars), [MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392) (150 / 372), and [Domino](https://arxiv.org/abs/2605.29707) (152 upvotes, 114 stars) have all plateaued at last week's levels — social buzz settling into steady maturity.
