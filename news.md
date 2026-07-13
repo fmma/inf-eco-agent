@@ -1,12 +1,12 @@
 # Inference Ecosystem — Flash News
-**2026-07-12** — No new papers today.
+**2026-07-13** — No new papers today.
 
 ---
 
 ## Surge Watch
 
-The quiet compounder this cycle is [Mamba-3](https://arxiv.org/abs/2603.15569): citations have climbed 33 → 62 and influential cites 3 → 8 since late May — one of the steadiest architecture-paper trajectories we track, and it's barely registered on social. [FlashAttention-4](https://arxiv.org/abs/2603.05451) is on the same slow burn: 14 → 26 citations and now 3 influential cites over the same window.
+The clear breakout is [MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392): HF upvotes have doubled 83 → 150 and GitHub stars 184 → 372 since mid-June — the strongest sustained climb we track this cycle, now picking up its first citations. [KVarN](https://arxiv.org/abs/2606.03458) is the quieter compounder: 47 → 67 upvotes but stars up 2.4× (179 → 434) since early June, a real code-adoption signal for variance-normalized KV quantization.
 
-Socially, a burst of new arrivals is pulling real HF attention: [Prima.cpp](https://arxiv.org/abs/2504.08791) (heterogeneous home-cluster inference) surfaced at 141 upvotes, [Grouped Query Experts](https://arxiv.org/abs/2606.20945) at 79, and [BlockPilot](https://arxiv.org/abs/2606.31315) opened at 76 upvotes / 60 stars on day one — keeping the diffusion-speculative-decoding thread alive.
+The speculative-decoding thread stays warm: [Domino](https://arxiv.org/abs/2605.29707) saw stars double (52 → 114) with upvotes edging 140 → 152, and [VIA-SD](https://arxiv.org/abs/2606.12243) tripled 12 → 36 upvotes over the same window. Two new arrivals opened strong too: [ReFreeKV](https://arxiv.org/abs/2502.16886) surfaced at 48 upvotes and [Multi-Block Diffusion](https://arxiv.org/abs/2606.29215) at 38.
 
-Last cycle's leaders have cooled: [DFlash](https://arxiv.org/abs/2602.06036) slowed to 45 → 47 citations this week, and [FlashMemory-DeepSeek-V4](https://arxiv.org/abs/2606.09079) is holding flat at 65 upvotes / 88 stars.
+Cooling: [Mamba-3](https://arxiv.org/abs/2603.15569)'s citation run has stalled at 62 after its earlier 33 → 62 climb, and last cycle's HF leaders — [Prima.cpp](https://arxiv.org/abs/2504.08791) (141), [Grouped Query Experts](https://arxiv.org/abs/2606.20945) (79), [BlockPilot](https://arxiv.org/abs/2606.31315) (76) — have all gone flat.
