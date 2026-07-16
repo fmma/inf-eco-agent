@@ -1,1 +1,3 @@
-`NO_HYPE`
+Long-context sparse attention is where the community's eyes are this week. [Hierarchical Sparse Attention Done Right](https://arxiv.org/abs/2607.02980) is the clearest breakout — GitHub stars doubled 41→83 and HF upvotes rose 55→67 in just three days (Jul 10→13), fast heat for a fresh "infinite context" paper. Riding the DeepSeek-V4 name, [FlashMemory-DeepSeek-V4](https://arxiv.org/abs/2606.09079) kept climbing to 65 HF upvotes and 88 GitHub stars, up from 58/61 in mid-June.
+
+On the decoding side, [BlockPilot](https://arxiv.org/abs/2606.31315) landed hard: 76 HF upvotes and 60 GitHub stars almost immediately after showing up on the radar — the strongest debut in the recent diffusion speculative-decoding wave.
