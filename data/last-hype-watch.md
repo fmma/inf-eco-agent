@@ -1,3 +1,1 @@
-After last week's sparse-attention surge, **speculative decoding** is the fresh thread. [DSpark](https://arxiv.org/abs/2607.05147) (confidence-scheduled, semi-autoregressive) has climbed 26→36 HF upvotes since Jul 10, and [Trees from Marginals](https://arxiv.org/abs/2607.06763) jumped from a lone upvote to 14 (Jul 13→19) — factorized-prior drafting finding its first real audience.
-
-The sharpest single debut is in quantization: [KronQ](https://arxiv.org/abs/2607.07964) sat dead at zero for a week, then rocketed 0→31 HF upvotes overnight on Jul 19 on its Kronecker-factored Hessian pitch. Long-context is stirring too — [Jet-Long](https://arxiv.org/abs/2607.07740)'s bifocal-RoPE extension nearly doubled 15→23 upvotes (Jul 13→19), worth watching given the Song Han co-authorship.
+NO_HYPE
