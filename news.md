@@ -1,27 +1,35 @@
-I've read all 8 PDFs in full. Below is the rescored flash-news bulletin. Notable rescores after full-text review: the GPU-collectives paper jumped (80→91 — real vLLM ITL gains across 5 production models, NCCL-native), the vLLM-config study eased down (90→82 — rigorous but a measurement study, no new method), and the MLIR compiler (87→~60) and AdaLook (82→~68) fell below the 70 threshold and are cut — the MLIR paper in particular reports zero speedup/benchmark numbers.
+All 8 PDFs read in full. Rescoring on actual contribution and writing the bulletin.
 
 # Inference Ecosystem — Flash News
-**2026-07-20 · 104 papers scanned · top 5 featured**
+**2026-07-21 · 269 papers scanned · 5 make the cut**
 
-Unusually deployment-ready week: speculative decoding gets a smarter vocabulary, MoE serving learns to page its own weights, and NVIDIA drags AllReduce to the hardware speed-of-light.
+A strong week for MoE serving and KV-cache economics. The standout is a serving architecture that finally decouples the prefill/decode resource ratio from MoE weight size — plus practical wins in tiered KV storage, non-prefix reuse, MX quantization, and a sharp cautionary result on sparse attention.
 
-## [Speculative Decoding with a Speculative Vocabulary](https://arxiv.org/abs/2602.13836)
-SpecVocab ditches the fixed 32K reduced vocabulary that EAGLE-3/FR-Spec/VocabTrim rely on and instead *speculates* a per-step top-2K subset via a low-rank ranking module, backed by a fused kernel that cuts logit computation 3–5×. Across Qwen3 and OLMo 2 it beats EAGLE-3 on both acceptance length and real SGLang throughput (+8.1% on OLMo 2 7B, +4.3% on Qwen3 8B) using under 2% of vocab logits — and shows EAGLE-3's reduced-vocab *training* needlessly hurts drafts. A clean win on the year's hottest inference primitive. Score: 92 (was 95)
+## [ExpertPlex: A High-Goodput Disaggregated Serving System for MoE LLMs with Adaptive Persistent Kernels](https://arxiv.org/abs/2607.18002)
+Xin Jin's group (PKU) shares massive MoE experts across prefill and decode while disaggregating the lightweight attention modules — killing >95% of duplicate weights and letting either phase fill the other's bubbles. The real advance is the Adaptive Persistent Kernel: tile-level bounded preemption (<25.3µs, GEMM intervals <10.7µs) that reallocates SMs on-GPU with no CPU intervention or kernel relaunch, preserving CUDA Graph compatibility. It adds just 8% to decode latency and slows prefill only 1.12× (vs 4.07× for Green Context, 13.79× for CUDA streams). Goodput up to 2.01× over instance-level PD-disaggregation and 1.66× over colocation, serving MiniMax-M2.7 and GLM-5.1-FP8 on H800. If you serve MoE, read this first. **Score: 96 (was 97)**
 
-## [PagedWeight: Efficient MoE LLM Serving with Dynamic Quality-Aware Weight Quantization](https://arxiv.org/abs/2607.16184)
-The sharpest idea yet for the MoE weight-vs-KV-cache squeeze: treat Any-Precision expert bit-planes as pageable weights (à la PagedAttention) and re-quantize experts at runtime as KV pressure grows, guided by offline Hessian sensitivity + live routing stats + prompt residuals. On Qwen1.5-MoE, Mixtral-8×7B and Gemma-4-26B it holds FP16-equivalent accuracy with up to 72% memory savings and 1.94× throughput, or +39.3% quality at matched memory for ≤4.1% throughput loss — shipped as a fused mixed-precision MoE kernel on vLLM. Score: 92 (was 94)
+## [HyMCache: A KV Cache Framework for Multi-Turn LLM Serving with CXL-Hybrid Memory](https://arxiv.org/abs/2607.18141)
+A real FPGA CXL-HM prototype (small in-device DRAM behind TB-scale SSD) turned into a KV tier by exploiting the read-dominant, append-only nature of multi-turn context. Instead of LRU, it uses request-level prefix prefetching + opportunistic write buffering to keep latency-critical reads on the fast DRAM path. Result: 3.0× over local LMCache single-node, and within 30% of 1TB distributed-DRAM Mooncake while using **16× less DRAM** (~$11K vs $30–40K per node). The clearest economic answer yet to TB-scale context caching. **Score: 91 (was 96)**
 
-## [Every Microsecond Matters: Achieving Near Speed-of-Light Latency in GPU Collectives](https://arxiv.org/abs/2607.16100)
-NVIDIA+ETH target the small-AllReduce latency sitting on every tensor-parallel decode step, killing global memory barriers via LL/sentinel sync, double buffering, and a novel two-shot LL128-atomic kernel — landing within 7% of the speed-of-light bound (2.37µs vs 11µs for NCCL ring on 4×GB200). Wired into vLLM it trims inter-token latency 7–13% (4 GPU) and 9–11% (8 GPU) across Llama-3.1-70B, DeepSeek-V3 and Qwen3-235B, worth >$11 per 1M tokens on DeepSeek-V3. Barrier-free and NCCL-native, so it's usable now. Score: 91 (was 80)
+## [C²KV: Compressed and Composable KV Cache Reuse for Efficient LLM Inference](https://arxiv.org/abs/2607.17715)
+Non-prefix KV reuse that finally addresses storage/bandwidth, not just recompute. A frozen-model sidecar Extractor with learnable compression tokens and a block-local "Structured Information Flow" learns a position-agnostic, 4×-compressed KV manifold you can concatenate at arbitrary positions — turning TTFT into a load-only op (no blending). Up to 17× speedup on long contexts, beating CacheBlend/EPIC/Block-Attention on both accuracy and latency, with public code. Directly deployable for RAG. **Score: 89 (was 90)**
 
-## [Attention to Detail: Evaluating Energy, Performance, and Accuracy Trade-offs Across vLLM Configurations](https://arxiv.org/abs/2607.09172)
-A 9,000-run, 5-model factorial sweep of three vLLM knobs with genuinely actionable rules: FlashInfer minimizes energy while FlashAttention-3 minimizes latency (they decouple), prefix caching mostly helps TTFT, and chunked prefill is a no-op under the default 8,192-token budget. The eyebrow-raiser — attention backend and prefix caching measurably shift *accuracy* via FP non-associativity, meaning unreported inference configs quietly break benchmark reproducibility. Score: 82 (was 90)
+## [MXSens: Sensitivity-Aware Mixed-Precision Quantization for Efficient LLM Inference](https://arxiv.org/abs/2607.17733)
+Since rotation-based methods break MXINT's block structure, MXSens instead allocates precision: Hessian-guided 4/6/8-bit mantissas, with the 32 most sensitive columns (matching the MX block) pinned to 8-bit. Training-free, W4A4KV4 perplexity of 3.77 (LLaMA-2-70B) and 7.63 (LLaMA-3-8B), beating QuaRot/RRS/Atom/QUIK at ~3% latency overhead. Timely as MX-native hardware (Blackwell, Qualcomm AI100) ships. **Score: 87 (was 88)**
 
-## [Cache-Aware Prompt Compression: A Two-Tier Cost Model for LLM API Caching](https://arxiv.org/abs/2607.15516)
-A rigorous teardown of Sonnet's prompt cache exposes a two-tier architecture with a sharp ~3,500-token threshold (ρ≈0.83 below it), debunking the literature's ρ=1.0 assumption. CAPC pairs *query-agnostic* compression with explicit cache_control and a tier-preserving ratio bound, coming out cheapest in 16/16 LongBench configs and in production (51.7% off a 94k-token tool schema; τ-bench reward equal to vanilla while query-aware compression runs +40.1% — its cache-busting cost made concrete). Score: 80 (was 80)
+## [Lil: Less is Less When Applying Post-Training Sparse-Attention Algorithms in Long-Decode Stage](https://arxiv.org/abs/2601.03043)
+The uncomfortable result: post-training sparse attention (H2O, Quest, InfLLM, StreamingLLM) can *increase* end-to-end latency on reasoning tasks — information loss inflates output length up to 90%, negating the per-step savings. Their Guardian early-stop (using LZ77 compression ratio as an information-gain proxy) cuts token consumption up to 90% with <2% accuracy drop. Essential reading before you ship sparse decode. **Score: 86 (was 88)**
+
+*Also strong but below the cut: Talaria (session-aware serverless, 83 — headline speedup is vs an internal all-off baseline on a single server) and "Lossless but Not Free" (76 — a careful but narrow consumer-hardware speculative-decoding study).*
 
 ---
 
 ## Surge Watch
 
-Nothing noteworthy in signal trends today.
+[Hierarchical Sparse Attention Done Right](https://arxiv.org/abs/2607.02980) is the breakout of the week: since landing ~July 10 it's gone 55 → 79 HF upvotes and nearly tripled GitHub stars (41 → 113). Infinite-context sparse attention is clearly hitting a nerve.
+
+[Unlimited OCR Works](https://arxiv.org/abs/2606.23050) keeps compounding — roughly +1,700 GitHub stars in two weeks (13.6k → 15.4k) plus HF upvotes creeping 51 → 55. The optical-compression OCR wave shows no sign of cooling.
+
+On the academic side, [DFlash](https://arxiv.org/abs/2602.06036) (block-diffusion speculative decoding) is the citation magnet: 42 → 50 citations and 17 → 21 influential ones this month, now past 5.4k stars. Diffusion drafting is becoming a citation staple.
+
+Otherwise it's plateaus — MiniMax Sparse Attention has flattened near 153 HF upvotes, and the big model repos (Fish Audio, Qwen3-Coder) are adding stars at a mature, unremarkable clip.
