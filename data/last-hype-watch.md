@@ -1,7 +1,5 @@
-[Hierarchical Sparse Attention Done Right](https://arxiv.org/abs/2607.02980) is the breakout of the week: since landing ~July 10 it's gone 55 → 79 HF upvotes and nearly tripled GitHub stars (41 → 113). Infinite-context sparse attention is clearly hitting a nerve.
+The mid-July cohort is carrying the fresh momentum. [KronQ](https://arxiv.org/abs/2607.07964) is the clean breakout — 0 → 32 HF upvotes within days of landing (~July 19); Kronecker-factored Hessian quantization is striking a nerve. Riding alongside it: [Jet-Long](https://arxiv.org/abs/2607.07740) (bifocal-RoPE long-context) at 15 → 23 upvotes in a week, and [Trees from Marginals](https://arxiv.org/abs/2607.06763) jumping 1 → 14 on the speculative-drafting front.
 
-[Unlimited OCR Works](https://arxiv.org/abs/2606.23050) keeps compounding — roughly +1,700 GitHub stars in two weeks (13.6k → 15.4k) plus HF upvotes creeping 51 → 55. The optical-compression OCR wave shows no sign of cooling.
+Last week's leader has cooled: [Hierarchical Sparse Attention Done Right](https://arxiv.org/abs/2607.02980) has flattened at 79 HF upvotes / 113 GitHub stars — the infinite-context surge has stopped compounding for now.
 
-On the academic side, [DFlash](https://arxiv.org/abs/2602.06036) (block-diffusion speculative decoding) is the citation magnet: 42 → 50 citations and 17 → 21 influential ones this month, now past 5.4k stars. Diffusion drafting is becoming a citation staple.
-
-Otherwise it's plateaus — MiniMax Sparse Attention has flattened near 153 HF upvotes, and the big model repos (Fish Audio, Qwen3-Coder) are adding stars at a mature, unremarkable clip.
+On the academic side, [FlashAttention-4](https://arxiv.org/abs/2603.05451) is hardening into a staple (influential citations 1 → 4 this month, 27 total), and [Mamba-3](https://arxiv.org/abs/2603.15569) keeps its steady climb (46 → 64 citations since early June, 8 influential).

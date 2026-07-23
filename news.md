@@ -1,35 +1,31 @@
-All 8 PDFs read in full. Rescoring on actual contribution and writing the bulletin.
+All eight PDFs read. After full-text review, three papers moved: **MoA-Structured Decode Attention** drops sharply (82→58) — it's a rigorous MoA re-derivation of decode/GQA memory bounds that FlashAttention already achieves in practice, with only tiny reference kernels; **Harmonia** (88→81) and **LaCache** (86→80) are solid but narrower (custom-silicon co-design; diffusion-LLM caching whose standalone gain is only ~1.3×). The top five are the serving/systems/security papers with immediate practitioner impact.
 
 # Inference Ecosystem — Flash News
-**2026-07-21 · 269 papers scanned · 5 make the cut**
+**2026-07-23 · 327 papers scanned · 5 featured**
 
-A strong week for MoE serving and KV-cache economics. The standout is a serving architecture that finally decouples the prefill/decode resource ratio from MoE weight size — plus practical wins in tiered KV storage, non-prefix reuse, MX quantization, and a sharp cautionary result on sparse attention.
+The M5 launch and agentic serving dominate this cycle — plus a KV-reuse attack every serving team should read.
 
-## [ExpertPlex: A High-Goodput Disaggregated Serving System for MoE LLMs with Adaptive Persistent Kernels](https://arxiv.org/abs/2607.18002)
-Xin Jin's group (PKU) shares massive MoE experts across prefill and decode while disaggregating the lightweight attention modules — killing >95% of duplicate weights and letting either phase fill the other's bubbles. The real advance is the Adaptive Persistent Kernel: tile-level bounded preemption (<25.3µs, GEMM intervals <10.7µs) that reallocates SMs on-GPU with no CPU intervention or kernel relaunch, preserving CUDA Graph compatibility. It adds just 8% to decode latency and slows prefill only 1.12× (vs 4.07× for Green Context, 13.79× for CUDA streams). Goodput up to 2.01× over instance-level PD-disaggregation and 1.66× over colocation, serving MiniMax-M2.7 and GLM-5.1-FP8 on H800. If you serve MoE, read this first. **Score: 96 (was 97)**
+### [BaseRT: Advancing Best-in-Class LLM Inference with Apple M5 Neural Accelerators](https://arxiv.org/abs/2607.19438)
+Base Compute's framework-free Metal runtime adds hand-written Metal 4 cooperative-tensor kernels (dense + MoE GEMM, fused gate/up, flash-attention prefill) that route compute-bound matmuls through the M5's per-core Neural Accelerators while leaving memory-bound decode on existing kernels. Across 15 configs (Qwen3/3.5/3.6, Llama-3.2, Gemma-4, sub-1B to 35B) it hits **up to 6.4× prefill over llama.cpp and 3.9× over MLX**, widest on MoE models, with decode gains (≤1.75×) correctly bounded by bandwidth. The cleanest "tensor cores are the prefill lever" story on Apple Silicon, with a public repo. Score: 93 (was 93)
 
-## [HyMCache: A KV Cache Framework for Multi-Turn LLM Serving with CXL-Hybrid Memory](https://arxiv.org/abs/2607.18141)
-A real FPGA CXL-HM prototype (small in-device DRAM behind TB-scale SSD) turned into a KV tier by exploiting the read-dominant, append-only nature of multi-turn context. Instead of LRU, it uses request-level prefix prefetching + opportunistic write buffering to keep latency-critical reads on the fast DRAM path. Result: 3.0× over local LMCache single-node, and within 30% of 1TB distributed-DRAM Mooncake while using **16× less DRAM** (~$11K vs $30–40K per node). The clearest economic answer yet to TB-scale context caching. **Score: 91 (was 96)**
+### [Efficient Multi-round LLM Inference over Disaggregated Serving](https://arxiv.org/abs/2602.14516)
+AMPD is the first PD-disaggregation framework built for the *interleaved* prefill-decode pattern of agents and iterative RAG: adaptive routing (run incremental prefill locally on the decode worker vs. a remote prefill worker), TTFT-aware prefill reordering, and an ILP deployment planner, all on NVIDIA Dynamo. It lifts SLO attainment **67–340% on average** (up to 967% vs. Dynamo, 3435% vs. vLLM) across Qwen3-32B/Llama-3.1-70B/Mixtral on ToolBench/GAIA/HotpotQA/DuReader. Essential if you serve tool-use or multi-turn agent traffic. Score: 91 (was 92)
 
-## [C²KV: Compressed and Composable KV Cache Reuse for Efficient LLM Inference](https://arxiv.org/abs/2607.17715)
-Non-prefix KV reuse that finally addresses storage/bandwidth, not just recompute. A frozen-model sidecar Extractor with learnable compression tokens and a block-local "Structured Information Flow" learns a position-agnostic, 4×-compressed KV manifold you can concatenate at arbitrary positions — turning TTFT into a load-only op (no blending). Up to 17× speedup on long contexts, beating CacheBlend/EPIC/Block-Attention on both accuracy and latency, with public code. Directly deployable for RAG. **Score: 89 (was 90)**
+### [AdaFlash: Adaptive Speculative Decoding via On-Policy Distilled Diffusion Drafters](https://arxiv.org/abs/2607.19223)
+AdaFlash fixes the fatal flaw of diffusion drafters — high domain- and token-level variance — with on-policy distillation (reverse-KL + entry-wise divergence clipping) and an adaptive length head that truncates candidates on the fly. The headline: at concurrency 128, EAGLE-3/DFlash/OSD all fall *below* plain AR decoding (0.76–0.83×), while AdaFlash sustains **1.15× and up to ~66% higher throughput than prior SOTA**, reaching 5.3× at low load. Built on SGLang with an async train/serve pipeline — the right shape for real deployments. Score: 90 (was 90)
 
-## [MXSens: Sensitivity-Aware Mixed-Precision Quantization for Efficient LLM Inference](https://arxiv.org/abs/2607.17733)
-Since rotation-based methods break MXINT's block structure, MXSens instead allocates precision: Hessian-guided 4/6/8-bit mantissas, with the 32 most sensitive columns (matching the MX block) pinned to 8-bit. Training-free, W4A4KV4 perplexity of 3.77 (LLaMA-2-70B) and 7.63 (LLaMA-3-8B), beating QuaRot/RRS/Atom/QUIK at ~3% latency overhead. Timely as MX-native hardware (Blackwell, Qualcomm AI100) ships. **Score: 87 (was 88)**
+### [InstantInfer: Enabling Fast LLM Cold Start with Communicating Finite Automata](https://arxiv.org/abs/2607.18957)
+Cold start is 99.6–99.9% of TTFT in serverless serving; InstantInfer models process-tree creation, tensor loading, and model switching as Communicating Finite Automata, then safely overlaps execution and merges fine-grained I/O via a proven-correct refactor of vLLM. Result: **up to 7.2× lower cold-start TTFT, 32.3× faster loading, and 11.8× lower switch stall** across H20/L40 and Qwen3-235B/DeepSeek-R1, saturating ~80% of storage bandwidth. Directly useful for elastic and long-tail model serving. Score: 88 (was 88)
 
-## [Lil: Less is Less When Applying Post-Training Sparse-Attention Algorithms in Long-Decode Stage](https://arxiv.org/abs/2601.03043)
-The uncomfortable result: post-training sparse attention (H2O, Quest, InfLLM, StreamingLLM) can *increase* end-to-end latency on reasoning tasks — information loss inflates output length up to 90%, negating the per-step savings. Their Guardian early-stop (using LZ77 compression ratio as an information-gain proxy) cuts token consumption up to 90% with <2% accuracy drop. Essential reading before you ship sparse decode. **Score: 86 (was 88)**
-
-*Also strong but below the cut: Talaria (session-aware serverless, 83 — headline speedup is vs an internal all-off baseline on a single server) and "Lossless but Not Free" (76 — a careful but narrow consumer-hardware speculative-decoding study).*
+### [HijackKV: New Threat in Position-Independent KV Cache Reuse](https://arxiv.org/abs/2607.19957)
+Position-independent KV reuse (CacheBlend/LMCache/EPIC) lets an attacker submit a benign chunk behind a GCG-optimized prefix, so the *cached* KV for that chunk silently encodes an attacker goal — hijacking later victims with **94% success and zero adversarial text in their input**. It survives 10% hit rates, 50% recomputation, and 1024-token gaps, transfers black-box, and defeats RobustKV, CachePrune, and cache compression. If you run cross-user prefix/chunk caching, treat this as a live integrity risk. Score: 86 (was 85)
 
 ---
 
 ## Surge Watch
 
-[Hierarchical Sparse Attention Done Right](https://arxiv.org/abs/2607.02980) is the breakout of the week: since landing ~July 10 it's gone 55 → 79 HF upvotes and nearly tripled GitHub stars (41 → 113). Infinite-context sparse attention is clearly hitting a nerve.
+The mid-July cohort is carrying the fresh momentum. [KronQ](https://arxiv.org/abs/2607.07964) is the clean breakout — 0 → 32 HF upvotes within days of landing (~July 19); Kronecker-factored Hessian quantization is striking a nerve. Riding alongside it: [Jet-Long](https://arxiv.org/abs/2607.07740) (bifocal-RoPE long-context) at 15 → 23 upvotes in a week, and [Trees from Marginals](https://arxiv.org/abs/2607.06763) jumping 1 → 14 on the speculative-drafting front.
 
-[Unlimited OCR Works](https://arxiv.org/abs/2606.23050) keeps compounding — roughly +1,700 GitHub stars in two weeks (13.6k → 15.4k) plus HF upvotes creeping 51 → 55. The optical-compression OCR wave shows no sign of cooling.
+Last week's leader has cooled: [Hierarchical Sparse Attention Done Right](https://arxiv.org/abs/2607.02980) has flattened at 79 HF upvotes / 113 GitHub stars — the infinite-context surge has stopped compounding for now.
 
-On the academic side, [DFlash](https://arxiv.org/abs/2602.06036) (block-diffusion speculative decoding) is the citation magnet: 42 → 50 citations and 17 → 21 influential ones this month, now past 5.4k stars. Diffusion drafting is becoming a citation staple.
-
-Otherwise it's plateaus — MiniMax Sparse Attention has flattened near 153 HF upvotes, and the big model repos (Fish Audio, Qwen3-Coder) are adding stars at a mature, unremarkable clip.
+On the academic side, [FlashAttention-4](https://arxiv.org/abs/2603.05451) is hardening into a staple (influential citations 1 → 4 this month, 27 total), and [Mamba-3](https://arxiv.org/abs/2603.15569) keeps its steady climb (46 → 64 citations since early June, 8 influential).
