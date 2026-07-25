@@ -1,31 +1,31 @@
-All eight PDFs read. After full-text rescoring, five clear the 70 bar; GaugeQuant (thin eval — PPL-only, two models, needs training), AdaDSF (≤1.5B, requires alignment training), and the multimodal-edge survey (no new results) dropped below threshold. Here's the bulletin:
+I've now traced the full flow, and here's what's actually happening this cycle:
+
+**Both of today's papers are off-topic for LLM inference, and there are no PDFs to read.** `generate_news.py:65-73` only downloads PDFs for papers scoring ≥70 today. Today's two papers scored **25** ([PrefReward](https://arxiv.org/abs/2607.21067) — personalized text generation) and **5** ([SPORD](https://arxiv.org/abs/2607.21354) — JD.com supply-chain planning), so zero PDFs were downloaded — which is why the prompt I received has no "Full-Text PDFs" section. The pipeline is behaving correctly; there's simply nothing relevant.
+
+Neither paper clears the minimum-70 bar the prompt requires, and both are plainly outside "LLM inference systems." I won't fabricate features for them, and I won't claim to have read PDFs that don't exist. The honest bulletin for this cycle is:
+
+---
 
 # Inference Ecosystem — Flash News
-**2026-07-24 · 187 papers scanned · 5 make the cut**
+**2026-07-25 · 2 papers scanned · 0 clear the bar**
 
-Long-context speculative decoding headlines a strong batch, plus a MoE pruning win, a spec-decoding side-channel, and hard truths about KV eviction.
+Quiet cycle for inference systems — neither of today's two papers is on-topic, so nothing makes the bulletin. [PrefReward](https://arxiv.org/abs/2607.21067) does personalized text generation via a user-preference matrix and a KL-based decoding reward (relevance 25 — touches decoding, but it's a personalization method, not a serving/inference contribution). [SPORD](https://arxiv.org/abs/2607.21354) is JD.com's NetSim supply-chain planning platform — simulation-proposes, integer-program-disposes, with real deployment wins — but it's operations research with no LLM-inference connection (relevance 5). No full-text rescore ran; the PDF-download step correctly skipped both below the 70 threshold. Surge Watch below carries this cycle's real signal.
 
-### [Windowed-MTP: Removing the Full-Context Draft-KV Tax at Million-Token Context](https://arxiv.org/abs/2607.21535)
-The standout. Built-in MTP/NEXTN draft heads run *full* attention over the entire KV cache every draft step, so at 1M context the "free" draft dominates — native drafts even go net-negative (0.80× vs dense on Qwen-122B code QA). The fix is a training-free StreamingLLM window+sink on the **draft attention only**, leaving verification intact: lossless by construction, +28–44% per-decode-step savings across Qwen GDN-MoE 35B/122B and Nemotron Mamba2-hybrid 120B in SGLang, 1.22–1.58× at best depth, plus reclaiming 7.7–11% of total KV. Ports to H100/fp8, reproduction package shipped — a genuine drop-in for anyone serving long-context spec decoding. Score: 93 (was 92)
+---
 
-### [PreMoE: Proactive Inference for Efficient Mixture-of-Experts](https://arxiv.org/abs/2505.17639)
-Training-free MoE pruning via Predicted Expert Utility — router logits refined by confidence filtering and a max(s, σ(s)) transform. On DeepSeek-R1, 50% sparsity **halves deployment NPUs and lifts throughput 23%** near-losslessly, scaling 30B→718B; it lands within 0.8 normalized points of REAP at 12% vs 75% profiling overhead. COLM 2026, code released, real infra savings — squarely actionable for MoE serving. Score: 87 (was 88)
+A couple of things worth flagging on the pipeline itself:
 
-### [Leaky Language Models: Stealing Architecture and Inference Optimizations via Per-Token Timing](https://arxiv.org/abs/2607.20723)
-Per-token API timing alone leaks your stack. The attack confirms **Gemini Flash 2.5 runs speculative decoding with a ~128K draft window**, and an analytical GPU timing model recovers Llama layer count, hidden dim, and head count (top-5 within ±1: 83–98%). Disclosed to Google — a wake-up that your spec-decoding and architecture choices are observable through streaming latency. Score: 80 (was 82)
+- **This is the expected "new papers, but none relevant" path.** `scan.sh:176` invokes `generate_news.py` whenever *any* paper was scored, regardless of relevance, so the news step always runs and Surge Watch gets appended. The output above is the honest thing to emit; scan.sh will append the Surge Watch section and post to Discord.
+- **The prompt has no explicit "nothing qualifies" branch.** `news-prompt.md` says "select top 3–5 (minimum 70)" but doesn't say what to do when zero qualify — so the model is left to improvise. If you want deterministic behavior for low-relevance cycles, consider adding a line to `news-prompt.md` like: *"If no paper reaches 70, output only the heading + date + a one-sentence 'no relevant papers this cycle' note."* That would prevent a future run from padding the bulletin with off-topic papers just to fill space.
 
-### [Error Certificates for KV-Cache Eviction via Randomized Design](https://arxiv.org/abs/2607.21475)
-Proves deterministic eviction (H2O/SnapKV) *cannot* estimate its own induced error — "silent failure." Randomizing the tail (Poisson + a one-scalar Hájek logit offset) yields a per-step certificate at 0.97 coverage. Refreshingly honest pre-registration: question-aware eviction is nearly free at 25–50% and plain output log-prob beats the certificate at predicting failure — its real value is **attribution** (cache-induced vs inherent, AUC 0.73–0.75) and recomputation scheduling in streaming/agent-memory. Reframes when KV monitoring is worth it. Score: 76 (was 84)
-
-### [Faster IndexTTS-2: Accelerating and Streaming Autoregressive Zero-Shot TTS on GPUs](https://arxiv.org/abs/2607.21042)
-NVIDIA takes IndexTTS-2 production with TensorRT/TensorRT-LLM: **5.0× on the autoregressive GPT, 3.6× end-to-end** (RTF 0.84→0.24), plus streaming (~600ms TTFA) and batching at minimal WER/SIM/UTMOS cost. The reusable recipe for adapting TensorRT-LLM to AR speech — prompt-tuned conditioning, merged embed tables, custom position IDs, per-step hidden-state outputs — is the transferable win. Score: 75 (was 76)
+Want me to add that fallback instruction to `news-prompt.md`?
 
 ---
 
 ## Surge Watch
 
-The loudest signal this cycle is [Unlimited OCR Works](https://arxiv.org/abs/2606.23050): GitHub stars rocketed from 15.3k (July 21) to 18.1k (July 24) — **+2.7k in three days** — while HF upvotes climbed 55 → 60 and it picked up a 4th citation. After a slow build through early July (13.6k stars), it's suddenly compounding hard; the fastest-accelerating repo in the set.
+The breakout this cycle is [Hierarchical Sparse Attention Done Right](https://arxiv.org/abs/2607.02980): GitHub stars tripled from 41 (July 10) to 122 (July 24) while HF upvotes climbed 55 → 80 — a genuine two-week ramp behind its "infinite context" sparse-attention pitch. It cleared 100 stars mid-week and is still compounding; easily the strongest fresh momentum in the set. Worth watching whether it holds past 150.
 
-On the speculative-decoding front, [DSpark](https://arxiv.org/abs/2607.05147) (confidence-scheduled semi-autoregressive drafting) keeps grinding upward: 26 → 37 HF upvotes and 2 → 4 citations over two weeks — quiet but genuinely sustained since landing mid-July.
+Quieter but real: [OSCAR](https://arxiv.org/abs/2605.17757) (offline 2-bit KV-cache quantization) resurfaced at 552 GitHub stars — nearly double its ~295 from early June — though flat HF upvotes (63 → 66) mark this as steady adoption rather than new buzz.
 
-Meanwhile last week's mid-July breakouts have all stalled: [KronQ](https://arxiv.org/abs/2607.07964) flat at 32 upvotes since July 20, [Jet-Long](https://arxiv.org/abs/2607.07740) stuck at 23, and [Trees from Marginals](https://arxiv.org/abs/2607.06763) frozen at 14. The quant/long-context/drafting cohort's initial surge has run its course — the momentum has rotated elsewhere.
+On the citation front, [DFlash](https://arxiv.org/abs/2602.06036) (block-diffusion speculative decoding) keeps grinding: 42 → 51 citations in under three weeks with 21 influential — the best academic-impact velocity here, even as its HF (89) and ~5.5k stars plateau. The mid-July drafting/quant cohort, by contrast, is still frozen.
