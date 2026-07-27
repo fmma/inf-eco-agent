@@ -1,12 +1,12 @@
 # Inference Ecosystem — Flash News
-**2026-07-26** — No new papers today.
+**2026-07-27** — No new papers today.
 
 ---
 
 ## Surge Watch
 
-New this cycle: [Unlimited OCR Works](https://arxiv.org/abs/2606.23050) is the runaway signal — GitHub stars rocketed from ~13.6k (July 8) to 18.1k (July 24), including roughly +2.7k in just three days (July 21→24), while HF upvotes climbed 51→60 and its first citations landed (1→4). That's the steepest adoption curve in the whole set right now; worth watching whether it clears 20k.
+Fresh signal: [SWE-Pruner Pro](https://arxiv.org/abs/2607.18213) surfaced straight to **76 HF upvotes on its first print** (July 27 — it read zero as recently as July 26). That's a hot debut for an expert-pruning paper; there are no stars or citations behind it yet, so treat it as one to confirm next cycle rather than a proven curve.
 
-The prior breakout, [Hierarchical Sparse Attention Done Right](https://arxiv.org/abs/2607.02980), is still climbing but visibly decelerating: 113→122 GitHub stars and 79→80 HF upvotes over July 21→24. It's grinding toward — but hasn't reached — the 150-star mark I flagged last time.
+Last cycle's runaway, [Unlimited OCR Works](https://arxiv.org/abs/2606.23050), has gone quiet: HF upvotes last printed 60 (July 24) and no new star reading has landed past the ~18.1k I flagged — the steepest adoption curve in the set has stalled for now, not cleared 20k.
 
-Meanwhile last cycle's quieter names have gone flat: [OSCAR](https://arxiv.org/abs/2605.17757) sits unchanged at 552 stars / 66 HF, and [DFlash](https://arxiv.org/abs/2602.06036)'s citation grind has stalled at 51 (21 influential). The week's real story is squarely the OCR breakout.
+Otherwise it's grind, not breakout: [dLLM-Cache](https://arxiv.org/abs/2506.06295) quietly crossed **150 citations** (134 → 152 since early June, 10 influential), and Kimi's [Attention Residuals](https://arxiv.org/abs/2603.15031) keeps ticking up (~3350 → 3387 GitHub stars over the week, first 9th influential citation). No other paper is accelerating this cycle.
