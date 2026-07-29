@@ -1,1 +1,5 @@
-NO_HYPE
+**Unlimited OCR Works** ([2606.23050](https://arxiv.org/abs/2606.23050)) is the runaway repo of the fortnight — GitHub stars rocketed from 13.6k (Jul 8) to **18.1k** (Jul 24), including +2.7k in the last three tracked days alone, while HF upvotes climbed 51→60. It's OCR/optical-compression-adjacent rather than core serving, but the community pile-on is impossible to ignore.
+
+On the pure-inference side, [Hierarchical Sparse Attention Done Right](https://arxiv.org/abs/2607.02980) is the standout organic riser: HF upvotes 55→81 and GitHub stars **41→125 (a 3× jump) since Jul 10** — the strongest efficiency-paper pickup this cycle, and squarely on-topic (infinite-context sparse attention).
+
+Quieter but real: [DFlash](https://arxiv.org/abs/2602.06036) just crossed **53 citations** (up from 42 in early July), the citation leader among the speculative-decoding cohort, and Kimi's [Attention Residuals](https://arxiv.org/abs/2603.15031) is grinding toward 3.5k stars (193 HF upvotes) with star growth quietly re-accelerating to ~18/day.
