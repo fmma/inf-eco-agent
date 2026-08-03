@@ -1,5 +1,5 @@
-New leader of the slow-burn pack: [Hierarchical Sparse Attention Done Right](https://arxiv.org/abs/2607.02980) is the board's cleanest organic climb — GitHub stars **tripled 41 → 129** and HF upvotes rose **55 → 82 across Jul 10–30**, a steady week-over-week grind rather than a launch-day spike. The most convincing sustained signal now that Unlimited OCR has gone quiet on fresh readings.
+Last watch called [Unlimited OCR Works](https://arxiv.org/abs/2606.23050) "gone quiet" — reverse that. It's the board's runaway signal now: GitHub stars **18.1k → 21.7k (+3,600) and HF upvotes 60 → 75 between Jul 24 and Aug 3**, the steepest organic climb here by a wide margin and still adding hundreds of stars a day.
 
-Spec-decoding to watch: [DSpark](https://arxiv.org/abs/2607.05147) keeps building — HF upvotes **26 → 39 since Jul 10** and citations **2 → 7 (2 now influential) in ~3 weeks**, unusually fast academic pickup for a July paper.
+The prior slow-burn leader, [Hierarchical Sparse Attention Done Right](https://arxiv.org/abs/2607.02980), has flattened: stars **129 → 134** and upvotes **82 → 83 since Jul 30**. The week-over-week grind that made it the pick last time has stalled — momentum has rotated to OCR.
 
-Debut-and-freeze: [Full Attention Strikes Back](https://arxiv.org/abs/2605.16928) landed hot at **99 HF upvotes on Jul 23** and hasn't budged in the 8 days since — a strong launch stalled exactly one vote short of the 100 line.
+Academic-only mover: [MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392) doubled citations **3 → 6 (2 now influential) in three days (Jul 29 → 31)** while HF holds flat at 153 — the fastest citation pickup on the board despite no fresh social traction.
