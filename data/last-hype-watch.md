@@ -1,5 +1,7 @@
-Last watch called [Unlimited OCR Works](https://arxiv.org/abs/2606.23050) "gone quiet" — reverse that. It's the board's runaway signal now: GitHub stars **18.1k → 21.7k (+3,600) and HF upvotes 60 → 75 between Jul 24 and Aug 3**, the steepest organic climb here by a wide margin and still adding hundreds of stars a day.
+Quiet week on the board — most of July's surgers have gone flat, and the only real momentum is one speculative-decoding paper.
 
-The prior slow-burn leader, [Hierarchical Sparse Attention Done Right](https://arxiv.org/abs/2607.02980), has flattened: stars **129 → 134** and upvotes **82 → 83 since Jul 30**. The week-over-week grind that made it the pick last time has stalled — momentum has rotated to OCR.
+[DSpark](https://arxiv.org/abs/2607.05147) is the standout: it's compounding on both axes with no single-day spike — citations **2 → 8 since Jul 10** (6 → 8 this past week, 2 now influential) and HF upvotes **26 → 41** (37 → 41 since Jul 27). In an otherwise stalled field, it's the steadiest dual-signal climb going.
 
-Academic-only mover: [MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392) doubled citations **3 → 6 (2 now influential) in three days (Jul 29 → 31)** while HF holds flat at 153 — the fastest citation pickup on the board despite no fresh social traction.
+[Unlimited OCR Works](https://arxiv.org/abs/2606.23050) still leads and hasn't broken stride on stars — **20,412 → 21,883 (Jul 30 → Aug 4)**, ~290/day — but HF upvotes have leveled off at **75**, so the social side is topping out even as the repo keeps drawing stars. Star-driven now, not hype-driven.
+
+Closing last week's call: [MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392), the "fastest citation pickup" pick, has frozen at **6 citations** since Jul 31 with HF flat at 153. That surge is spent.
