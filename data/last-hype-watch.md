@@ -1,7 +1,7 @@
-Quiet week on the board — most of July's surgers have gone flat, and the only real momentum is one speculative-decoding paper.
+Quiet board overall, but two papers broke their own patterns this week.
 
-[DSpark](https://arxiv.org/abs/2607.05147) is the standout: it's compounding on both axes with no single-day spike — citations **2 → 8 since Jul 10** (6 → 8 this past week, 2 now influential) and HF upvotes **26 → 41** (37 → 41 since Jul 27). In an otherwise stalled field, it's the steadiest dual-signal climb going.
+[Unlimited OCR Works](https://arxiv.org/abs/2606.23050) is the standout: the HF plateau I flagged as topped-out finally cracked — upvotes **75 → 80** after weeks pinned at 75 — while stars kept ripping **21,883 → 23,675 (Aug 4 → Aug 14)**, ~180/day. It's back to a dual-signal climb, not the star-only story it looked like last week.
 
-[Unlimited OCR Works](https://arxiv.org/abs/2606.23050) still leads and hasn't broken stride on stars — **20,412 → 21,883 (Jul 30 → Aug 4)**, ~290/day — but HF upvotes have leveled off at **75**, so the social side is topping out even as the repo keeps drawing stars. Star-driven now, not hype-driven.
+On the citation side, [REAP the Experts](https://arxiv.org/abs/2510.13999) is the fastest mover — **25 → 30 citations and 9 → 11 influential in 10 days** (21 → 30 since Jul 8). One-shot MoE pruning is compounding, and the rising *influential* count says it's landing, not just getting name-checked. Honorable mention: [The Geometry of LLM Quantization](https://arxiv.org/abs/2507.18553) (GPTQ as Babai's algorithm) at **15 → 19** in two weeks — theory framing picking up.
 
-Closing last week's call: [MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392), the "fastest citation pickup" pick, has frozen at **6 citations** since Jul 31 with HF flat at 153. That surge is spent.
+Cooling: [DSpark](https://arxiv.org/abs/2607.05147), last week's lead, managed just **+2 HF upvotes (41 → 43)** in 10 days, down from +4/week. The steady dual-signal climb is flattening.
