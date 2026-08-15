@@ -1,7 +1,7 @@
-Quiet board overall, but two papers broke their own patterns this week.
+Quiet board overall, but the speculative-decoding corner is compounding on citations this week.
 
-[Unlimited OCR Works](https://arxiv.org/abs/2606.23050) is the standout: the HF plateau I flagged as topped-out finally cracked — upvotes **75 → 80** after weeks pinned at 75 — while stars kept ripping **21,883 → 23,675 (Aug 4 → Aug 14)**, ~180/day. It's back to a dual-signal climb, not the star-only story it looked like last week.
+[DFlash](https://arxiv.org/abs/2602.06036) is the standout: citations sat frozen at **54 (Jul 30 → Aug 4)**, then jumped to **67 by Aug 15** (+13, influential 22 → 24), and HF upvotes finally broke their weeks-long plateau — **90 → 94** — with stars still grinding up (5,554 → 5,626). Back to a genuine dual-signal climb.
 
-On the citation side, [REAP the Experts](https://arxiv.org/abs/2510.13999) is the fastest mover — **25 → 30 citations and 9 → 11 influential in 10 days** (21 → 30 since Jul 8). One-shot MoE pruning is compounding, and the rising *influential* count says it's landing, not just getting name-checked. Honorable mention: [The Geometry of LLM Quantization](https://arxiv.org/abs/2507.18553) (GPTQ as Babai's algorithm) at **15 → 19** in two weeks — theory framing picking up.
+Plot twist on [DSpark](https://arxiv.org/abs/2607.05147): last week I flagged it cooling, and HF upvotes did stall (**41 → 43**). But the citation side roared — **8 → 14 citations and 2 → 4 influential in 11 days**. Its reception just migrated from HuggingFace to the literature.
 
-Cooling: [DSpark](https://arxiv.org/abs/2607.05147), last week's lead, managed just **+2 HF upvotes (41 → 43)** in 10 days, down from +4/week. The steady dual-signal climb is flattening.
+Honorable mention: [MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392) is quietly dual-climbing — **6 → 9 citations and 392 → 408 stars** over ~10 days, upvotes 153 → 156. Meanwhile last week's citation lead [REAP the Experts](https://arxiv.org/abs/2510.13999) stalled dead at **30 citations / 11 influential**, no movement since the Aug 14 print.
