@@ -1,7 +1,7 @@
-Quiet board overall, but the speculative-decoding corner is compounding on citations this week.
+Citations carried the week — the HF upvote board barely moved, so read this as a literature cycle, not a hype cycle.
 
-[DFlash](https://arxiv.org/abs/2602.06036) is the standout: citations sat frozen at **54 (Jul 30 → Aug 4)**, then jumped to **67 by Aug 15** (+13, influential 22 → 24), and HF upvotes finally broke their weeks-long plateau — **90 → 94** — with stars still grinding up (5,554 → 5,626). Back to a genuine dual-signal climb.
+Headliner is [FlashAttention-4](https://arxiv.org/abs/2603.05451): citations sat flat at **33 (Aug 1–3)**, then jumped to **42 by Aug 16** (+9, influential 4 → 6), extending a climb from just 25 on Jul 8. Near-zero HF traction (2 upvotes) — the field is voting with its bibliographies, not its likes.
 
-Plot twist on [DSpark](https://arxiv.org/abs/2607.05147): last week I flagged it cooling, and HF upvotes did stall (**41 → 43**). But the citation side roared — **8 → 14 citations and 2 → 4 influential in 11 days**. Its reception just migrated from HuggingFace to the literature.
+The block-diffusion speculative-decoding thread keeps compounding past DFlash: [Block Diffusion Draft Trees](https://arxiv.org/abs/2604.12989) went **10 → 14 citations** in ~12 days.
 
-Honorable mention: [MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392) is quietly dual-climbing — **6 → 9 citations and 392 → 408 stars** over ~10 days, upvotes 153 → 156. Meanwhile last week's citation lead [REAP the Experts](https://arxiv.org/abs/2510.13999) stalled dead at **30 citations / 11 influential**, no movement since the Aug 14 print.
+Two sparse-attention/KV infra papers broke long plateaus on the same refresh: [TriAttention](https://arxiv.org/abs/2604.04921) **12 → 16** (rel 95, but HF stuck at 117 for a solid month) and [IndexCache](https://arxiv.org/abs/2603.12201) **14 → 18** (+1 influential). Steady literature pull, no community-hype spike behind either.
