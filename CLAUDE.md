@@ -23,7 +23,7 @@ This repo is an automated agent that discovers new arXiv papers about LLM infere
 
 ### Scheduling
 
-- systemd user timer (`inf-eco-scan.timer`) fires daily at 23:00 CET (21:00 UTC) with `Persistent=true` (catches up after sleep/shutdown). This sits in the quiet window between arXiv's 18:00 UTC submission deadline and 00:00 UTC announcement, avoiding the post-announcement traffic spike that triggers 429s.
+- systemd user timer (`inf-eco-scan.timer`) fires daily at 05:00 local time (03:00 UTC in summer) with `Persistent=true` (catches up after sleep/shutdown). This runs a few hours after arXiv's 00:00 UTC announcement, clear of the immediate post-announcement traffic spike that triggers 429s. The timer is defined in `fmma/nixos-webserver:configuration.nix`, not in this repo.
 - One systemd-level attempt per day; no service-level retries (the arxiv client itself retries 429s twice — see "arXiv rate limits" below).
 - Discord notifications via OpenClaw (`DISCORD_CHANNEL` env var in the service).
 
