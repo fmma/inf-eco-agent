@@ -1,20 +1,25 @@
+I've read all 8 PDFs in full. Here's the flash-news bulletin based on my full-text rescoring:
+
 # Inference Ecosystem — Flash News
-**2026-08-17 · 96 papers scanned · 2 featured**
+2026-08-18 · 286 papers scanned · top 5
 
-Only two papers cleared full-text review this cycle — but the lead is one of the most directly deployable serving results in months.
+### [FreeToken: Efficient Edge-Native MoE Serving with Bandwidth-Adaptive Execution](https://arxiv.org/abs/2608.16157)
+The week's standout. FreeToken co-designs the whole local-serving stack around a closed-form q\* policy that splits each decode step's expert cache-misses between PCIe cache-fills and in-place CPU execution, sized from two bandwidths profiled on the actual machine — all kept inside a static CUDA graph. It serves a 35B model at 39.3 tok/s on an 8GB RTX 4060 laptop (beating Codex's 33 tok/s median), a 284B DeepSeek-V4-Flash on a gaming desktop, and 753B GLM-5.2 on one RTX PRO 6000 at 2× llama.cpp — 1.5–2.3× decode over KTransformers/Ollama with worst-case TTFT under 44s where every baseline blows past 150s. If you serve agents locally, read this today. Score: 94 (was 92)
 
-## [Trie Automata for Constrained Decoding over Large Finite Sets](https://arxiv.org/abs/2608.12574)
-This COLM 2026 paper (Amazon) demolishes the "cardinality wall" in constrained decoding: when an LLM must pick one string from thousands of valid options — tool routing over 5,000+ APIs, ICD-10's 74,719 codes, entity linking — general-purpose backends like XGrammar choke (25–50s compiles, provider enum caps at 120–1,000). The trie automaton builds a character-level trie and uses Aho-Corasick multi-pattern matching to precompute per-node token masks, solving the previously-unaddressed BPE-trie alignment problem, and delivers **7× faster per-step masking (0.65µs vs 5.8µs)** and **29× higher end-to-end vLLM throughput at batch 256 (219 vs 7.5 req/s)**. It's a drop-in vLLM/SGLang backend with a *provable* 100% validity guarantee, flat sub-100ms compilation up to K=100K across seven tokenizer families — and the authors are refreshingly rigorous that the 29× is vLLM-specific (7× is engine-independent; the rest is a stateless LogitsProcessor bypassing the guided-decoding pipeline). If you serve structured tool-calling or large-label classification, ship-relevant today. Score: 91 (was 88)
+### [GraniKV: Asymmetric Granularity KV-Cache Paging for Multi-Agent Systems](https://arxiv.org/abs/2608.15584)
+Production engines page the whole KV cache at one granularity; GraniKV splits it — a contiguous HOT pool for the shared prefix (which finally makes a fat-GEMM HydraGen-style backend usable in a real engine) and a token-level COLD pool for suffixes, with a per-step dispatcher picking dense vs. cascade attention by effective batch size. On SGLang it hits 2.16×/1.98×/1.57× output throughput at 16K shared prefixes across Llama-3.1-8B/Qwen-2.5-14B/32B, and crucially sustains 1.95× under heterogeneous multi-prefix load where batch-global cascade collapses to parity. Directly targets the Claude-Code/RAG shared-prefix pattern that now dominates production. Score: 90 (was 90)
 
-## [Decoupled Contrastive Decoding via Expert-Aligned Drafting](https://arxiv.org/abs/2608.12913)
-Contrastive Decoding lifts reasoning/factuality but doubles per-token cost via its amateur pass; DCD makes it cheap without changing the output. The sharp diagnostic: contrastive-aware drafting *doesn't* beat plain expert-aligned drafting because the contrastive signal is weaker than drafter error at 81% of positions — so DCD drafts with an off-the-shelf EAGLE3 proposer and applies the amateur only in verification, keeping the distribution provably lossless. On 8B pairs (SGLang/H200) it hits **1.65–1.95× greedy speedups** over vanilla CD and cuts proposal-path latency **5–12×** vs amateur-coupled SCD/CoS — winning even while accepting fewer tokens (L=1.44 vs 2.45) because proposals cost ~0.6ms instead of 3.5–7.4ms. Narrower reach (only matters if you already run CD) but needs zero drafter retraining, so adoption is near-free. Score: 80 (was 82)
+### [FluxBin: Flexible LUT-based Ultra-low-bit LLM Inference](https://arxiv.org/abs/2608.15602)
+Binary-quant papers usually dequantize back to FP16 and forfeit the speedup; FluxBin actually cashes it in via a multiplication-free LUT kernel (scale-fusion + Virtual Columnar Mapping to densify salient columns). Its training-free PTQ — decoupled row/column binary bases plus Hessian-guided hybrid precision — lands ~2.6 effective bits at accuracy on par with fine-tuned QuIP#, for 5.92× speedup, 10.19× energy savings, and 70B on a single A100. The decode-only gain (6.3×) even holds at large batch, since LUT reduction is batch-independent. Score: 91 (was 90)
+
+### [FlashQuant: Sparse-Dense Fusion for Outlier-Aware LLM Inference](https://arxiv.org/abs/2608.15531)
+Outlier-aware W4A16 splits into a dense low-bit GEMM and a sparse high-precision SpMM that existing stacks run as two kernels, re-reading activations from HBM twice. FlashQuant fuses them into one kernel with shared sparse-dense tiling, a Tile-COO outlier format, and pipelined scheduling — 2.74–4.18× over cuBLAS BF16 and up to 1.53× over the strongest unfused Marlin+Sputnik baseline across RTX 3090/4090/5090, cutting outlier memory traffic ~45%. A clean, portable win for anyone running outlier-preserving quantized decode. Score: 88 (was 90)
+
+### [Global Simulation-Guided Dynamic Operator Scheduling for Multi-Tenant Serving](https://arxiv.org/abs/2608.15762)
+Container-granularity scheduling strands second-scale idle GPU slices; SliceScheduler drops to operator (layer) granularity, exposing a cluster-wide Global Mapping Graph and a fast what-if simulator (~177 ops/ms, ~10⁴× faster than SimAI) to slot low-priority work into those gaps without OOM or SLA breaches. Production-trace replay shows 1.10–2.29× token throughput and ~9% better SLO attainment at effectively zero runtime overhead (0.0% vs. direct execution). Practical for MaaS operators squeezing utilization out of co-located tenants. Score: 86 (was 92)
 
 ---
 
 ## Surge Watch
 
-The HF upvote board was flat last week; this week it found a pulse. [LLMRouter](https://arxiv.org/abs/2608.06867) jumped **97 → 103 HF upvotes** (Aug 16→17), clearing 100 on only its second tracked day and already sitting on **2.3k+ GitHub stars** — easily the standout community signal of the refresh, even at a middling rel 70.
-
-Two smaller day-over-day risers worth a bookmark: [Thought-Level Beam Search](https://arxiv.org/abs/2608.08020) (Tri Dao, Netravali) went **10 → 14** and [An AI4AI Framework for Visual Token Pruning](https://arxiv.org/abs/2608.07193) **11 → 15** — tiny bases and single-day moves, but the only other HF life on the board.
-
-Citations, meanwhile, went quiet: the Aug 16 jumps (FlashAttention-4, IndexCache, TriAttention) are already banked and today's pass added nothing new. So read this as a brief, HF-led micro-cycle — the mirror image of last week's citations-only pull.
+Nothing noteworthy in signal trends today.
