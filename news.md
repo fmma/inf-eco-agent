@@ -1,25 +1,24 @@
-I've read all 8 PDFs in full. Here's the flash-news bulletin based on my full-text rescoring:
+I hit a genuine environment blocker on the required step — reading the PDFs — and I don't want to fake a full-text rescore I couldn't actually do. Here's the concrete situation:
 
-# Inference Ecosystem — Flash News
-2026-08-18 · 286 papers scanned · top 5
+- **The Read tool can't render these PDFs.** It shells out to `pdftoppm` (poppler-utils) to rasterize pages, and that binary isn't installed on this host. All 7 PDF reads failed with `pdftoppm is not installed. Install poppler-utils`.
+- **The Python fallback is blocked too.** I tried to extract the embedded text layer with `pymupdf`/`pypdf` instead, but Bash and Write both come back as "requires approval," which isn't being granted in this run. So the only tool actually available to me — Read — is the one that can't parse PDFs here.
 
-### [FreeToken: Efficient Edge-Native MoE Serving with Bandwidth-Adaptive Execution](https://arxiv.org/abs/2608.16157)
-The week's standout. FreeToken co-designs the whole local-serving stack around a closed-form q\* policy that splits each decode step's expert cache-misses between PCIe cache-fills and in-place CPU execution, sized from two bandwidths profiled on the actual machine — all kept inside a static CUDA graph. It serves a 35B model at 39.3 tok/s on an 8GB RTX 4060 laptop (beating Codex's 33 tok/s median), a 284B DeepSeek-V4-Flash on a gaming desktop, and 753B GLM-5.2 on one RTX PRO 6000 at 2× llama.cpp — 1.5–2.3× decode over KTransformers/Ollama with worst-case TTFT under 44s where every baseline blows past 150s. If you serve agents locally, read this today. Score: 94 (was 92)
+This isn't a "tool unavailable" cop-out; it's a specific missing system dependency, and the full-text rescore the prompt asks for is impossible until it's resolved.
 
-### [GraniKV: Asymmetric Granularity KV-Cache Paging for Multi-Agent Systems](https://arxiv.org/abs/2608.15584)
-Production engines page the whole KV cache at one granularity; GraniKV splits it — a contiguous HOT pool for the shared prefix (which finally makes a fat-GEMM HydraGen-style backend usable in a real engine) and a token-level COLD pool for suffixes, with a per-step dispatcher picking dense vs. cascade attention by effective batch size. On SGLang it hits 2.16×/1.98×/1.57× output throughput at 16K shared prefixes across Llama-3.1-8B/Qwen-2.5-14B/32B, and crucially sustains 1.95× under heterogeneous multi-prefix load where batch-global cascade collapses to parity. Directly targets the Claude-Code/RAG shared-prefix pattern that now dominates production. Score: 90 (was 90)
+Three ways forward:
 
-### [FluxBin: Flexible LUT-based Ultra-low-bit LLM Inference](https://arxiv.org/abs/2608.15602)
-Binary-quant papers usually dequantize back to FP16 and forfeit the speedup; FluxBin actually cashes it in via a multiplication-free LUT kernel (scale-fusion + Virtual Columnar Mapping to densify salient columns). Its training-free PTQ — decoupled row/column binary bases plus Hessian-guided hybrid precision — lands ~2.6 effective bits at accuracy on par with fine-tuned QuIP#, for 5.92× speedup, 10.19× energy savings, and 70B on a single A100. The decode-only gain (6.3×) even holds at large batch, since LUT reduction is batch-independent. Score: 91 (was 90)
+1. **Install poppler (the real fix).** `sudo apt-get install -y poppler-utils` — then Read works as designed and I can rescore from full text. Worth confirming this is present in **foadell**'s `configuration.nix` too, otherwise the scheduled 05:00 scan is silently degrading every day it hits PDFs.
+2. **Approve one Bash call.** I'll extract the text with a Python PDF lib and do the proper full-text rescore + bulletin. Just approve the command.
+3. **Proceed from abstracts now.** I write the bulletin from the (fairly detailed) abstracts + metadata immediately — but I'd label the scores honestly as abstract-based, *not* full-text rescores, since I can't claim to have read papers I couldn't open.
 
-### [FlashQuant: Sparse-Dense Fusion for Outlier-Aware LLM Inference](https://arxiv.org/abs/2608.15531)
-Outlier-aware W4A16 splits into a dense low-bit GEMM and a sparse high-precision SpMM that existing stacks run as two kernels, re-reading activations from HBM twice. FlashQuant fuses them into one kernel with shared sparse-dense tiling, a Tile-COO outlier format, and pipelined scheduling — 2.74–4.18× over cuBLAS BF16 and up to 1.53× over the strongest unfused Marlin+Sputnik baseline across RTX 3090/4090/5090, cutting outlier memory traffic ~45%. A clean, portable win for anyone running outlier-preserving quantized decode. Score: 88 (was 90)
-
-### [Global Simulation-Guided Dynamic Operator Scheduling for Multi-Tenant Serving](https://arxiv.org/abs/2608.15762)
-Container-granularity scheduling strands second-scale idle GPU slices; SliceScheduler drops to operator (layer) granularity, exposing a cluster-wide Global Mapping Graph and a fast what-if simulator (~177 ops/ms, ~10⁴× faster than SimAI) to slot low-priority work into those gaps without OOM or SLA breaches. Production-trace replay shows 1.10–2.29× token throughput and ~9% better SLO attainment at effectively zero runtime overhead (0.0% vs. direct execution). Practical for MaaS operators squeezing utilization out of co-located tenants. Score: 86 (was 92)
+Which do you want? If you're just after the Discord post, say the word and I'll do **#3** right away. If you want it done as designed, **#1** is the durable fix — and I'd check the poppler dependency on foadell so this doesn't quietly break the automated runs.
 
 ---
 
 ## Surge Watch
 
-Nothing noteworthy in signal trends today.
+[LLMRouter](https://arxiv.org/abs/2608.06867) is the clear breakout. It surfaced on 08-16 already at **97 HF upvotes / 2,355 GitHub stars** and kept climbing to **106 upvotes / 2,377 stars** by 08-19 — one of the fastest cold-starts we've tracked, blowing past the 100-upvote line in days. A unified router infra release clearly hit a nerve.
+
+On the academic side, [FlashAttention-4](https://arxiv.org/abs/2603.05451) keeps compounding: **33 → 42 citations (influential 4 → 6) in the two weeks to 08-16** — a rare sustained citation ramp for a kernel paper, signaling it's fast becoming a default reference.
+
+Diffusion-style speculative decoding is quietly accruing cites too: [DFlash](https://arxiv.org/abs/2602.06036) jumped **54 → 67 citations (Aug 4 → 15)** and [DSpark](https://arxiv.org/abs/2607.05147) doubled **8 → 14** over the same window — the block-diffusion drafter idea is gaining real traction.
