@@ -1,31 +1,27 @@
-I've read all 8 PDFs in full. Here is the rescored flash-news bulletin.
+I've read all 8 PDFs. Here's my rescored assessment and the bulletin.
 
 # Inference Ecosystem — Flash News
-**2026-08-20 · 164 papers scanned · top 5 featured**
+**2026-08-21 · 165 papers scanned · 5 featured**
 
-### [Pre-Compiled Pipeline Shards for Distributed LLM Inference on Intel AI PC Fleets](https://arxiv.org/abs/2608.19147)
-Turns idle office Intel AI PCs into a serving cluster: models are split by layer into pre-compiled INT4 OpenVINO shards, glued together by three composable tricks — a `beam_idx` Gather injection that unlocks the GPU plugin's IndirectKVCache fusion (recovering ~15% to reach monolithic parity), mask-based KV rewind that makes speculative decoding pay off on stateful OpenVINO without the ~48ms physical-trim cost, and cross-stream micro-batching. A two-node Llama 3.1 8B pipeline serves two users at 43.97 tok/s (1.79× single-node monolithic), stays interactive at ~4× naïve under 100ms/hop WAN, and scales to a 70B model no single node can hold — all bit-exact, with code and repro scripts. Score: 90 (was 90)
+## [FlashPrefill V2: Block-Sparse Prefill Attention for Long-Context LLM Serving](https://arxiv.org/abs/2608.19758)
+The standout this week. FlashPrefill V2 turns a sparse-prefill prototype into a real attention backend: a mean-correction term holds RULER accuracy within ~1.1 pts of full attention even below 5% density, while an FA3/4-aligned kernel (PackGQA, warp specialization, pingpong, FP8) plus native paged-KV/continuous-batching drops it straight into SGLang. It hits 47.3× (FP8) and 27.2× (BF16) over FlashAttention-2 at 128K — 30.5× over an FA3/4-aligned *dense* baseline — and cuts end-to-end TTFT up to 4.8× with ~2× serving throughput on H20s. If you serve long context, this is the one to integrate now. Score: 96 (was 95)
 
-### [S2-MoE: Efficient Self-Speculative Decoding for MoE on Edge Devices](https://arxiv.org/abs/2608.15018)
-Makes speculative decoding and MoE cooperate — normally a bad pairing because rejected drafts trigger disjoint expert activations — via routing-aware adaptive expansion, reuse-aware expert gating, and a context-aligned KV cache shared between draft and target. Training-free and built into llama.cpp, it reaches up to 5.3× (2.0× avg) over autoregressive decoding on Jetson Orin and consistently beats EAGLE-3 and Cascade across DeepSeek, OLMoE, Qwen3, and GPT-OSS under tight memory budgets. Its verification-cost model tracks measured latency at R²=0.94–0.99 and quality stays within ~1% PPL. Score: 90 (was 90)
+## [CacheRoute: Planned Prefix-Affinity Routing for Large-Scale LLM Serving](https://arxiv.org/abs/2608.19677)
+A rare at-scale routing result: Llama-3.3-70B fp8 on 60 H100s sustaining 176 QPS at a 3.5s p99 — 2.3× the best of five baselines — via a periodic prefix-affinity table (top-rate admission + LPT placement) that lifts served KV-hit from 64%→93%. What earns the score is the honesty: two 32B workloads where affinity actually *loses*, and a firm rule to gate any deployment with shadow replay instead of trusting an analytic residency model (which missed hit-rate by 14–45 pts). Score: 89 (was 90)
 
-### [FlashAttention for Scalable Vector Architectures](https://arxiv.org/abs/2608.18656)
-FlashAttention-V rewrites the ggml/llama.cpp attention kernel for long-vector CPUs (RISC-V RVV, Arm SVE) using inter-head packing to exploit vector lengths beyond the head dimension, where existing kernels stall at VL≤D. Simulated prefill speedups hit 22–42× over *scalar* FlashAttention (12–14× confirmed on real Banana Pi BPI-F3 silicon), though gains over the existing *vectorized* FP16 kernel are a more modest 1.2–2× and end-to-end wins are small. The sharp practitioner takeaway: Q8_0's interleaved weight-scale layout structurally blocks long-vector scaling, burning 60% of cycles on packing/reduction. Score: 87 (was 92)
+## [ReCache: Efficient KV Cache Reuse and Compression for Tool-Augmented LLM Agents](https://arxiv.org/abs/2608.19662)
+Agentic tool/skill schemas recur in different orders, so standard prefix caching never fires. ReCache's resource-wise attention builds composition-invariant KV blocks (3.66× TTFT), then contribution-guided layer/head-group pruning + field-aware token pruning cut allocated KV memory 92.4% and speed attention 1.42×, keeping 97.5%/91.8% of dense Inv-F1 in/out-of-distribution. Needs light fine-tuning (Qwen3-4B) and the code is out — timely as agent-serving KV costs balloon. Score: 87 (was 90)
 
-### [Cacheable by Design? Training MoE Routers for Locality Against the Edge Memory-Bandwidth Wall](https://arxiv.org/abs/2608.18261)
-A rigorous measurement study of the MoE bandwidth wall: Qwen3-235B on an 8GB GPU decodes at 0.44 tok/s (matching bytes/token ÷ SSD bandwidth), naïve batching collapses at batch 32 from paging thrash, and the released `llama-moe-trace` tool measures 2.0× adjacent-token expert reuse — an LRU cache of just 13.4% of experts serves 66% of requests. The headline is an honest pre-registered negative result (training routers for locality fails a strict ≤1% perplexity gate at 137M scale), but the actionable win is that training-free cache-aware rerouting *stacks* with trained locality to cut ~80% of misses at ≤3.4% PPL. Score: 83 (was 88)
+## [RequestRouter: Request-Boundary Routing for Efficient Single-GPU LLM Inference](https://arxiv.org/abs/2605.23057)
+A pragmatic reminder that you don't need one universal config. A ~5µs rule-based controller picks one mode per request (GPTQ, INT8, spec-decoding, prefix cache, continuous batching, hybrids) on vLLM/A100, landing 2.10× mean latency speedup and 0.48× energy vs FP16 while retaining 99.6% of accuracy. Best part is the negative result: learned routers (tree/forest) never beat the hand rules once you count their 1000×-higher CPU overhead. Score: 84 (was 90)
 
-### [Compress and Forget: bitsandbytes Quantization Amplifies Proactive Interference](https://arxiv.org/abs/2608.18578)
-A deployment warning aggregate benchmarks miss: INT4/NF4 disproportionately degrades retrieval of repeatedly-overwritten values (Qwen 81.0%→68.3% at high interference), an effect specific to semantically similar distractors that *reverses sign* on numeric controls — ruling out generic noise. It's mechanistically a rise in same-key intrusions (21.5%→24.6%), localized to the quantized backbone rather than `lm_head`, and even INT8 carries a smaller-but-real penalty in 2 of 3 models. If you serve 4-bit models over long, updatable, semantically dense state (assistants tracking evolving user preferences), this is a genuine hidden cost. Score: 77 (was 72)
+## [Learning how to Forget: Fine-tuning for Long-Context Sparse Attention](https://arxiv.org/abs/2608.19920)
+AWS's answer to why sparse attention stays a research toy: co-adapt the model to its KV-cache policy. Nested checkpointing + delta-encoded KV buffers let you fine-tune a 4B model with H2O sparse attention on a single 40GB A100, and it beats sequence-parallel-trained models — which, run under eviction, fail to stop and emit garbage. Ships the open-source KeysAndValues library with a FlashInfer SDPA kernel that returns summed attention weights (the missing primitive for H2O-style policies). Score: 82 (was 86)
+
+*Just missed the cut: Daedalus-150M (conv-attention hybrid, 1.76–2.08× faster CPU decode, score 80) and HYDRA (chiplet DSE for hybrid Transformer-Mamba serving, 1.55× throughput, score 74 — strong but hardware-architect territory).*
 
 ---
 
 ## Surge Watch
 
-[FreeToken](https://arxiv.org/abs/2608.16157) is the new breakout — HF upvotes **more than doubled overnight, 26 → 61 (08-19 → 08-20)**, with a GitHub repo surfacing at 67 stars on day one. Edge-native MoE serving clearly hit a nerve; watch this one.
-
-Last week's rocket [LLMRouter](https://arxiv.org/abs/2608.06867) has cooled: upvotes flatlined at **106** (08-19 → 08-20) while stars only crept to 2,390. The cold-start surge has plateaued.
-
-Smaller early spike to track: [Dynamic Multi-Byte Prediction](https://arxiv.org/abs/2608.15454) jumped **2 → 13 HF upvotes in a day**.
-
-On the academic side, block-diffusion speculative decoding keeps compounding — [DFlash](https://arxiv.org/abs/2602.06036) crossed **70 citations (67 → 70, influential 24 → 25)** and [DSpark](https://arxiv.org/abs/2607.05147) ticked **14 → 16** since 08-18. Newcomer [MEMENTO](https://arxiv.org/abs/2604.09852) also popped **7 → 10 citations** this week — context-management for agents finding an audience.
+Nothing noteworthy in signal trends today.
