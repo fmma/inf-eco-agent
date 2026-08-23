@@ -1,14 +1,12 @@
 # Inference Ecosystem — Flash News
-**2026-08-22** — No new papers today.
+**2026-08-23** — No new papers today.
 
 ---
 
 ## Surge Watch
 
-[LLMRouter](https://arxiv.org/abs/2608.06867) is the clear breakout: HF upvotes climbed 97 → 109 and GitHub stars 2.36k → 2.43k in the six days since it landed (Aug 16–22). Unified router infrastructure is hitting a nerve.
+The breakouts we flagged last week have cooled rather than compounded. [LLMRouter](https://arxiv.org/abs/2608.06867) stalled at 109 HF upvotes and ~2.43k GitHub stars (Aug 20–22) — the unified-router rush is leveling off, not accelerating. [FreeToken](https://arxiv.org/abs/2608.16157) similarly froze at 61 upvotes with no follow-through after its one-day spike.
 
-[FreeToken](https://arxiv.org/abs/2608.16157) spiked 26 → 61 HF upvotes in a single day (Aug 19 → 20) — early, but edge-native MoE serving is pulling eyes fast. One to watch.
+The citation compounders plateaued too: [FlashAttention-4](https://arxiv.org/abs/2603.05451) is parked at 42 citations (6 influential) and [DFlash](https://arxiv.org/abs/2602.06036) at 70 — both flat all week.
 
-On citations, [FlashAttention-4](https://arxiv.org/abs/2603.05451) keeps compounding: 26 → 42 citations (3 → 6 influential) since mid-July — the kernel everyone builds on. [DFlash](https://arxiv.org/abs/2602.06036) tracks close behind at 54 → 70 over the same window.
-
-Otherwise quiet: Fish Audio S2, TAPS (stuck ~147–148 upvotes), and the diffusion/speculative-decoding cohort saw no meaningful movement this week.
+The one quiet mover worth flagging: [Deterministic Inference across Tensor Parallel Sizes](https://arxiv.org/abs/2511.17826) climbed 9 → 13 citations (0 → 3 influential) since early August. It's small, but it anchors a steadily accreting reproducible/batch-invariant inference cluster — the kind of slow burn that precedes a real wave.
