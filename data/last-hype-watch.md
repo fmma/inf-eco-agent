@@ -1,5 +1,7 @@
-[FreeToken](https://arxiv.org/abs/2608.16157) went supernova. The bandwidth-adaptive edge-MoE paper I flagged last week didn't just keep climbing on HuggingFace (**61 → 94 upvotes**) — its GitHub repo detonated from **67 to 7,304 stars**, a >100× jump that's easily the loudest signal on the board this cycle. That's not launch buzz; someone shipped code the community had been waiting for.
+The HuggingFace board went quiet this cycle — [FreeToken](https://arxiv.org/abs/2608.16157) and [LLMRouter](https://arxiv.org/abs/2608.06867) both settled with no fresh movement — so the real story moved to the citation ledger.
 
-[LLMRouter](https://arxiv.org/abs/2608.06867), by contrast, is cooling: upvotes have flatlined at **109** (the 97→109 run is over) while stars keep a slow drip to **2,536**. Classic post-launch plateau settling into a long tail.
+[dLLM-Cache](https://arxiv.org/abs/2506.06295) is the new quiet compounder: **156 → 160 citations in two days**, capping a steady month-long climb (154 on Aug 4 → 160 now). Diffusion-LLM caching is turning into load-bearing infrastructure, not a curiosity.
 
-On the citation side, [FlashAttention-4](https://arxiv.org/abs/2603.05451) is the quiet compounder — **42 → 46 citations and influential cites 6 → 7 in ten days**. Flagship-kernel adoption, not hype. DSpark and DFlash, last week's citation names, have both gone flat.
+Correction to last week's call: [DFlash](https://arxiv.org/abs/2602.06036) is **not** flat. Its repo added ~340 GitHub stars since mid-August (**5,626 → 5,968**) while citations kept ticking up (**67 → 74**, influential 24 → 26) — quietly one of the most durable performers on the board. Its pairing, [DSpark](https://arxiv.org/abs/2607.05147), genuinely has stalled (citations 16 → 18, upvotes stuck at 45).
+
+Otherwise it's still: [FlashAttention-4](https://arxiv.org/abs/2603.05451) added a single citation (46 → 47) since last report, and no new HuggingFace launch cleared the bar this week.
