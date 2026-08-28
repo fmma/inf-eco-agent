@@ -1,33 +1,29 @@
-I've read all seven PDFs in full. Rescoring on full text: **Prefix Sliding** rises (training-free 3× with public code and a genuinely constant per-token cost — the standout), **TOPAS** eases slightly (headline gains are synthetic; real MetaGPT gains are 9.8–22%), **AsymSpec** drops (full text reveals it's a *lossy* greedy steering scheme, not lossless SD), the **Quantization survey** rises (the FP4 flip + which-transform guide are directly actionable), **APT** drops (an ASIC co-design in simulation), and **Goodput** (55) and **Text-to-SQL** (62) fall below threshold. Five papers clear 70.
-
 # Inference Ecosystem — Flash News
-**2026-08-27 · 5 picks from 148 papers scanned**
+**2026-08-28 · 337 papers scanned · 5 picks**
 
-Long-horizon reasoning and the FP4 hardware transition dominate today's batch — and the standout is a training-free trick that finally makes 100k-token reasoning affordable.
+## [Pushing the Envelope of LLM Inference with Ultra-Low-Bit Quantized Models](https://arxiv.org/abs/2508.06753)
+Intel ships close-to-roofline 2-bit GEMM microkernels for AVX2 CPUs and Intel Xe2 GPUs, using a VNNI4-interleaved weight layout and fused quantize/dequantize on GPU. Integrated into PyTorch-TPP (CPU) and vLLM (GPU): up to 7× over BF16 and 2.2× over bitnet.cpp on CPU, 6.7× on Xe2, and a production ternary 27B model runs at ~48 tok/s on a client GPU. The lesson is that the *runtime kernels*, not just the quantized weights, are what actually unlock ultra-low-bit — and these land in frameworks you already run. Score: 93 (was 95)
 
-## [Prefix Sliding for efficient test-time scaling](https://arxiv.org/abs/2608.26070)
-Muennighoff et al. (Stanford/UW/Prime Intellect) keep only the prompt prefix plus a sliding window of the last few thousand reasoning tokens, capping KV memory at a **constant cost per token** no matter how long the model thinks. Training-free, it runs Qwen3 **3× faster** while matching full attention — an 8192-token window even *beats* it on AIME25 (35.8 vs 34.2) — and RL training then scales traces past 100k tokens. One knob (window size), a custom Hopper FlashAttention kernel, and public code: the drop-in most reasoning-serving stacks should test this week. Score: 92 (was 90)
+## [Scorpio: Serving Right Requests at the Right Time for Heterogeneous SLOs](https://arxiv.org/abs/2505.23022)
+An SLO-aware scheduling layer on vLLM that treats heterogeneous TTFT/TPOT targets as a resource: a TTFT Guard (least-deadline-first + reject-the-unattainable) plus a TPOT Guard (credit-based batching + virtual-batch-size admission control). Up to 14.4× goodput and +46.5% SLO adherence under high load vs vLLM/Mooncake/S3, at <1% scheduling overhead. Drop-in scheduling that converts loose-SLO slack into headroom for tight-SLO requests — immediately useful for multi-tenant serving. Score: 91 (was 95)
 
-## [TOPAS: Workflow-Aware Prefix-State Scheduling for Multi-Agent LLM Serving](https://arxiv.org/abs/2608.25523)
-The first SGLang scheduler to *jointly* decide which agent prefixes stay resident and which requests to admit under a shared KV budget, scoring post-decision states by remaining-path reduction vs. near-term reuse. On synthetic DAGs it cuts mean/p99 JCT up to 39.8%/49.4%; on real MetaGPT workflows a more modest but real 9.8–22% mean-JCT drop, at just 1.9ms/decision (0.31% overhead). If you serve agentic pipelines, prefix residency is a scheduling lever you're probably leaving on the table. Score: 89 (was 92)
+## [FLINT: Efficiently Leveraging High Bandwidth Flash for Capacity-Scalable LLM Inference](https://arxiv.org/abs/2608.25062)
+Onur Mutlu's group attacks the memory-capacity wall with a workload-driven high-bandwidth-flash substrate: a hardware burst-buffer controller (no SRAM staging buffer or compiler prefetch hints), off-path "phantom-plane" refresh, and a compact read-only FTL. In simulation across DeepSeek-V3/V4, Kimi-K2 and Llama, it delivers 2.2× decode throughput over HBM-only and hits a 50ms TPOT SLO with 3.1× fewer GPU packages. Not deployable today, but the clearest blueprint yet for serving trillion-param models from a single accelerator once HBF arrives. Score: 90 (was 97)
 
-## [AsymSpec: Context-Asymmetric Speculative Decoding for Agentic LLMs](https://arxiv.org/abs/2608.26004)
-Breaks the drafter=verifier context assumption: a lightweight drafter reads the *full* prompt and steers a compressed-context verifier via contrastive δ-fusion plus a parameter-free JSD acceptance gate, recovering ~90% of full-context accuracy at **0.2–0.3× compute and 1.3–1.7× throughput** (and extending cross-modally, VL drafter → text verifier). The catch the abstract buries: it's a *lossy* greedy steering scheme, not lossless SD, and needs verifier logits — but a compelling operating point exactly when input compression is unavoidable. Score: 88 (was 92)
+## [Launch-Bound and Substitutable: Why Three Inference Optimizations Fail in MoE Models](https://arxiv.org/abs/2608.26612)
+A rigorous myth-buster on OLMoE, DeepSeek-V2-Lite and Qwen3-30B. Fused Triton kernels hit 5.6–9× in isolation but 0.999× end-to-end — the model is launch-bound (~1000 kernel launches/forward pass, not arithmetic); INT4's quality loss is 97.3% weight error and only 2.7% routing drift (experts are substitutable, proven by causal route-replay); and removing all torch.compile graph breaks makes the model 3× slower. Redirects MoE optimization to the real lever — batching the expert dispatch — and warns off two popular dead ends. Score: 88 (was 88)
 
-## [Transforms for LLM Quantization: The Great Inversion and Format Co-Design](https://arxiv.org/abs/2608.25188)
-A 200-work survey that finally organizes the 4-bit transform zoo under one principle — the "Great Inversion": shared-scale kernels reward energy *flattening* (Hadamard/rotation), the exact opposite of classical transform coding's concentration (KLT). It maps the **integer→FP4 flip** (rotation is near-essential on INT4, neutral-to-harmful on NVFP4, block-confined on MXFP4) and distills a which-transform-when guide by deployment regime. The definitive reference as Blackwell/MI355X push everyone onto MXFP4/NVFP4. Score: 88 (was 85)
-
-## [APT: Accelerating Diffusion Transformers via Attention Probability-Guided Pruning and Quantization](https://arxiv.org/abs/2608.25380)
-A HW/SW co-designed accelerator for high-res DiTs (PixArt-α, SD3, FLUX) that uses attention probabilities as a unified prune/6-bit/12-bit signal, plus a Timestep-Aware FlashAttention that predicts this step's attention map from the last one — hitting up to 8.16×/3.01× speedup over A100/EXION. It's a 14nm ASIC in simulation, so no direct software payoff, but that temporal-reuse trick for FlashAttention is worth stealing for GPU kernels. Score: 72 (was 80)
+## [RADAR: Accelerate LLM Inference With RL-Based Dynamic Draft Trees](https://arxiv.org/abs/2512.14069)
+Speculative decoding with an offline-RL LSTM that decides per-step whether to keep calling the draft model, so tree depth adapts to context instead of a fixed 8 calls. Layered on EAGLE-3 it reaches 3.17–4.82× over autoregressive decoding (3–12.9% over EAGLE-3) while cutting draft-model calls 18.7%, lossless, with code released. A lightweight add-on to the EAGLE-3 stack many teams already deploy. Score: 86 (was 92)
 
 ---
 
 ## Surge Watch
 
-The HuggingFace board went quiet this cycle — [FreeToken](https://arxiv.org/abs/2608.16157) and [LLMRouter](https://arxiv.org/abs/2608.06867) both settled with no fresh movement — so the real story moved to the citation ledger.
+The HuggingFace board finally has a breakout, and it's a correction to last cycle's own call.
 
-[dLLM-Cache](https://arxiv.org/abs/2506.06295) is the new quiet compounder: **156 → 160 citations in two days**, capping a steady month-long climb (154 on Aug 4 → 160 now). Diffusion-LLM caching is turning into load-bearing infrastructure, not a curiosity.
+**Reversal of last cycle's "settled, no fresh movement" verdict on [FreeToken](https://arxiv.org/abs/2608.16157) — it just went vertical.** HF upvotes climbed **61 → 99 in eight days** (Aug 20 → 28), now at the doorstep of 100, while its GitHub repo rocketed from **67 stars on Aug 20 to 8,823 on Aug 28 — +1,519 in the last two days alone**. Bandwidth-adaptive edge-MoE serving is abruptly the hottest repo on the board.
 
-Correction to last week's call: [DFlash](https://arxiv.org/abs/2602.06036) is **not** flat. Its repo added ~340 GitHub stars since mid-August (**5,626 → 5,968**) while citations kept ticking up (**67 → 74**, influential 24 → 26) — quietly one of the most durable performers on the board. Its pairing, [DSpark](https://arxiv.org/abs/2607.05147), genuinely has stalled (citations 16 → 18, upvotes stuck at 45).
+On the citation ledger, [MEMENTO](https://arxiv.org/abs/2604.09852) is the new quiet climber: **7 → 12 citations in eight days** (influential 1 → 3, Aug 18 → 26) after a month stuck at 6–7 — self-managed context is gaining academic traction even with HF upvotes flat at 1.
 
-Otherwise it's still: [FlashAttention-4](https://arxiv.org/abs/2603.05451) added a single citation (46 → 47) since last report, and no new HuggingFace launch cleared the bar this week.
+Last cycle's movers have cooled: [DFlash](https://arxiv.org/abs/2602.06036) (74 cites / 5,968 stars) and [dLLM-Cache](https://arxiv.org/abs/2506.06295) (160 cites) are both flat since the last report, and no other HuggingFace launch cleared the bar this cycle.
