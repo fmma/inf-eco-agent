@@ -1,7 +1,7 @@
-No fresh community-upvote breakout this week — momentum has shifted to the **citation** charts, where a few papers are compounding fast.
+The upvote charts finally broke their summer silence: **[FreeToken](https://arxiv.org/abs/2608.16157)** (bandwidth-adaptive edge-MoE serving) tore from 26 → 99 HF upvotes in nine days (Aug 19→28) — easily the fastest fresh community climb this cycle, and a tell that on-device MoE is where attention is rotating.
 
-**[FlashAttention-4](https://arxiv.org/abs/2603.05451)** is the standout: citations nearly doubled, 28 → 47 in a month (Jul 27→Aug 27), with influential citations up 4 → 7. Barely any HF buzz (2 upvotes), but the kernel-pipelining co-design is being adopted fast where it counts — in other papers' references.
+**[DSpark](https://arxiv.org/abs/2607.05147)** is the rarer signal: it's accelerating on *both* charts at once — citations 3 → 18 (influential 1 → 6) since mid-July, HF upvotes 36 → 48 — unusual conviction for a semi-autoregressive speculative-decoding paper.
 
-**[Mamba-3](https://arxiv.org/abs/2603.15569)** keeps compounding academically: citations 64 → 73 and influential citations 8 → 10 over the past five weeks, even as HF upvotes stay frozen at 6-7 — a clean case of research traction outrunning community hype.
+On citations alone, **[DFlash](https://arxiv.org/abs/2602.06036)** keeps compounding hard: 42 → 75 (influential 17 → 26) since early July, still the reference magnet for diffusion speculative decoding. **[MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392)** quietly stacks both sides — citations 2 → 12 (influential 1 → 4) plus a 150 → 164 HF tick.
 
-On the inference-native side, **[IndexCache](https://arxiv.org/abs/2603.12201)** (cross-layer sparse-attention index reuse) is building a rare dual signal: citations 12 → 20 (influential 1 → 4) since late July, plus a late-August HF tick from 64 → 69 upvotes — one to keep an eye on.
+Notably, last month's citation leaders — FlashAttention-4, Mamba-3, IndexCache — have all flattened (47→48, 73→74, 20 flat). Momentum has clearly rotated to the newer speculative-decoding and edge-MoE cohort.
