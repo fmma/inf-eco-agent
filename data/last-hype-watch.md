@@ -1,7 +1,5 @@
-The upvote charts finally broke their summer silence: **[FreeToken](https://arxiv.org/abs/2608.16157)** (bandwidth-adaptive edge-MoE serving) tore from 26 → 99 HF upvotes in nine days (Aug 19→28) — easily the fastest fresh community climb this cycle, and a tell that on-device MoE is where attention is rotating.
+**[FreeToken](https://arxiv.org/abs/2608.16157)** is the one signal still accelerating: it cleared 100 HF upvotes (99→107) and — the new tell this cycle — its repo detonated from ~7.3K to ~11K GitHub stars in a single week (Aug 26→Sep 2). The code release, not the paper, is now the engine; on-device MoE serving has a genuine breakout.
 
-**[DSpark](https://arxiv.org/abs/2607.05147)** is the rarer signal: it's accelerating on *both* charts at once — citations 3 → 18 (influential 1 → 6) since mid-July, HF upvotes 36 → 48 — unusual conviction for a semi-autoregressive speculative-decoding paper.
+Meanwhile last cycle's citation darlings are visibly cooling: **[DFlash](https://arxiv.org/abs/2602.06036)** has slowed to 75→78 (influential 26→29) and **[MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392)** to 12→15 since Aug 27 — still the reference magnets, but well off their July tear. **[dLLM-Cache](https://arxiv.org/abs/2506.06295)** stalled at 163 after its late-Aug pop, and FlashAttention-4 sits flat at 48.
 
-On citations alone, **[DFlash](https://arxiv.org/abs/2602.06036)** keeps compounding hard: 42 → 75 (influential 17 → 26) since early July, still the reference magnet for diffusion speculative decoding. **[MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392)** quietly stacks both sides — citations 2 → 12 (influential 1 → 4) plus a 150 → 164 HF tick.
-
-Notably, last month's citation leaders — FlashAttention-4, Mamba-3, IndexCache — have all flattened (47→48, 73→74, 20 flat). Momentum has clearly rotated to the newer speculative-decoding and edge-MoE cohort.
+Net: momentum is rotating from citation accrual toward real code adoption — and FreeToken owns that shift.
