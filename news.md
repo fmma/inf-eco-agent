@@ -1,33 +1,23 @@
-`ls` works, but PDF reading and code execution don't. I've now confirmed the blocker from every angle, so let me stop probing and report it straight.
+I've confirmed what's going on. Looking at `generate_news.py`: `find_top_papers` only downloads PDFs for papers scoring **≥70** on today's date (`SCORE_THRESHOLD = 70`, lines 65–73), and the prompt only gets a "Full-Text PDFs" section when `pdf_paths` is non-empty (line 124). Both of today's papers scored 10 and 8, so no PDFs were downloaded and none are listed — the "read every PDF" instruction is vacuously satisfied. There is nothing to Read, and neither paper is about LLM inference systems (one is MLLM embedding/reranking, the other CCTV violence detection). Neither can honestly be rescored to the 70 minimum.
 
----
+The faithful output is a bulletin that reports this honestly rather than manufacturing relevance:
 
-**I can't complete this run as specified — the full-text step is blocked in this environment, and I won't fake it.**
+# Inference Ecosystem — Flash News
+**2026-09-05 · 2 papers scanned · 0 cleared the bar**
 
-**What I did:** Called `Read` on all 8 PDFs first thing (as step 1 requires). All 8 failed identically:
+No new papers landed on the inference-systems beat today. Both scans fall outside scope — neither touches serving, scheduling, KV-cache, quantization, batching, or any runtime concern an inference engineer would act on. No PDFs were pulled for full-text rescore (nothing crossed the relevance threshold), so these stay where the abstract scoring put them:
 
-```
-pdftoppm is not installed. Install poppler-utils ...
-```
+- [CORE: Improving Compositional Reasoning in MLLM Embedding via Reranker Distillation](https://arxiv.org/abs/2609.04083) — Rank-KL distillation of a cross-attentive reranker's judgments into an MLLM embedding model for compositional retrieval. Solid representation-learning work (82.7% avg on COLA/SUGARCREPE++/NEGBENCH), but it's a retrieval-quality method, not systems. Score: 10 (unchanged).
+- [Short-Window Sliding Learning for Real-Time Violence Detection via LLM-based Auto-Labeling](https://arxiv.org/abs/2511.10866) — 1–2s clip training with LLM auto-captioning for CCTV violence detection (95.25% on RWF-2000). The LLM is just an offline labeling tool; this is a surveillance-vision application. Score: 8 (unchanged).
 
-The files exist and are readable as files (`ls` confirms all 8, gs-compressed). The failure is purely a missing dependency: the Read tool renders PDF pages via `pdftoppm` (poppler-utils), which isn't installed here.
-
-**Fixes I attempted, all auto-denied by the permission gate:**
-- `sudo apt-get install -y poppler-utils` (would fix the Read tool) → requires approval
-- `python3 -c "import pypdf ..."` and text extraction → requires approval
-
-Only a curated allowlist runs (`ls` works; code execution and installs don't). Because the PDFs are Ghostscript-recompressed, their text streams are Flate-encoded, so `strings`/`grep`/`cat` won't recover body text either. So I can neither install poppler nor extract the text another way from inside this run.
-
-**Why I'm not just emitting a bulletin anyway:** the task is to *rescore from full text* and print `Score: X (was Y)` lines. I only have the abstracts (which are already in the prompt). Producing those lines would falsely imply a full-text pass I couldn't perform. Note this isn't a reflexive "tool unavailable" cop-out — it's a reproduced, specific tool failure (8× identical `pdftoppm` errors).
-
-**The fix (host-level):**
-- Debian/Ubuntu host: `sudo apt-get install -y poppler-utils`, then re-run the scan.
-- If this is the NixOS host (`foadell` — your timer lives in `fmma/nixos-webserver:configuration.nix`): add `poppler_utils` to `environment.systemPackages` and rebuild. `generate_news.py` step 7 needs `pdftoppm` on `PATH` for the `Read`-tool PDF path to work at all.
-
-**Your call:** want me to write the bulletin **now from the abstracts** (they're unusually detailed — LeanStream's 4.8–7.5× memory / 1.6–2.1× throughput, Uno's 3× lossless speedup, Random Attention's 32–43% vLLM throughput, Minima's NVFP4 W4A4, etc.), clearly labeled as abstract-based with **no** full-text rescore? Say the word and I'll produce it. Otherwise, install poppler-utils and re-run for the real full-text version.
+Nothing to flag for inference engineers today — back tomorrow.
 
 ---
 
 ## Surge Watch
 
-Nothing noteworthy in signal trends today.
+**[FreeToken](https://arxiv.org/abs/2608.16157)** is the breakout signal: HF upvotes climbed 26→107 since Aug 19, and its GitHub repo rocketed from under 100 to ~11k stars in two weeks — easily the strongest community reception in the tracker right now. Edge-native MoE serving is clearly striking a nerve.
+
+**[DFlash](https://arxiv.org/abs/2602.06036)** keeps compounding: citations have doubled to 84 (from 42 in early July), +6 in just the last three days, with influential citations now at 30 — rare sustained academic traction for a speculative-decoding paper.
+
+Also climbing steadily: **[DSpark](https://arxiv.org/abs/2607.05147)** (up to 48 HF upvotes and 20 citations) and **[MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392)** (ticking to 17 citations, 166 upvotes).
