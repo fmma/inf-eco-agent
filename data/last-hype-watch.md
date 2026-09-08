@@ -1,9 +1,7 @@
-New breakout: **[Random Attention: Rethinking KV Cache Eviction for Efficient Reasoning](https://arxiv.org/abs/2609.03430)** debuted at a striking 161 HF upvotes (Sep 6) and climbed to 164 (Sep 7) — one of the highest counts anywhere in the tracker and by far this week's strongest fresh pickup.
+Fresh momentum this cycle is coming from quantization and speculative decoding — not the marquee attention papers that led last week.
 
-Also landing hot: **[Why Gated DeltaNet Survives 4-Bit Quantization](https://arxiv.org/abs/2609.04098)** opened at 73 → 74 HF upvotes (Sep 6→7), notable early buzz for a fairly niche NVFP4 quantization result.
+**[GSQ: Highly-Accurate Low-Precision Scalar Quantization](https://arxiv.org/abs/2604.18556)** is quietly compounding: GitHub stars nearly doubled (21 → 38 since late Aug, and still accelerating 34 → 38 Sep 7→8) with HF upvotes ticking 12 → 14 — a rare sustained build for a niche NVFP4/Gumbel-softmax quant result.
 
-Rare all-three climb for **[MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392)**: citations nearly tripled (6 → 17 since late July) while HF upvotes rose 153 → 166 and GitHub stars 379 → 420 — momentum across every signal at once.
+Speculative decoding is having a moment. **[JetFlow](https://arxiv.org/abs/2606.18394)** stars surged 178 → 217 in early September (+22% in four days) as citations edged 6 → 8, and **[Verification-Aware Training for Speculative Decoding](https://arxiv.org/abs/2608.30135)** doubled its HF upvotes 5 → 10 in under a week — tiny base, steep slope worth watching.
 
-Milestone hit: **[FlashAttention-4](https://arxiv.org/abs/2603.05451)** just crossed 50 citations (up from 33 in early August), reaching the mark it was closing in on last week — fast for a kernel paper only ~6 months old.
-
-Cooling off: last week's darling **[Language Models Can Control Their Own Attention](https://arxiv.org/abs/2609.02737)** inched only 61 → 63 upvotes, its explosive 10 → 61 run now clearly plateaued.
+Still running hot: **[Random Attention](https://arxiv.org/abs/2609.03430)** hasn't stalled, climbing 164 → 167 HF upvotes (Sep 7→8) with GitHub stars 31 → 37 — the tracker's strongest active pickup, even as the fresh energy shifts elsewhere.
