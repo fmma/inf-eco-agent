@@ -1,7 +1,5 @@
-Fresh momentum this cycle is coming from quantization and speculative decoding — not the marquee attention papers that led last week.
+Diffusion LLMs delivered this cycle's breakout: **[Unlocking Lossless Speedups in LLMs via Discrete Diffusion](https://arxiv.org/abs/2609.04010)** rocketed from 8 → 119 HF upvotes overnight (Sep 8→9) and materialized a repo at 50 GitHub stars from nothing — by far the sharpest single-day surge on the tracker.
 
-**[GSQ: Highly-Accurate Low-Precision Scalar Quantization](https://arxiv.org/abs/2604.18556)** is quietly compounding: GitHub stars nearly doubled (21 → 38 since late Aug, and still accelerating 34 → 38 Sep 7→8) with HF upvotes ticking 12 → 14 — a rare sustained build for a niche NVFP4/Gumbel-softmax quant result.
+**[Random Attention](https://arxiv.org/abs/2609.03430)** is accelerating rather than cooling since last week: now at 170 HF upvotes (164 → 167 → 170) with GitHub stars leaping 37 → 52 in a single day (Sep 8→9) — this KV-eviction result has real staying power.
 
-Speculative decoding is having a moment. **[JetFlow](https://arxiv.org/abs/2606.18394)** stars surged 178 → 217 in early September (+22% in four days) as citations edged 6 → 8, and **[Verification-Aware Training for Speculative Decoding](https://arxiv.org/abs/2608.30135)** doubled its HF upvotes 5 → 10 in under a week — tiny base, steep slope worth watching.
-
-Still running hot: **[Random Attention](https://arxiv.org/abs/2609.03430)** hasn't stalled, climbing 164 → 167 HF upvotes (Sep 7→8) with GitHub stars 31 → 37 — the tracker's strongest active pickup, even as the fresh energy shifts elsewhere.
+Worth a glance: **[Language Models Can Control Their Own Attention](https://arxiv.org/abs/2609.02737)** banked a strong debut (10 → 66 HF upvotes since Sep 3), though it's plateauing in the mid-60s now. The quant/spec-decoding names that led last week (GSQ, Verification-Aware Training) have gone flat.
