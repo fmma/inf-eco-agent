@@ -1,29 +1,41 @@
-I've read all eight PDFs. Here's my rescored bulletin based on the full texts.
+I need to be straight with you about what happened, then give you the bulletin.
+
+**I could not read the 8 local PDFs in this environment.** I tried four routes and each is blocked here:
+- **Read tool** on every PDF → fails with `pdftoppm is not installed` (the Read tool renders PDFs to images via poppler, which isn't installed on this host).
+- **Pure-stdlib Python extractor** (zlib-decompress the PDF streams) → `python3` execution is gated.
+- **WebFetch** of the arXiv HTML full text → gated.
+- **Write** (to drop a helper script) → gated.
+
+Only the Read tool and a few read-only Bash commands are auto-approved here, so full-text extraction isn't possible in this sandbox. On the deployment host `foadell`, if poppler is installed the normal Read path works — that's worth verifying there, since the pipeline depends on it.
+
+The bulletin below is therefore built from the **detailed abstracts in the prompt** (which do carry the papers' method names and headline numbers), with relevance rescored on my read of their substance — **not** from full text. Flagging that honestly rather than pretending I read the PDFs.
+
+---
 
 # Inference Ecosystem — Flash News
-**2026-09-09 · 605 new papers scanned · top 5 by rescored relevance**
+**2026-09-10 · 5 featured · 206 scanned**
 
-## [A Year in LLM Serving: Workload Evolution, Caching and Load-Balancing](https://arxiv.org/abs/2608.13573)
-The first publicly released year-long production serving trace — 6.12B requests, 9,174 models, 315K users from a serverless LLM platform (Chutes × Harvard MadSys). Two findings should reshape how you build routers and caches: SOTA eviction algorithms (ARC, S3FIFO, LHD) often *underperform* plain FIFO/LRU on prefix-cache workloads because reuse is strongly recency-driven (99% of repeats within 15 min), and there's a hard tension between load-balancing and prefix locality — cache-first routing recovers fleet-wide KV reuse at only 5–7% imbalance, while spreading load duplicates ~27GB KV states per long-context request. Essential empirical grounding for anyone designing serving systems right now. Score: 94 (was 95)
+## [Epoch: Compiling Diffusion Blocks for Sparse MoE Serving](https://arxiv.org/abs/2609.09748)
+The first serving system to treat a diffusion LM's *refinement block* — not the per-forward pass — as the compilation unit, so it stops rebuilding routing and recomputing dead-position experts every iteration. Three pieces do the work: **ATLAS** (coverage-driven active-expert support, gate logits refreshed per iteration), **LSP** (routes only live/newly-decoded/refresh positions while keeping full sequence shards as state), and **FreshLane** (carries the fresh token–expert worklist through EP dispatch/kernels/combine). Up to **2.7× end-to-end** over the strongest baseline on 8×H100 across LLaDA-MoE / LLaDA2.0 (7B–100B), still running at batch sizes where baselines OOM — the clearest systems attack yet on wide-open diffusion-LLM serving. Score: 91 (was 92).
 
-## [Deadline-Aware Adaptive Prefill Chunking (SLOWeave)](https://arxiv.org/abs/2609.07883)
-SLOWeave picks the largest prefill chunk that still finishes before the earliest active decode's next-token deadline, via a log-time search over a monotone iteration-cost model — no per-workload tuning, no kernel changes, drops into a vLLM-style scheduler. On real A100/H100 runs it lifts goodput 39% (mixed) and 38% (long-context) at a 25ms TPOT SLO, rising to 3.3×/2.4× under a strict 10ms target. The rare scheduling paper that's both provably optimal per-iteration and immediately implementable. Score: 90 (was 92)
+## [Osprey: Target-agnostic Pre-training Makes Stronger Drafters in Speculative Decoding](https://arxiv.org/abs/2609.09338)
+Kills speculative decoding's worst tax — retraining a bespoke drafter per target — by bootstrapping drafters from off-the-shelf pretrained small LMs, pruned to a shallow backbone and adapted via vocabulary alignment, zero-init QKV expansion, and target-distribution distillation. One pretrained backbone transfers across targets, lifting mean acceptance length **16.1% (Qwen3-8B), 21.2% (Llama-3.3-70B), 22.7% (229B MiniMax-M2.5, +17.5% tokens/s)**, with the biggest gains out-of-domain and multilingual. Code is public — the drafter recipe to reach for when acceptance collapses under workload shift. Score: 90 (was 90).
 
-## [EStream: Fast, Memory-Efficient MoE Prefill via Expert Virtualization on Mobile NPUs](https://arxiv.org/abs/2609.06551)
-The first system to run full-NPU MoE prefill on a commercial smartphone, solving two mismatches: a topology-invariant shared expert graph with runtime route/param binding (no CPU/GPU fallback), and expert virtualization that streams the pool through a bounded UFS→NPU arena so memory is capped by the arena, not the model. On a Snapdragon 8 Elite it delivers 2.25–27.57× prefill TTFT speedups and 6.45–12.29× less memory, scaling to Mixtral-8×7B (46.7B params) on a phone. A striking proof that on-device MoE capacity isn't bounded by resident expert memory. Score: 88 (was 90)
+## [UNISON: A Co-Designed Near-Memory Scheduler of Session KV Residency for LLM Agents](https://arxiv.org/abs/2609.09643)
+Reframes KV eviction/tiering for agent loops as a *session-level residency* problem: **SPEAR** ranks eviction by a turn-indexed return-gap hazard, **TIDE** spends the observed tool-wait as a DMA budget for who stays in the fast tier. Across 1,415 sessions / 33,596 turns on three model families it's the best non-oracle policy on every trace — **TTFT down 58–89%** on long-horizon traces, AMAT down 22–51%. It's a near-memory co-design (a 0.169 mm² / 13.6 mW 28nm core), but the core insight — a live tool-wait is *hot*, not cold — is one every agent-serving stack should internalize. Score: 86 (was 90).
 
-## [Analytical Resource Management for Fine-grained MoE Comp-Comm Overlap](https://arxiv.org/abs/2609.07536)
-Tackles a subtle bottleneck in fine-grained MoE overlap: compute and communication CTAs contend for SM residency, and a fixed partition (COMET's default C=3) can't adapt to workload shape. A wave-quantized analytical model picks the comm-CTA count at launch in ~0.16µs with 3.22% regret vs oracle — no profiling, no recompilation. Dropped into COMET/FLUX on A100s it yields 2.53× geomean at the GEMM2+GatherRS operator and 1.19× on full-model prefill, beating Megatron core-TE and FastMoE at every sequence length ≥4K. Score: 87 (was 92)
+## [KVShareArena: KV-Cache Reuse Across Contexts and Model Checkpoints](https://arxiv.org/abs/2609.10266)
+The first benchmark for KV reuse when the cache *isn't* an exact prefix — RAG chunks reordered mid-prompt, agent reports written by other agents, or caches from a different checkpoint. It scores each method by the fraction of the no-cache→full-recompute gap it recovers under real compute/memory/latency accounting, and finds cheap position-correction suffices until a query needs several sources at once — where only re-encoding or trained methods recover half to two-thirds, and unrepaired caches can be *worse* than no cache. Ships as a pip package with a public leaderboard; if you reuse KV outside exact prefixes, this is your new yardstick. Score: 85 (was 88).
 
-## [DFlow: Verifier Information Flow in Block Diffusion Speculative Decoding](https://arxiv.org/abs/2609.06498)
-From the Miao/Cui group, DFlow plugs an "information discontinuity" in block-diffusion speculative decoding: instead of discarding verifier hidden states for the rejected suffix, it relays them to guide the next drafting round via multi-round self-conditioning — no extra target forward pass, just 1.2% overhead. On Qwen3-1.7B/4B/8B it raises acceptance length 10.4–13.4% over DFlash and lifts SGLang serving throughput across concurrency levels, while composing with Domino. A neat reminder that speculative execution produces reusable signal beyond the accepted tokens. Score: 85 (was 90)
+## [PELM: Power Efficient On-Device LLM Inference with Speculative Decoding and DVFS](https://arxiv.org/abs/2609.09662)
+Adds two workload-side knobs — speculative decoding and *variable verification depth* — on top of DVFS to widen the power/latency optimization space for on-device LLMs under thermal throttling. Beats SOTA power governors by up to **23.1% speedup and 52.4% lower energy** at comparable quality, exploiting the fact that not every token needs full-depth inference. Code is public — a concrete edge-inference win as phones keep pushing local LLMs. Score: 85 (was 88).
+
+---
+
+If you want the *full-text* rescore this prompt actually asks for, install poppler on the host running this step (`apt-get install poppler-utils`) so the Read tool can render the PDFs, then re-run — I'll open all 8 and adjust scores against the real contributions.
 
 ---
 
 ## Surge Watch
 
-Diffusion LLMs delivered this cycle's breakout: **[Unlocking Lossless Speedups in LLMs via Discrete Diffusion](https://arxiv.org/abs/2609.04010)** rocketed from 8 → 119 HF upvotes overnight (Sep 8→9) and materialized a repo at 50 GitHub stars from nothing — by far the sharpest single-day surge on the tracker.
-
-**[Random Attention](https://arxiv.org/abs/2609.03430)** is accelerating rather than cooling since last week: now at 170 HF upvotes (164 → 167 → 170) with GitHub stars leaping 37 → 52 in a single day (Sep 8→9) — this KV-eviction result has real staying power.
-
-Worth a glance: **[Language Models Can Control Their Own Attention](https://arxiv.org/abs/2609.02737)** banked a strong debut (10 → 66 HF upvotes since Sep 3), though it's plateauing in the mid-60s now. The quant/spec-decoding names that led last week (GSQ, Verification-Aware Training) have gone flat.
+Nothing noteworthy in signal trends today.
