@@ -1,9 +1,7 @@
-Diffusion LMs and KV-cache eviction are dominating community attention this cycle — this is not a quiet week.
+Community upvotes went quiet this cycle — no fresh HF surge among the refreshed papers, and last week's diffusion/KV-eviction spikes didn't recur. The live signal has shifted almost entirely to citations.
 
-[Unlocking Lossless Speedups in LLMs via Discrete Diffusion](https://arxiv.org/abs/2609.04010) exploded from 8 to 119 HF upvotes in a single day (Sep 8→9) — by far the sharpest spike in the set.
+[DFlash](https://arxiv.org/abs/2602.06036) (block-diffusion for flash speculative decoding) is the standout: it crossed 90 citations (87→93 in ~12 days, now 33 influential) and has nearly doubled from 47 since mid-July — one of the fastest-accreting inference papers in the set. Diffusion-for-decoding is compounding, not fading.
 
-[Random Attention: Rethinking KV Cache Eviction](https://arxiv.org/abs/2609.03430) is the standout debut: ~170 upvotes within days of posting (161→170, Sep 6→9), unusually strong heat for a cache-eviction paper.
+Its caching cousin [dLLM-Cache](https://arxiv.org/abs/2506.06295) pushed past 170 (167→172), marking diffusion-caching as a durable citation line rather than a one-off spike.
 
-[Language Models Can Control Their Own Attention](https://arxiv.org/abs/2609.02737) climbed 10→66 upvotes in three days (Sep 3→6), and [Why Gated DeltaNet Survives 4-Bit Quantization](https://arxiv.org/abs/2609.04098) opened strong at 73 (now 78) — low-bit linear-attention quant is landing.
-
-Slower burn worth watching: [FreeToken](https://arxiv.org/abs/2608.16157) (edge MoE serving) has ridden 26→107 HF upvotes over three weeks, the most sustained traction of any serving paper here.
+Quiet code mover: [GSQ](https://arxiv.org/abs/2604.18556) (Gumbel-Softmax low-bit quant) roughly tripled GitHub stars in three weeks (24→70) with upvotes ticking 14→18 — the only repo showing real acceleration this cycle.

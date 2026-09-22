@@ -1,44 +1,31 @@
-I've hit a genuine, verified blocker and want to surface it rather than fabricate a bulletin. Here's what I confirmed with read-only checks:
+All eight PDFs read. After rescoring on full text, the standout shift is DeepSeek-V4-Flash on AMD gfx90a: the full report is a scrupulously-caveated single-model/single-GPU engineering log, not a generalizable systems advance — I've dropped it well below the leaders. The top five below are genuine, broadly-actionable inference-systems work. Here's the bulletin:
 
-**The 8 PDFs cannot be read in this environment.**
+# Inference Ecosystem — Flash News
+**2026-09-22 · 746 papers scanned · 5 featured**
 
-- The **Read tool fails on PDFs** — it renders via `pdftoppm`, and poppler-utils isn't installed (`which pdftotext pdftoppm` → both missing). This is a NixOS host (`/run/current-system/sw/bin` in PATH), so there's no `apt` quick-fix.
-- **No Python PDF library** is in the repo venv — `ls .venv/.../site-packages` shows only `arxiv`, `feedparser`, `requests`. So even running Python wouldn't extract text without a `pip install` first.
-- **`python3` execution is blocked** by the current permission mode. Every attempt (5×, including with the sandbox override) returned "This command requires approval," while read-only commands (`ls`, `cat`, `which`) run fine.
+## [PipeSwift: Revisiting Pipeline Parallelism for Large-Scale Completion-Oriented Agentic Serving](https://arxiv.org/abs/2609.16491)
+The sharpest reframe of the batch: for agentic workloads the metric is job completion time (JCT), not TTFT/TPOT — and prefill-prioritized scheduling, which wins TTFT *and* decode throughput, does **not** minimize JCT. PipeSwift resurrects pipeline parallelism (long dismissed for zero decode-latency benefit) because it gives a better prefill–decode balance, pairing PD-orchestration scheduling with the first open-source pipeline-integrated MTP. On 64×H800 with two 360B+ MoE models it cuts JCT 1.21–1.45× vs SGLang wide-EP and 1.54× vs PD-disaggregation on *half* the GPUs. Score: 91 (was 95)
 
-The PDFs themselves are all present and intact (8 files, 300 KB–1.1 MB each).
+## [PEEK: Predictive Queue-Informed KV Cache Management for LLM Serving](https://arxiv.org/abs/2607.02525)
+The most immediately deployable paper here: a Rust+monkeypatch layer for stock SGLang and vLLM that mines the *waiting queue* (via an incremental radix tree) for prefix-sharing no engine surfaces, then does cluster-aware admission + co-designed eviction. Up to 3.0×/2.6× cache hit, 7.9×/7.1× TTFT, 3.6×/4.5× throughput where prefix structure exists — and provably no-regress elsewhere via a `has_sharing` guard. cLPM alone lands within 3pp of the full stack; code is released. Score: 90 (was 95)
 
-**Why this matters beyond this run:** the real `generate_news.py` step invokes Claude with `--allowedTools "Read"`. On any host without poppler-utils, that Read call fails exactly like this — so the PDF-rescore stage is silently broken wherever poppler is missing. Worth checking whether `foadell` has it installed.
+## [Dissecting GPU Utilization for LLM Inference on Nvidia Hopper](https://arxiv.org/abs/2609.12923)
+Required reading for anyone optimizing decode. It shows "SM utilization" is a lie: Hopper's BF16 GMMA m64 fragment floor caps small-batch decode GEMMs at η=B/64 fill, so a 72% SM-busy reading overstates useful matmul by 8–64×. The device-wide fix isn't retiling (no cuBLASLt tile even reaches a full-chip grid) — it's raising the row dimension M via persistent-decode kernels, cross-request packing, or speculative/MTP decoding. Eight counter-pinned metrics replace the single scalar. Score: 90 (was 95)
 
-I won't write "rescored from full text (was X → Y)" for papers I couldn't actually read — that would be fabrication.
+## [Dynamic HBM Repartitioning for Multi-Turn MoE Serving](https://arxiv.org/abs/2609.13537)
+Nails the "prefix-cache cliff" that wrecks multi-turn MoE agents: VAMP dissolves the static weight/KV HBM boundary at runtime, using CUDA VMM page-remapping and a three-way cost model (offload experts vs evict vs preempt) to convert idle expert memory into KV capacity. On Qwen3-Next-80B replaying a 2,103-turn SWE-bench trace it drops TTFT p90 from 26.1s to 1.10s (23.6×) and lifts throughput 20.7%, with an honest +31% TPOT tradeoff. Score: 89 (was 95)
 
-**To unblock, pick one:**
-
-1. **Approve a one-time extraction** (fastest). Approve this and I'll read the text and write the bulletin properly:
-   ```
-   pip install pypdf && python3 -c "
-   from pypdf import PdfReader; import glob,os
-   os.makedirs('data/pdftext',exist_ok=True)
-   for p in sorted(glob.glob('data/pdfs/*.pdf')):
-       t='\n'.join((pg.extract_text() or '') for pg in PdfReader(p).pages)
-       open('data/pdftext/'+os.path.basename(p)[:-4]+'.txt','w').write(t)
-       print(p, len(t))"
-   ```
-2. **Install poppler-utils** on this host (fixes the Read tool the way the pipeline expects) — on NixOS, add `poppler_utils` to your environment / `nix-shell -p poppler_utils`.
-3. **Fallback:** I write the bulletin from the (unusually detailed) abstracts — they already contain the key numbers — but I'll label it clearly as abstract-based, *not* full-text rescored.
-
-Which do you want? If you just approve option 1, I'll take it from there.
+## [Rethinking Heterogeneous System Disaggregation for Subquadratic Attention](https://arxiv.org/abs/2609.13134)
+The most forward-looking pick: as frontier models go subquadratic, SQD splits decode by *quadratic vs subquadratic attention* rather than by operator — keeping full-KV attention on the DRAM GPU while moving fixed-footprint subquadratic attention + FFN onto an SRAM-only ASIC. On an 8×B200 proxy it improves tokens/J by 31–56% over GPU-only baselines (GLM-5.2, Nemotron 3 Ultra, Gemma4); the Rubin+LPX model projects up to 3.6× throughput. Score: 88 (was 95)
 
 ---
 
 ## Surge Watch
 
-Diffusion LMs and KV-cache eviction are dominating community attention this cycle — this is not a quiet week.
+Community upvotes went quiet this cycle — no fresh HF surge among the refreshed papers, and last week's diffusion/KV-eviction spikes didn't recur. The live signal has shifted almost entirely to citations.
 
-[Unlocking Lossless Speedups in LLMs via Discrete Diffusion](https://arxiv.org/abs/2609.04010) exploded from 8 to 119 HF upvotes in a single day (Sep 8→9) — by far the sharpest spike in the set.
+[DFlash](https://arxiv.org/abs/2602.06036) (block-diffusion for flash speculative decoding) is the standout: it crossed 90 citations (87→93 in ~12 days, now 33 influential) and has nearly doubled from 47 since mid-July — one of the fastest-accreting inference papers in the set. Diffusion-for-decoding is compounding, not fading.
 
-[Random Attention: Rethinking KV Cache Eviction](https://arxiv.org/abs/2609.03430) is the standout debut: ~170 upvotes within days of posting (161→170, Sep 6→9), unusually strong heat for a cache-eviction paper.
+Its caching cousin [dLLM-Cache](https://arxiv.org/abs/2506.06295) pushed past 170 (167→172), marking diffusion-caching as a durable citation line rather than a one-off spike.
 
-[Language Models Can Control Their Own Attention](https://arxiv.org/abs/2609.02737) climbed 10→66 upvotes in three days (Sep 3→6), and [Why Gated DeltaNet Survives 4-Bit Quantization](https://arxiv.org/abs/2609.04098) opened strong at 73 (now 78) — low-bit linear-attention quant is landing.
-
-Slower burn worth watching: [FreeToken](https://arxiv.org/abs/2608.16157) (edge MoE serving) has ridden 26→107 HF upvotes over three weeks, the most sustained traction of any serving paper here.
+Quiet code mover: [GSQ](https://arxiv.org/abs/2604.18556) (Gumbel-Softmax low-bit quant) roughly tripled GitHub stars in three weeks (24→70) with upvotes ticking 14→18 — the only repo showing real acceleration this cycle.
