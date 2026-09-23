@@ -1,31 +1,33 @@
-All eight PDFs read. After rescoring on full text, the standout shift is DeepSeek-V4-Flash on AMD gfx90a: the full report is a scrupulously-caveated single-model/single-GPU engineering log, not a generalizable systems advance — I've dropped it well below the leaders. The top five below are genuine, broadly-actionable inference-systems work. Here's the bulletin:
+I've read all 8 PDFs in full. Here's my rescore and bulletin — the top 5 by full-text relevance are Weave, DeepSeek-V4.1-Flash, SSD-LLaMA, ASPIRE, and OpWeave. The Pareto Atlas (single model/workload, simulated sparse attention) and JustFit (single-author, niche MLX, weak baseline) rescored below them; Token Latency Fairness is strong conceptually but self-describes as an ongoing project with limited eval.
 
 # Inference Ecosystem — Flash News
-**2026-09-22 · 746 papers scanned · 5 featured**
+**2026-09-23 · 898 papers scanned · top 5 featured**
 
-## [PipeSwift: Revisiting Pipeline Parallelism for Large-Scale Completion-Oriented Agentic Serving](https://arxiv.org/abs/2609.16491)
-The sharpest reframe of the batch: for agentic workloads the metric is job completion time (JCT), not TTFT/TPOT — and prefill-prioritized scheduling, which wins TTFT *and* decode throughput, does **not** minimize JCT. PipeSwift resurrects pipeline parallelism (long dismissed for zero decode-latency benefit) because it gives a better prefill–decode balance, pairing PD-orchestration scheduling with the first open-source pipeline-integrated MTP. On 64×H800 with two 360B+ MoE models it cuts JCT 1.21–1.45× vs SGLang wide-EP and 1.54× vs PD-disaggregation on *half* the GPUs. Score: 91 (was 95)
+MoE serving and KV-cache compression own this batch — the through-line is squeezing more usable context and throughput from fixed silicon, from H100 clusters down to consumer laptops.
 
-## [PEEK: Predictive Queue-Informed KV Cache Management for LLM Serving](https://arxiv.org/abs/2607.02525)
-The most immediately deployable paper here: a Rust+monkeypatch layer for stock SGLang and vLLM that mines the *waiting queue* (via an incremental radix tree) for prefix-sharing no engine surfaces, then does cluster-aware admission + co-designed eviction. Up to 3.0×/2.6× cache hit, 7.9×/7.1× TTFT, 3.6×/4.5× throughput where prefix structure exists — and provably no-regress elsewhere via a `has_sharing` guard. cLPM alone lands within 3pp of the full stack; code is released. Score: 90 (was 95)
+## [Weave: Fine-Grained Dynamic SM Scheduling in an MoE Megakernel](https://arxiv.org/abs/2609.21483)
+Weave decides the communication/computation SM split *per layer and per GPU* from runtime routing results via a cost model living inside a persistent megakernel, then adds chunk-pipelining and "bubble stealing" so idle comm SMs grab GEMM tiles. On 4×H100 across six MoE models it lands 2.89× geomean MoE-layer and 1.33× end-to-end speedup over DeepEP/Comet/TD, reaching 91% SM-active at 47% overlap where baselines sit below 15% — for 0.54μs of overhead (<0.021% of layer time). This is the current state of the art for expert-parallel overlap. Score: 95 (was 96).
 
-## [Dissecting GPU Utilization for LLM Inference on Nvidia Hopper](https://arxiv.org/abs/2609.12923)
-Required reading for anyone optimizing decode. It shows "SM utilization" is a lie: Hopper's BF16 GMMA m64 fragment floor caps small-batch decode GEMMs at η=B/64 fill, so a 72% SM-busy reading overstates useful matmul by 8–64×. The device-wide fix isn't retiling (no cuBLASLt tile even reaches a full-chip grid) — it's raising the row dimension M via persistent-decode kernels, cross-request packing, or speculative/MTP decoding. Eight counter-pinned metrics replace the single scalar. Score: 90 (was 95)
+## [DeepSeek-V4.1-Flash: Pushing the Limits of KV Cache Compression](https://arxiv.org/abs/2609.19969)
+This 552B MoE fuses a Causal Encoder-Decoder (8B activated at prefill, 16B at decode), cross-layer KV reuse in CSA2, and FP4 main KV to shrink the global cache to 890 bytes/token (~1/4 of V4-Flash), while SWA Bounded Replay cuts persistent KV to ~1/8. Decode FLOPs stay near-flat from 4K→1M context and Reuse-mode layers run in just 15 prefill / 11 decode kernels. Open checkpoints, agentic parity with Opus-5/GPT-5.6 (DeepSWE 74.2, Terminal-Bench 2.1 90.6), plus a full deployment playbook (EPD disaggregation, FlashMLA/DeepGEMM) make it required reading. Score: 95 (was 95).
 
-## [Dynamic HBM Repartitioning for Multi-Turn MoE Serving](https://arxiv.org/abs/2609.13537)
-Nails the "prefix-cache cliff" that wrecks multi-turn MoE agents: VAMP dissolves the static weight/KV HBM boundary at runtime, using CUDA VMM page-remapping and a three-way cost model (offload experts vs evict vs preempt) to convert idle expert memory into KV capacity. On Qwen3-Next-80B replaying a 2,103-turn SWE-bench trace it drops TTFT p90 from 26.1s to 1.10s (23.6×) and lifts throughput 20.7%, with an honest +31% TPOT tradeoff. Score: 89 (was 95)
+## [SSD-LLaMA: SSD-Native Inference for Trillion-Parameter MoE](https://arxiv.org/abs/2609.18110)
+SSD-LLaMA turns NVMe into executable model memory via an expert-pack layout (one aligned O_DIRECT read per expert), a three-tier SSD/RAM/VRAM cache, CUDA rANS decompression, and expert-level CPU-GPU balancing — hitting 77.7% of peak SSD bandwidth vs 43% for baselines. It runs the 1T Kimi-K2.7-Code at 1+ tok/s and the 2.8T Kimi-K3 at 0.465 tok/s decode on a single RTX 5090 with 32GB RAM, improving decode 2.10–15.58× over llama.cpp/KTransformers. Built in llama.cpp, it makes frontier-scale local MoE genuinely usable. Score: 93 (was 95).
 
-## [Rethinking Heterogeneous System Disaggregation for Subquadratic Attention](https://arxiv.org/abs/2609.13134)
-The most forward-looking pick: as frontier models go subquadratic, SQD splits decode by *quadratic vs subquadratic attention* rather than by operator — keeping full-KV attention on the DRAM GPU while moving fixed-footprint subquadratic attention + FFN onto an SRAM-only ASIC. On an 8×B200 proxy it improves tokens/J by 31–56% over GPU-only baselines (GLM-5.2, Nemotron 3 Ultra, Gemma4); the Rubin+LPX model projects up to 3.6× throughput. Score: 88 (was 95)
+## [ASPIRE: Asynchronous Batched Self-Speculative Decoding for Long-Context](https://arxiv.org/abs/2609.17943)
+ASPIRE breaks synchronized draft-verify: a unified mixed forward lets some requests draft (sparse attention) while others verify (full attention) in one pass, an online scheduler picks per-request draft length from acceptance-rate + batch-aware cost, and a single refresh layer keeps sparse context fresh (closing a 16pp acceptance gap at draft length 10). Across Qwen3 and DS-LLaMA it delivers 1.70–4.58× decode throughput over autoregressive and ~27% over MagicDec/Vegas — losslessly. COLM 2026, code released. Score: 92 (was 95).
+
+## [OpWeave: Flexible Operator Disaggregation for Heterogeneous LLM Serving](https://arxiv.org/abs/2609.14237)
+OpWeave (CMU) generalizes attention-FFN disaggregation to arbitrary operator partitions, pairing an analytical cost model that bounds the gains with a regularity-aware planner over a vLLM runtime. It cuts serving cost up to 1.78× on homogeneous H100 and 1.89× on H100+A100, using 20.7 vs 124 pipeline stages and 22.8× less inter-node transfer — decisive for hybrid-attention models (Gemma-3, Qwen3-Next) where fixed two-way splits stall. Score: 91 (was 95).
 
 ---
 
 ## Surge Watch
 
-Community upvotes went quiet this cycle — no fresh HF surge among the refreshed papers, and last week's diffusion/KV-eviction spikes didn't recur. The live signal has shifted almost entirely to citations.
+Speculative-decoding-over-diffusion stays the hottest citation line in the set. [DFlash](https://arxiv.org/abs/2602.06036) keeps compounding — 93→95 citations with influential jumping 33→35, and its long-frozen HF upvotes finally unstuck (95→99). It's now corroborated by [DSpark](https://arxiv.org/abs/2607.05147) (confidence-scheduled semi-autoregressive speculative decoding), which ran 22→30 citations in ~2 weeks (9 influential) — the fastest young accretor in the set.
 
-[DFlash](https://arxiv.org/abs/2602.06036) (block-diffusion for flash speculative decoding) is the standout: it crossed 90 citations (87→93 in ~12 days, now 33 influential) and has nearly doubled from 47 since mid-July — one of the fastest-accreting inference papers in the set. Diffusion-for-decoding is compounding, not fading.
+On the systems side, [FlashAttention-4](https://arxiv.org/abs/2603.05451) is accreting steadily: 50→57 citations in ~2 weeks, 8 influential — healthy pace for a marquee kernel paper.
 
-Its caching cousin [dLLM-Cache](https://arxiv.org/abs/2506.06295) pushed past 170 (167→172), marking diffusion-caching as a durable citation line rather than a one-off spike.
+Serving/workload papers crossed 50 in tandem: [ServeGen](https://arxiv.org/abs/2505.09999) (46→52) and [Continuum](https://arxiv.org/abs/2511.02230) (48→52, KV-cache TTL for agents) — production-serving citations quietly ticking up.
 
-Quiet code mover: [GSQ](https://arxiv.org/abs/2604.18556) (Gumbel-Softmax low-bit quant) roughly tripled GitHub stars in three weeks (24→70) with upvotes ticking 14→18 — the only repo showing real acceleration this cycle.
+Community upvotes stayed flat again — a citations-driven cycle with no fresh HF surge to report.
