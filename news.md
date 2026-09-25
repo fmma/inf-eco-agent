@@ -1,32 +1,33 @@
+I've read all eight PDFs in full. Here is the rescored bulletin.
+
 # Inference Ecosystem — Flash News
+**2026-09-25 · 5 picks from 465 papers scanned**
 
-**2026-09-24 · 580 scanned · 5 picks**
+Long-context KV cache and speculative decoding own this batch. The theme: stop treating the KV cache as one flat pool — tier it, sparsify it, or skip drafting it entirely.
 
-Long-context attention, KV provisioning, and reliability dominate this batch — the scarce resource in serving keeps shifting from raw FLOPs toward managed state and ready capacity.
+### [SPLASH: Co-Designing Sparse Attention with High-Bandwidth Flash for Efficient Long-Context Inference](https://arxiv.org/abs/2609.23816)
+SPLASH virtualizes the KV cache across HBM and High-Bandwidth Flash, then co-designs sparse attention around flash's page granularity and 1,024-plane parallelism — scoring one mean-key centroid per page (just 3.1% storage overhead), striping pages for plane-balanced retrieval, and hiding the centroid scan under HBM-window attention. Across five models at 128K–1M tokens it lands 3.5×–11.4× per-GPU decode throughput at a 100ms TPOT SLO within 4% of dense accuracy, fitting a 12.9TB cache into 5 GPUs' worth of HBF versus 68 of HBM. Simulation-only (HBF isn't shipping yet), but the clearest blueprint for where long-context serving memory is heading. Score: 92 (was 95)
 
-### [Fast Recovery for LLM Serving via Decoupled Device Memory Lifetime in Dynamo](https://arxiv.org/abs/2609.25451)
-NVIDIA mines 18 weeks of Dynamo production failures and finds most are *device-preserving*: the engine process dies but GPU-resident weights stay intact. A GPU Memory Service (read-only weight sharing via CUDA VMM) plus parked Shadow Engines cut replica recovery from minutes to under 7s — 13–29× faster than a warm restart — for just 4–8 GiB/GPU, reclaiming an estimated 79% of GPU-hours lost to recovery. Open-source, already in production on vLLM and SGLang: the rare reliability paper you can adopt today. Score: 91 (was 90)
+### [When Fancy Eviction Fails: Rethinking Cache Replacement for LLM Prefix Reuse](https://arxiv.org/abs/2609.28870)
+A production-trace study (two orgs, 14 eviction algorithms, HBM + pool regimes) with a blunt result: nothing beats LRU because prefix reuse is paced by active sessions, so recency is unusually predictive — and frequency policies (LFU, W-TinyLFU) actively collapse. The wins live on new axes: quick demotion for one-hit prompts, plus compute-aware "partial-node" eviction that weights victims by recompute FLOPs (deeper blocks cost more), cutting TTFT 19.9% and lifting prefill throughput 18.8% on vLLM/Qwen3-Coder-30B. Rigorous, immediately actionable, and the traces + simulator are being released. Score: 91 (was 90)
 
-### [Block-Sparse Attention with Semantic-Geometric Decoupled Routing](https://arxiv.org/abs/2609.22884)
-SGDR pinpoints why training-free block routers degrade — pooling *post*-RoPE tokens cancels high-frequency positional cues. Shifting semantic pooling to pre-RoPE space and reconstructing geometry from an offline prior yields a closed-form, near-O(1) block score with custom Triton kernels: 5.03× over FlashAttn at 128K (451→90ms) at sub-3.4ms routing overhead, beating MInference and Prism while holding full-attention accuracy. A clean, deployable long-context win. Score: 90 (was 90)
+### [Near-Oracle KV Selection via Pre-hoc Sparsity for Long-Context Inference](https://arxiv.org/abs/2602.08329)
+PrHS selects KV entries *before* attention scoring — dodging the posterior bias of Quest/H2O/HShare — with an information certificate bounding error by dropped attention mass. Its three composable selectors (clustered-index sharing across similar queries, a depth-adaptive sliding window, early-token freezing) plus fused CUDA kernels skip >90% of head-layer retrievals, cut attention FLOPs ~15%, and hit a 9.9× attention-operator speedup and 3.3× end-to-end throughput on A100, staying robust past 128K where prior sparse methods degrade. Score: 90 (was 93)
 
-### [The KV Cache Working Set: Online Capacity Planning for LLM Inference Systems](https://arxiv.org/abs/2609.27746)
-KVSET answers a question every agentic-serving operator hits: how much prefix-cache storage do you actually need? It applies the classic Mattson stack algorithm (plus a Fenwick tree) to derive the entire capacity-to-hit-rate curve in a single trace pass — no capacity-by-capacity simulation. Validated on production coding-agent traces (GLM-5.2 / SGLang / Mooncake), giving ~1 TiB for 95% coverage and ~5 TiB for 99%, and shipped as the first open-source online KV capacity analyzer. Score: 88 (was 92)
+### [TIDE: Temporal Incremental Draft Engine for Self-Improving LLM Inference](https://arxiv.org/abs/2602.05145)
+TIDE attacks why providers ship speculative decoding disabled by default — draft/target drift under shifting workloads — by adapting the EAGLE-3 drafter online, reusing target hidden states already computed during inference as free training signal and gating speculation/training on measured acceptance length. It recovers throughput on misaligned non-English traffic where a static draft *drops* to 0.70–0.86×, reaches up to 1.66× at batch 1, and its H100-serving/MI250-training split cuts draft training time 3.02× and storage 24×. Built on SGLang/vLLM — a genuinely deployable answer to spec-decode-in-production. Score: 90 (was 93)
 
-### [Adapting Tree-Structured Speculative Decoding to DeepSeek-V4](https://arxiv.org/abs/2609.24698)
-The hard part of tree speculation on DeepSeek-V4 isn't the tree — it's keeping CSA/HCA compressed attention consistent as branches diverge from a shared prefix. Branch-aware verification, scratch-pad state isolation, and accepted-path refresh (all landed in SGLang) push accepted length above matched linear in every setting and add up to ~18.5% throughput. The transferable lesson: verify-side overhead now dominates and grows with compressed/sparse context formats — exactly where models are heading. Score: 87 (was 95)
-
-### [PAGE: Partition-Aware Gated KV-Cache Eviction](https://arxiv.org/abs/2609.22157)
-PAGE reframes eviction as an admission decision — *whether* to evict, not just what — from one label-free prefill signal (the early-to-late head-agreement drop). As a wrapper over any SnapKV-style evictor it cuts catastrophic harm 29× (Mistral NIAH-MK3: plain SnapKV's 99%→0% collapse becomes a flat 89%). Refreshingly honest about limits: it's a safety net, not a compressor — realized savings are 1.8–3.4× and fade by batch 16 — but a worthwhile guardrail for retrieval-critical traffic. Score: 81 (was 90)
+### [H-Spec: Parallel Speculative Decoding Without a Drafter-Side KV Cache](https://arxiv.org/abs/2609.24197)
+Block-diffusion drafters project target hidden states into a separate drafter-side KV cache that grows O(N) per request; H-Spec kills it with a hybrid Mamba-attention drafter — Mamba modules seeded from last-token target hidden states, attention modules reusing target KVs in place — keeping block-parallel drafting at zero extra cache. Mean accepted length improves 5.0–13.3% and batch-1 ITL 5.3–12.6% over the best baseline, and under vLLM concurrent serving it Pareto-dominates on throughput at the lowest KV utilization, with the margin widening as concurrency rises. Score: 89 (was 92)
 
 ---
 
 ## Surge Watch
 
-Community reception flipped this cycle: after last time's "upvotes stayed flat," HF is where the action is. [Random Attention](https://arxiv.org/abs/2609.03430) (RL-guided KV eviction for reasoning) climbed 161→187 HF upvotes since early September — 170→187 in the last two weeks, the cleanest sustained upvote accrual in the set — with GitHub stars 29→69 alongside.
+[DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) (KV cache compression) is the marquee debut: it cold-opened at **174 HF upvotes** on 09-24 — the single biggest first-day splash in the set — and already logged 7 citations by 09-25. DeepSeek's name still moves the crowd on contact.
 
-Diffusion-speculation drew a fresh crowd hit too: [Unlocking Lossless Speedups in LLMs via Discrete Diffusion](https://arxiv.org/abs/2609.04010) spiked from single digits to a ~119 peak (holding ~112) with GitHub stars running 50→88 — the newest entrant to that hot line.
+Attention efficiency is where the fresh energy pooled, both 09-24 debuts: [Grouped Value Attention](https://arxiv.org/abs/2609.13285) (on-demand key reconstruction) opened at **81 upvotes**, and [SAS](https://arxiv.org/abs/2609.13141) (end-to-end attention sparsification) at **65 upvotes + 60 GitHub stars**. The community is clearly hungry for cheaper KV/attention right now.
 
-On code adoption, [GSQ](https://arxiv.org/abs/2604.18556) (Gumbel-Softmax low-precision quantization) roughly doubled its GitHub stars, 38→71 since early September (HF 14→19) — the fastest repo accretor here.
+On the citation side, [DFlash](https://arxiv.org/abs/2602.06036) quietly re-accelerated after last cycle's cooldown call — **93→98 citations and 33→38 influential cites in three days** (09-22→09-25), plus HF 95→99. It's the rare paper still compounding.
 
-Citations cooled versus last cycle — DFlash, DSpark, and FlashAttention-4 keep ticking but nothing re-accelerated. The quiet exception is Kimi's [Attention Residuals](https://arxiv.org/abs/2603.15031), 49→53 citations while HF crept 193→196.
+Meanwhile [Random Attention](https://arxiv.org/abs/2609.03430) (187) and Kimi's [Attention Residuals](https://arxiv.org/abs/2603.15031) (197 HF) have flattened — the torch has passed to this week's newcomers.

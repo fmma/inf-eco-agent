@@ -1,7 +1,7 @@
-Community reception flipped this cycle: after last time's "upvotes stayed flat," HF is where the action is. [Random Attention](https://arxiv.org/abs/2609.03430) (RL-guided KV eviction for reasoning) climbed 161→187 HF upvotes since early September — 170→187 in the last two weeks, the cleanest sustained upvote accrual in the set — with GitHub stars 29→69 alongside.
+[DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) (KV cache compression) is the marquee debut: it cold-opened at **174 HF upvotes** on 09-24 — the single biggest first-day splash in the set — and already logged 7 citations by 09-25. DeepSeek's name still moves the crowd on contact.
 
-Diffusion-speculation drew a fresh crowd hit too: [Unlocking Lossless Speedups in LLMs via Discrete Diffusion](https://arxiv.org/abs/2609.04010) spiked from single digits to a ~119 peak (holding ~112) with GitHub stars running 50→88 — the newest entrant to that hot line.
+Attention efficiency is where the fresh energy pooled, both 09-24 debuts: [Grouped Value Attention](https://arxiv.org/abs/2609.13285) (on-demand key reconstruction) opened at **81 upvotes**, and [SAS](https://arxiv.org/abs/2609.13141) (end-to-end attention sparsification) at **65 upvotes + 60 GitHub stars**. The community is clearly hungry for cheaper KV/attention right now.
 
-On code adoption, [GSQ](https://arxiv.org/abs/2604.18556) (Gumbel-Softmax low-precision quantization) roughly doubled its GitHub stars, 38→71 since early September (HF 14→19) — the fastest repo accretor here.
+On the citation side, [DFlash](https://arxiv.org/abs/2602.06036) quietly re-accelerated after last cycle's cooldown call — **93→98 citations and 33→38 influential cites in three days** (09-22→09-25), plus HF 95→99. It's the rare paper still compounding.
 
-Citations cooled versus last cycle — DFlash, DSpark, and FlashAttention-4 keep ticking but nothing re-accelerated. The quiet exception is Kimi's [Attention Residuals](https://arxiv.org/abs/2603.15031), 49→53 citations while HF crept 193→196.
+Meanwhile [Random Attention](https://arxiv.org/abs/2609.03430) (187) and Kimi's [Attention Residuals](https://arxiv.org/abs/2603.15031) (197 HF) have flattened — the torch has passed to this week's newcomers.
