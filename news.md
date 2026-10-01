@@ -1,27 +1,52 @@
+I hit a wall that's worth surfacing before I produce anything, because the output would otherwise misrepresent what I actually did.
+
+**I can't read the PDFs in this environment.** The Read tool renders PDF pages to images via `pdftoppm` (poppler-utils), which isn't installed on this host:
+
+```
+pdftoppm is not installed. Install poppler-utils ... to enable PDF page rendering.
+```
+
+My fallback — extracting text with Python (`pymupdf`/`pypdf`) via Bash — is also blocked: every Bash call here returns "requires approval" and isn't being granted (consistent with the `--allowedTools "Read"` invocation the news step uses). So I have no working path to the full text of the 8 PDFs. Reporting that honestly rather than fabricating a full-text rescore.
+
+**Two ways forward:**
+
+1. **Quick fix (this host):** `sudo apt-get install poppler-utils`, then re-run — Read will work.
+2. **Robust fix (recommended):** decouple `generate_news.py` from the Read tool's image rendering. Extract text server-side with `pymupdf`/`pypdf` and either inline it into the prompt or write `.txt` siblings for Claude to `Read`. This removes the poppler system dependency entirely and still works under `--allowedTools "Read"`. It also sidesteps the cost/fragility of image-rendering every PDF page.
+
+If you'd rather I just do it now: **approve one Bash call** and I'll extract the text with Python and produce a genuine full-text rescore.
+
+---
+
+Meanwhile, so you're not blocked, here's a bulletin built **from the abstracts only** (they already carry the key numbers). I've kept the scores at their abstract-based values rather than faking a `(was X)` full-text delta:
+
+```markdown
 # Inference Ecosystem — Flash News
-*2026-09-30 · 939 papers scanned · top 5 after full-text rescore*
+**2026-10-01 · 543 papers scanned · 5 picks**
 
-## [SPLASH: Switching Parallel Layouts of Attention with Seamless Handoff for LLM Serving](https://arxiv.org/abs/2609.37626)
-SPLASH reframes attention parallelism as two independent choices — where projections are sharded and who owns each request's KV — collapsing TP/CP/DP-attention plus a new layout, DOP, into 12 directed switches served by just three collectives (discard, all-gather, all-to-all). Because MLA/GQA decouples cache placement from weight sharding, most state already sits where the next layout needs it, so a live switch costs under 0.51% of the step it runs in (0.02–11.76 ms vs up to 667 ms if blocking). On B200 serving GLM-5.3, following the best layout lifts end-to-end throughput 1.3–1.73× over any fixed deployment, and DOP alone frees 12.69 GiB/GPU (27% more KV than DP-attention) — the rare paper that adds both a genuinely new layout and a near-free way to move between them. Score: 95 (was 95)
+[Working Around the Compute Ceiling: Byte-Exact Memory in Galahad](https://arxiv.org/abs/2609.39358)
+A memory layer for vLLM, SGLang and llama.cpp that turns document "reading" into a one-time cost: it saves byte-exact KV state per text block and reloads it on any later request containing the same bytes, then serves the model only the section a question needs. On a 100-fact/97K-token recall test (Gemma 4 31B), it reports 98/100 at 3.0s & 572J vs 10/100, 9.3s & 2,754J without — 100/100 at ~0.6s with section routing — and bit-identical restored logits, failing closed on any check miss. Stateful serving across all three major runtimes is a big deal; bold single-author claims, so verify before betting on it. Score: 95
 
-## [PulseInfer: I/O-Centric Sparse KV Cache Offloading for Efficient Long-Context LLM Decoding](https://arxiv.org/abs/2609.34555)
-PulseInfer nails that sparse KV offloading is really an I/O problem — recall volume is wildly dynamic and headwise selection fragments PCIe into ~8 KB transfers at 6 GB/s — and fixes it with OS-interrupt-style interruptible layer-wise scheduling (IRQ), adaptive offloading admission (IOAA), and SoloHead selection (one retrieval head picks blocks for all KV heads) fed by a gather-scatter engine. Built on SGLang, it sustains ~95% GPU utilization and improves decode throughput up to 4.7× over SGLang and 2.6× over the best offloading baseline while cutting TPOT up to 76%, across Qwen3-14B/30B-A3B and MiniMax-M2.5 (230B) on real Mooncake/ServeGen traces. SoloHead even edges out headwise selection on accuracy. Score: 95 (was 95)
+[Vosti: Specifying, Implementing, and Verifying Deterministic LLM Inference](https://arxiv.org/abs/2609.38981)
+First formal system-level spec of deterministic inference plus an engine verified against it — and it shows vLLM's batch-invariant and SGLang's deterministic modes still diverge under some execution variations. Vosti selects kernels independently of runtime state, ties KV to logical token prefixes, and splits its proof across engine (Verus) and kernel (Triton analyzer) for bitwise-identical logits at perf comparable to vLLM batch-invariant on decode-heavy loads. The determinism topic is white-hot post-Thinking-Machines, and "verified" raises the bar. Score: 95
 
-## [NOSA: Native and Offloadable Sparse Attention](https://arxiv.org/abs/2510.13602)
-NOSA (EMNLP'26 main) makes *trainable* sparse attention natively offloadable via a training-time locality constraint — splitting KV selection into query-aware and eviction-bounded query-agnostic parts, with a proven locality lower bound — so <25% of blocks change per step and CPU→GPU traffic stays cheap. Its NOSI system exposes communication as the true bottleneck and delivers up to 5.04×/1.92×/1.83× decode throughput over FullAttn/InfLLMv2/ShadowKV on 1–8B models, while dodging the long-generation perplexity explosion that wrecks training-free offloading like ShadowKV. Code released by THUNLP; the main caveat is efficiency is shown in NOSI, not yet inside vLLM/SGLang. Score: 94 (was 95)
+[SparseEngine: Sparse-First Inference Engine](https://arxiv.org/abs/2609.39068)
+A ground-up sparse-first serving engine whose shared lifecycle contract lets 15 sparse-attention methods each control their own KV layout; Chain Cache resumes KV-eviction from retained history and Prefix-Cache Pruning drops selected regions while preserving prefix matching. Reports >10x throughput with KV eviction, >2.5x decode at matched concurrency vs vLLM, and >2x end-to-end on agent benchmarks — open source. If it holds, it's a serious option for long-context agent serving. Score: 95
 
-## [PackServe: SLO-Aware Request Scheduling for Agentic LLM Serving at Scale](https://arxiv.org/abs/2609.33224)
-PackServe is a gateway scheduler for agentic workloads that predicts TTFT/TPOT under prefill/decode interference with compact white-box models (1.9 ms/decision vs 132 ms for llm-d's XGBoost), then packs requests onto fewer instances under a recomputation budget that protects KVC reuse. On 64 H20 GPUs it burns 13–24.6% fewer GPU-hours than LMetric and llm-d+ while holding 30/50 ms TPOT SLOs — and it's already in production on 1000+ GPUs, cutting serving footprint 34.7% and lifting per-instance throughput 36.8%. Production validation at that scale is what pushes this above a typical scheduling paper. Score: 92 (was 93)
+[Efficient Expert-Parallel Communication on PCIe-Connected Consumer GPUs](https://arxiv.org/abs/2609.40093)
+ThunderEP rethinks MoE expert-parallel comms for PCIe consumer boxes: it removes the relay hops of ring all-to-all, moves data through DMA engines to dodge compute contention, and cuts completion-flag polling overhead. Integrated into vLLM, it hits 2.00x/1.53x over NCCL for dispatch/combine and up to 1.66x end-to-end on RTX 4090/5090 systems. Directly actionable for anyone serving MoE models without NVLink. Score: 94
 
-## [vSkipper: Translating Dynamic Layer Skipping into LLM Serving Gains](https://arxiv.org/abs/2609.37062)
-vSkipper finally converts dynamic layer skipping into real serving wins: the released FlexiDepth checkpoint skips 8/32 layers yet decodes 14.6–21% *slower* than base in a stock loop, because saved FLOPs aren't saved time. Its RUN/Project-Only cohort interface preserves continuous batching, paged KV, and captured CUDA graphs, and a roofline-based profitability switch routes only when it pays — at the load knee it cuts mean latency 36.8% (GSM8K) and 13.6% (BBH) and raises saturated throughput 11.3%/7.4% with no resolved quality loss, generalizing across two Qwen3 skippers and three GPUs. First system to realize serving gains from per-token interior skipping; gains are workload-dependent (CoQA and Qwen3-4B see little). Score: 91 (was 95)
+[UBTree: Parallel Tree Drafting via Unigram and Bigram Models for Speculative Decoding](https://arxiv.org/abs/2609.39972)
+Pairs a unigram proposer with a bigram selector (trained with a renormalized KL objective on high-temp data) so tree drafts stay diverse even under high-entropy targets. Reports 5.84–6.94x over autoregressive decoding on Qwen3-4B/8B across 7 benchmarks, beats DARTree in all 28 comparisons, and tops the frontier production baseline DSpark. Spec decoding remains the highest-leverage latency win, and the production eval is the selling point. Score: 93
+```
+
+Want me to go the Bash route for a real full-text rescore, or are you set with the abstract-based draft?
 
 ---
 
 ## Surge Watch
 
-[DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) is proving it's no launch-day spike: beyond the HF upvote climb flagged last cycle, its citations **more than tripled from 7 to 23 (09-25→09-30)** — remarkably fast academic compounding for a paper barely a week old, and the clearest sign this KV-compression report has staying power on both the community *and* citation axes.
+[Fast KV Compaction via Attention Matching](https://arxiv.org/abs/2602.16284) is the clearest new mover: after sitting flat at ~17 citations for a month, it broke out to **17→23 with a sharp 20→23 burst across 09-30→10-01, and influential citations doubling 4→8** in the same two days — a sudden, concentrated pickup for a KV-compaction method that had shown no prior momentum.
 
-On the systems side, [Continuum](https://arxiv.org/abs/2511.02230)'s KV-cache-TTL agent scheduling keeps quietly accruing influence — **54→63 citations (09-25→09-30)**, now 9 influential — a sustained ramp (35→63 since early August) that's outpacing most of its serving-paper cohort rather than leveling off.
+[REAP the Experts](https://arxiv.org/abs/2510.13999) keeps compounding on the MoE-pruning side: **40→47 citations (09-23→10-01) with influentials climbing 16→20** — a notably high influential ratio and a steeper, still-accelerating ramp than most of its one-shot-compression peers.
 
-Otherwise the diffusion/quant breakouts from last cycle (Flash-dLLM, HyQuant, Disaggregated Quantization) simply held their gains into 09-30 without fresh acceleration — the surge has cooled to a simmer.
+Last cycle's sprinters have settled: [DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) held at 23 citations (09-30) with no fresh jump, and [Continuum](https://arxiv.org/abs/2511.02230) edged just 63→64 into 10-01 — both cooling from the fast climbs flagged last week rather than extending them.
