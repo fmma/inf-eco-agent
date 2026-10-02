@@ -1,52 +1,34 @@
-I hit a wall that's worth surfacing before I produce anything, because the output would otherwise misrepresent what I actually did.
+I hit a hard blocker and want to flag it rather than fake my way past it.
 
-**I can't read the PDFs in this environment.** The Read tool renders PDF pages to images via `pdftoppm` (poppler-utils), which isn't installed on this host:
+**The PDF rescore step can't run in this environment.** All 8 papers downloaded fine (`data/pdfs/`, timestamped today 05:27), but I cannot read any of them:
 
-```
-pdftoppm is not installed. Install poppler-utils ... to enable PDF page rendering.
-```
+- **Read tool** → fails on every PDF: `pdftoppm is not installed. Install poppler-utils`. The Read tool renders PDFs via poppler, which isn't on this host.
+- **Python extraction via Bash** (pypdf/pdfminer, or a manual zlib stream parse) → `This command requires approval` (denied).
+- **Write a helper script** to `/tmp` → permission not granted.
+- **WebFetch** the arXiv HTML full-text as a fallback → permission not granted.
 
-My fallback — extracting text with Python (`pymupdf`/`pypdf`) via Bash — is also blocked: every Bash call here returns "requires approval" and isn't being granted (consistent with the `--allowedTools "Read"` invocation the news step uses). So I have no working path to the full text of the 8 PDFs. Reporting that honestly rather than fabricating a full-text rescore.
+So there is currently **no channel** through which I can read the full text. The only things working are Read-on-text-files and benign read-only Bash (`ls`, `grep`). `grep`/`strings` won't help — arXiv PDFs are FlateDecode-compressed.
 
-**Two ways forward:**
+I won't emit a bulletin that claims full-text rescoring when I never opened the PDFs — the "Score: X (was Y)" deltas would be fabricated.
 
-1. **Quick fix (this host):** `sudo apt-get install poppler-utils`, then re-run — Read will work.
-2. **Robust fix (recommended):** decouple `generate_news.py` from the Read tool's image rendering. Extract text server-side with `pymupdf`/`pypdf` and either inline it into the prompt or write `.txt` siblings for Claude to `Read`. This removes the poppler system dependency entirely and still works under `--allowedTools "Read"`. It also sidesteps the cost/fragility of image-rendering every PDF page.
+**Worth knowing:** if this host is where `scan.sh` runs, step 7 (`generate_news.py`'s PDF rescore) has likely been **silently degrading to abstract-only** since poppler went missing — the pipeline never checks whether the PDFs were actually read, so it still posts a bulletin every day.
 
-If you'd rather I just do it now: **approve one Bash call** and I'll extract the text with Python and produce a genuine full-text rescore.
+**To unblock, pick one:**
+1. **Restore PDF reading (best):** install `poppler-utils` so the Read tool works as the pipeline intends. On NixOS add `poppler_utils` to the system/user environment; the equivalent elsewhere is `apt-get install poppler-utils`.
+2. **Give the pipeline a text path:** `pip install pypdf` into `.venv` and I (or `generate_news.py`) can extract text without poppler.
+3. **Grant me permission** for Bash-python or WebFetch right now, and I'll read the papers and produce the real full-text bulletin this run.
+4. **Proceed abstract-only:** I'll write the bulletin from the (unusually detailed) abstracts already in the prompt — genuinely useful, but it's *not* a full-text rescore, so I'd label scores as abstract-based rather than invent deltas.
 
----
-
-Meanwhile, so you're not blocked, here's a bulletin built **from the abstracts only** (they already carry the key numbers). I've kept the scores at their abstract-based values rather than faking a `(was X)` full-text delta:
-
-```markdown
-# Inference Ecosystem — Flash News
-**2026-10-01 · 543 papers scanned · 5 picks**
-
-[Working Around the Compute Ceiling: Byte-Exact Memory in Galahad](https://arxiv.org/abs/2609.39358)
-A memory layer for vLLM, SGLang and llama.cpp that turns document "reading" into a one-time cost: it saves byte-exact KV state per text block and reloads it on any later request containing the same bytes, then serves the model only the section a question needs. On a 100-fact/97K-token recall test (Gemma 4 31B), it reports 98/100 at 3.0s & 572J vs 10/100, 9.3s & 2,754J without — 100/100 at ~0.6s with section routing — and bit-identical restored logits, failing closed on any check miss. Stateful serving across all three major runtimes is a big deal; bold single-author claims, so verify before betting on it. Score: 95
-
-[Vosti: Specifying, Implementing, and Verifying Deterministic LLM Inference](https://arxiv.org/abs/2609.38981)
-First formal system-level spec of deterministic inference plus an engine verified against it — and it shows vLLM's batch-invariant and SGLang's deterministic modes still diverge under some execution variations. Vosti selects kernels independently of runtime state, ties KV to logical token prefixes, and splits its proof across engine (Verus) and kernel (Triton analyzer) for bitwise-identical logits at perf comparable to vLLM batch-invariant on decode-heavy loads. The determinism topic is white-hot post-Thinking-Machines, and "verified" raises the bar. Score: 95
-
-[SparseEngine: Sparse-First Inference Engine](https://arxiv.org/abs/2609.39068)
-A ground-up sparse-first serving engine whose shared lifecycle contract lets 15 sparse-attention methods each control their own KV layout; Chain Cache resumes KV-eviction from retained history and Prefix-Cache Pruning drops selected regions while preserving prefix matching. Reports >10x throughput with KV eviction, >2.5x decode at matched concurrency vs vLLM, and >2x end-to-end on agent benchmarks — open source. If it holds, it's a serious option for long-context agent serving. Score: 95
-
-[Efficient Expert-Parallel Communication on PCIe-Connected Consumer GPUs](https://arxiv.org/abs/2609.40093)
-ThunderEP rethinks MoE expert-parallel comms for PCIe consumer boxes: it removes the relay hops of ring all-to-all, moves data through DMA engines to dodge compute contention, and cuts completion-flag polling overhead. Integrated into vLLM, it hits 2.00x/1.53x over NCCL for dispatch/combine and up to 1.66x end-to-end on RTX 4090/5090 systems. Directly actionable for anyone serving MoE models without NVLink. Score: 94
-
-[UBTree: Parallel Tree Drafting via Unigram and Bigram Models for Speculative Decoding](https://arxiv.org/abs/2609.39972)
-Pairs a unigram proposer with a bigram selector (trained with a renormalized KL objective on high-temp data) so tree drafts stay diverse even under high-entropy targets. Reports 5.84–6.94x over autoregressive decoding on Qwen3-4B/8B across 7 benchmarks, beats DARTree in all 28 comparisons, and tops the frontier production baseline DSpark. Spec decoding remains the highest-leverage latency win, and the production eval is the selling point. Score: 93
-```
-
-Want me to go the Bash route for a real full-text rescore, or are you set with the abstract-based draft?
+Which would you like? My recommendation is **#1** (fixes it permanently for the daily scan), with **#3** if you want the real bulletin for this run immediately.
 
 ---
 
 ## Surge Watch
 
-[Fast KV Compaction via Attention Matching](https://arxiv.org/abs/2602.16284) is the clearest new mover: after sitting flat at ~17 citations for a month, it broke out to **17→23 with a sharp 20→23 burst across 09-30→10-01, and influential citations doubling 4→8** in the same two days — a sudden, concentrated pickup for a KV-compaction method that had shown no prior momentum.
+[DFlash](https://arxiv.org/abs/2602.06036) is the clearest breakout: citations jumped **98→114 in a week (09-26→10-02) with influentials surging 38→45** — a block-diffusion speculative-decoding method now compounding faster than any peer and well past the 100-citation mark.
 
-[REAP the Experts](https://arxiv.org/abs/2510.13999) keeps compounding on the MoE-pruning side: **40→47 citations (09-23→10-01) with influentials climbing 16→20** — a notably high influential ratio and a steeper, still-accelerating ramp than most of its one-shot-compression peers.
+Speculative decoding is running hot more broadly: [DSpark](https://arxiv.org/abs/2607.05147) leapt **30→38 citations with influentials 9→15**, and [Domino](https://arxiv.org/abs/2605.29707) went **19→28 (influentials doubling 4→8)** over the same 09-26→10-02 window — both sharp, concentrated pickups rather than slow drifts.
 
-Last cycle's sprinters have settled: [DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) held at 23 citations (09-30) with no fresh jump, and [Continuum](https://arxiv.org/abs/2511.02230) edged just 63→64 into 10-01 — both cooling from the fast climbs flagged last week rather than extending them.
+[TraceLab](https://arxiv.org/abs/2606.30560) nearly doubled, **13→24 in a week** — the fastest relative climb on the board, as coding-agent serving-workload characterization draws sudden interest. [StreamingVLM](https://arxiv.org/abs/2510.09608) also stepped up **84→93**.
+
+[DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) reignited after last week's stall, moving **23→30** — the KV-compression release is accruing citations again rather than cooling as previously flagged.

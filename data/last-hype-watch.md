@@ -1,5 +1,7 @@
-[Fast KV Compaction via Attention Matching](https://arxiv.org/abs/2602.16284) is the clearest new mover: after sitting flat at ~17 citations for a month, it broke out to **17→23 with a sharp 20→23 burst across 09-30→10-01, and influential citations doubling 4→8** in the same two days — a sudden, concentrated pickup for a KV-compaction method that had shown no prior momentum.
+[DFlash](https://arxiv.org/abs/2602.06036) is the clearest breakout: citations jumped **98→114 in a week (09-26→10-02) with influentials surging 38→45** — a block-diffusion speculative-decoding method now compounding faster than any peer and well past the 100-citation mark.
 
-[REAP the Experts](https://arxiv.org/abs/2510.13999) keeps compounding on the MoE-pruning side: **40→47 citations (09-23→10-01) with influentials climbing 16→20** — a notably high influential ratio and a steeper, still-accelerating ramp than most of its one-shot-compression peers.
+Speculative decoding is running hot more broadly: [DSpark](https://arxiv.org/abs/2607.05147) leapt **30→38 citations with influentials 9→15**, and [Domino](https://arxiv.org/abs/2605.29707) went **19→28 (influentials doubling 4→8)** over the same 09-26→10-02 window — both sharp, concentrated pickups rather than slow drifts.
 
-Last cycle's sprinters have settled: [DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) held at 23 citations (09-30) with no fresh jump, and [Continuum](https://arxiv.org/abs/2511.02230) edged just 63→64 into 10-01 — both cooling from the fast climbs flagged last week rather than extending them.
+[TraceLab](https://arxiv.org/abs/2606.30560) nearly doubled, **13→24 in a week** — the fastest relative climb on the board, as coding-agent serving-workload characterization draws sudden interest. [StreamingVLM](https://arxiv.org/abs/2510.09608) also stepped up **84→93**.
+
+[DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) reignited after last week's stall, moving **23→30** — the KV-compression release is accruing citations again rather than cooling as previously flagged.
