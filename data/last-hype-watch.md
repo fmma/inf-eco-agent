@@ -1,7 +1,9 @@
-[DFlash](https://arxiv.org/abs/2602.06036) is the clearest breakout: citations jumped **98→114 in a week (09-26→10-02) with influentials surging 38→45** — a block-diffusion speculative-decoding method now compounding faster than any peer and well past the 100-citation mark.
+[Fast KV Compaction via Attention Matching](https://arxiv.org/abs/2602.16284) is the sharpest mover on the board — a concentrated endorsement spike, not a drift: influential citations **4→10 (09-23→10-02)** behind an 18→25 total climb. KV-cache compression is where citation momentum is pooling this week.
 
-Speculative decoding is running hot more broadly: [DSpark](https://arxiv.org/abs/2607.05147) leapt **30→38 citations with influentials 9→15**, and [Domino](https://arxiv.org/abs/2605.29707) went **19→28 (influentials doubling 4→8)** over the same 09-26→10-02 window — both sharp, concentrated pickups rather than slow drifts.
+[Continuum](https://arxiv.org/abs/2511.02230) (KV-cache TTL for multi-turn agent scheduling) jumped **52→65 citations in ten days**, influentials ticking to 10 — the fastest-climbing serving-side paper right now.
 
-[TraceLab](https://arxiv.org/abs/2606.30560) nearly doubled, **13→24 in a week** — the fastest relative climb on the board, as coding-agent serving-workload characterization draws sudden interest. [StreamingVLM](https://arxiv.org/abs/2510.09608) also stepped up **84→93**.
+MoE compression is heating in parallel: [REAP the Experts](https://arxiv.org/abs/2510.13999) moved **40→47 with influentials 16→20** over the same window, as one-shot expert pruning draws quick uptake.
 
-[DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) reignited after last week's stall, moving **23→30** — the KV-compression release is accruing citations again rather than cooling as previously flagged.
+On community signals, [Disaggregated Quantization](https://arxiv.org/abs/2609.26333) is the clearest breakout — HF upvotes **45→91 and GitHub 6→20 in four days (09-29→10-03)**. Fresh HF debuts also landed for [MassAlloc Attention](https://arxiv.org/abs/2609.32712) (**74 upvotes** from zero) and its same-group sibling [CoWindow Attention](https://arxiv.org/abs/2609.32704) (**66**) — both compute-allocating attention variants worth watching.
+
+Last week's leader [DFlash](https://arxiv.org/abs/2602.06036) hasn't cooled — **114→117 citations, influentials 45→47** in a single day — still the fastest-compounding block-diffusion speculative-decoding paper, now nearing 50 influential cites.

@@ -1,34 +1,22 @@
-I hit a hard blocker and want to flag it rather than fake my way past it.
+# Inference Ecosystem — Flash News
+**2026-10-03 · 0 relevant papers (1 scanned)**
 
-**The PDF rescore step can't run in this environment.** All 8 papers downloaded fine (`data/pdfs/`, timestamped today 05:27), but I cannot read any of them:
+No local PDF paths were provided to this run, and the single paper scanned today does not clear the relevance bar for inference engineers.
 
-- **Read tool** → fails on every PDF: `pdftoppm is not installed. Install poppler-utils`. The Read tool renders PDFs via poppler, which isn't on this host.
-- **Python extraction via Bash** (pypdf/pdfminer, or a manual zlib stream parse) → `This command requires approval` (denied).
-- **Write a helper script** to `/tmp` → permission not granted.
-- **WebFetch** the arXiv HTML full-text as a fallback → permission not granted.
+The lone candidate — *Watch, Infer, Coordinate: Inferring Robot Partner Constraints for Zero-Shot Coordination* — is a multi-robot physical-manipulation paper about inferring a partner's actuator/hardware constraints from observed joint behavior. Despite "Infer" in the title, it has nothing to do with LLM inference systems, serving, or runtime optimization. Rescored relevance: **5 (was 3)** — well below the 70 threshold.
 
-So there is currently **no channel** through which I can read the full text. The only things working are Read-on-text-files and benign read-only Bash (`ls`, `grep`). `grep`/`strings` won't help — arXiv PDFs are FlateDecode-compressed.
-
-I won't emit a bulletin that claims full-text rescoring when I never opened the PDFs — the "Score: X (was Y)" deltas would be fabricated.
-
-**Worth knowing:** if this host is where `scan.sh` runs, step 7 (`generate_news.py`'s PDF rescore) has likely been **silently degrading to abstract-only** since poppler went missing — the pipeline never checks whether the PDFs were actually read, so it still posts a bulletin every day.
-
-**To unblock, pick one:**
-1. **Restore PDF reading (best):** install `poppler-utils` so the Read tool works as the pipeline intends. On NixOS add `poppler_utils` to the system/user environment; the equivalent elsewhere is `apt-get install poppler-utils`.
-2. **Give the pipeline a text path:** `pip install pypdf` into `.venv` and I (or `generate_news.py`) can extract text without poppler.
-3. **Grant me permission** for Bash-python or WebFetch right now, and I'll read the papers and produce the real full-text bulletin this run.
-4. **Proceed abstract-only:** I'll write the bulletin from the (unusually detailed) abstracts already in the prompt — genuinely useful, but it's *not* a full-text rescore, so I'd label scores as abstract-based rather than invent deltas.
-
-Which would you like? My recommendation is **#1** (fixes it permanently for the daily scan), with **#3** if you want the real bulletin for this run immediately.
+Nothing to report for the bulletin today. Quiet scan.
 
 ---
 
 ## Surge Watch
 
-[DFlash](https://arxiv.org/abs/2602.06036) is the clearest breakout: citations jumped **98→114 in a week (09-26→10-02) with influentials surging 38→45** — a block-diffusion speculative-decoding method now compounding faster than any peer and well past the 100-citation mark.
+[Fast KV Compaction via Attention Matching](https://arxiv.org/abs/2602.16284) is the sharpest mover on the board — a concentrated endorsement spike, not a drift: influential citations **4→10 (09-23→10-02)** behind an 18→25 total climb. KV-cache compression is where citation momentum is pooling this week.
 
-Speculative decoding is running hot more broadly: [DSpark](https://arxiv.org/abs/2607.05147) leapt **30→38 citations with influentials 9→15**, and [Domino](https://arxiv.org/abs/2605.29707) went **19→28 (influentials doubling 4→8)** over the same 09-26→10-02 window — both sharp, concentrated pickups rather than slow drifts.
+[Continuum](https://arxiv.org/abs/2511.02230) (KV-cache TTL for multi-turn agent scheduling) jumped **52→65 citations in ten days**, influentials ticking to 10 — the fastest-climbing serving-side paper right now.
 
-[TraceLab](https://arxiv.org/abs/2606.30560) nearly doubled, **13→24 in a week** — the fastest relative climb on the board, as coding-agent serving-workload characterization draws sudden interest. [StreamingVLM](https://arxiv.org/abs/2510.09608) also stepped up **84→93**.
+MoE compression is heating in parallel: [REAP the Experts](https://arxiv.org/abs/2510.13999) moved **40→47 with influentials 16→20** over the same window, as one-shot expert pruning draws quick uptake.
 
-[DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) reignited after last week's stall, moving **23→30** — the KV-compression release is accruing citations again rather than cooling as previously flagged.
+On community signals, [Disaggregated Quantization](https://arxiv.org/abs/2609.26333) is the clearest breakout — HF upvotes **45→91 and GitHub 6→20 in four days (09-29→10-03)**. Fresh HF debuts also landed for [MassAlloc Attention](https://arxiv.org/abs/2609.32712) (**74 upvotes** from zero) and its same-group sibling [CoWindow Attention](https://arxiv.org/abs/2609.32704) (**66**) — both compute-allocating attention variants worth watching.
+
+Last week's leader [DFlash](https://arxiv.org/abs/2602.06036) hasn't cooled — **114→117 citations, influentials 45→47** in a single day — still the fastest-compounding block-diffusion speculative-decoding paper, now nearing 50 influential cites.
