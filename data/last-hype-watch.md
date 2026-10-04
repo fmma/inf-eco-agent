@@ -1,9 +1,5 @@
-[Fast KV Compaction via Attention Matching](https://arxiv.org/abs/2602.16284) is the sharpest mover on the board — a concentrated endorsement spike, not a drift: influential citations **4→10 (09-23→10-02)** behind an 18→25 total climb. KV-cache compression is where citation momentum is pooling this week.
+[DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) is the week's breakout — KV-cache compression with DeepSeek's name behind it, compounding citations **7→35 (09-25→10-04)** while HF upvotes climbed **174→191**. It's now the fastest-accumulating KV-compression paper on the board, displacing last week's leader [Fast KV Compaction](https://arxiv.org/abs/2602.16284), which has flattened at **25 citations / 10 influential** since 10-02.
 
-[Continuum](https://arxiv.org/abs/2511.02230) (KV-cache TTL for multi-turn agent scheduling) jumped **52→65 citations in ten days**, influentials ticking to 10 — the fastest-climbing serving-side paper right now.
+Two architecture papers are compounding hard on citations: [FlashAttention-4](https://arxiv.org/abs/2603.05451) jumped **58→74 (influentials 8→11)** and [Mamba-3](https://arxiv.org/abs/2603.15569) **81→96, influentials 11→17**, both in ~ten days — kernel and SSM foundations drawing the heaviest scholarly uptake this cycle.
 
-MoE compression is heating in parallel: [REAP the Experts](https://arxiv.org/abs/2510.13999) moved **40→47 with influentials 16→20** over the same window, as one-shot expert pruning draws quick uptake.
-
-On community signals, [Disaggregated Quantization](https://arxiv.org/abs/2609.26333) is the clearest breakout — HF upvotes **45→91 and GitHub 6→20 in four days (09-29→10-03)**. Fresh HF debuts also landed for [MassAlloc Attention](https://arxiv.org/abs/2609.32712) (**74 upvotes** from zero) and its same-group sibling [CoWindow Attention](https://arxiv.org/abs/2609.32704) (**66**) — both compute-allocating attention variants worth watching.
-
-Last week's leader [DFlash](https://arxiv.org/abs/2602.06036) hasn't cooled — **114→117 citations, influentials 45→47** in a single day — still the fastest-compounding block-diffusion speculative-decoding paper, now nearing 50 influential cites.
+Speculative decoding keeps its streak: [DSpark](https://arxiv.org/abs/2607.05147) moved **30→39 with influentials 9→16** and [Domino](https://arxiv.org/abs/2605.29707) **19→29, influentials 4→9** since late September — semi-autoregressive/decoupled drafting is the sub-theme pulling cites.
