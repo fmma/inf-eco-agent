@@ -1,12 +1,14 @@
 # Inference Ecosystem — Flash News
-**2026-10-04** — No new papers today.
+**2026-10-05** — No new papers today.
 
 ---
 
 ## Surge Watch
 
-[DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) is the week's breakout — KV-cache compression with DeepSeek's name behind it, compounding citations **7→35 (09-25→10-04)** while HF upvotes climbed **174→191**. It's now the fastest-accumulating KV-compression paper on the board, displacing last week's leader [Fast KV Compaction](https://arxiv.org/abs/2602.16284), which has flattened at **25 citations / 10 influential** since 10-02.
+[DFlash](https://arxiv.org/abs/2602.06036) is the scholarly breakout this cycle — the block-diffusion speculative-decoding paper blew past 100 citations, compounding **93→117 with influentials 33→47 (09-22→10-03)**. It's now the fastest-accumulating diffusion-SD work on the board, outpacing the speculative-decoding names we tracked last week.
 
-Two architecture papers are compounding hard on citations: [FlashAttention-4](https://arxiv.org/abs/2603.05451) jumped **58→74 (influentials 8→11)** and [Mamba-3](https://arxiv.org/abs/2603.15569) **81→96, influentials 11→17**, both in ~ten days — kernel and SSM foundations drawing the heaviest scholarly uptake this cycle.
+Community attention has rotated to quantization and attention-compute. [Disaggregated Quantization](https://arxiv.org/abs/2609.26333) (Alistarh group, separate prefill/decode precision) nearly doubled HF upvotes **45→91 in four days (09-29→10-03)** — the sharpest upvote curve this cycle.
 
-Speculative decoding keeps its streak: [DSpark](https://arxiv.org/abs/2607.05147) moved **30→39 with influentials 9→16** and [Domino](https://arxiv.org/abs/2605.29707) **19→29, influentials 4→9** since late September — semi-autoregressive/decoupled drafting is the sub-theme pulling cites.
+Two fresh "attention allocates its own compute" papers debuted hot from one author group: [MassAlloc Attention](https://arxiv.org/abs/2609.32712) at **74 HF upvotes / 766 GitHub stars** and [CoWindow Attention](https://arxiv.org/abs/2609.32704) at **66**, both from a standing start on 10-03 — worth watching if the pair sustains past the launch spike.
+
+On systems, [TraceLab](https://arxiv.org/abs/2606.30560)'s coding-agent workload characterization roughly doubled citations **11→24 (09-22→10-02)**, the fastest-moving measurement paper of the week.
