@@ -1,7 +1,7 @@
-[DFlash](https://arxiv.org/abs/2602.06036) is the scholarly breakout this cycle — the block-diffusion speculative-decoding paper blew past 100 citations, compounding **93→117 with influentials 33→47 (09-22→10-03)**. It's now the fastest-accumulating diffusion-SD work on the board, outpacing the speculative-decoding names we tracked last week.
+[DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) is the breakout this cycle — the KV-cache-compression tech report rocketed to **224 HF upvotes (191→224 in three days, up from 174 two weeks ago)** while citations compounded **7→35 (09-25→10-04)**. Fastest-moving release on the board right now.
 
-Community attention has rotated to quantization and attention-compute. [Disaggregated Quantization](https://arxiv.org/abs/2609.26333) (Alistarh group, separate prefill/decode precision) nearly doubled HF upvotes **45→91 in four days (09-29→10-03)** — the sharpest upvote curve this cycle.
+GitHub momentum has rotated to edge-MoE serving: [Serving 35B MoEs from SSD](https://arxiv.org/abs/2609.18063) blew past 3K stars, **2,363→3,085 (10-03→10-06)** — roughly 700 in three days, with HF upvotes ticking 19→22.
 
-Two fresh "attention allocates its own compute" papers debuted hot from one author group: [MassAlloc Attention](https://arxiv.org/abs/2609.32712) at **74 HF upvotes / 766 GitHub stars** and [CoWindow Attention](https://arxiv.org/abs/2609.32704) at **66**, both from a standing start on 10-03 — worth watching if the pair sustains past the launch spike.
+On the scholarly side, two heavyweight systems papers are compounding hard: [FlashAttention-4](https://arxiv.org/abs/2603.05451) added citations **58→75 (09-24→10-06, influentials 8→11)** and [Mamba-3](https://arxiv.org/abs/2603.15569) ran **81→99 (influentials 11→17)** over the same window — both now outpacing the quantization names.
 
-On systems, [TraceLab](https://arxiv.org/abs/2606.30560)'s coding-agent workload characterization roughly doubled citations **11→24 (09-22→10-02)**, the fastest-moving measurement paper of the week.
+Meanwhile [Disaggregated Quantization](https://arxiv.org/abs/2609.26333)'s upvote surge has flattened (**91→92**), marking last cycle's jump as a launch-day pop rather than durable traction.
