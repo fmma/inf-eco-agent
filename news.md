@@ -1,31 +1,29 @@
-I've read all eight PDFs. Here is my rescored flash-news bulletin.
-
 # Inference Ecosystem — Flash News
-**2026-10-07 · 5 papers · 487 scanned**
+**2026-10-08 · 331 papers scanned · 5 featured**
 
-### [Adaptive KV Cache Reuse for Fast Long-Context LLM Serving](https://arxiv.org/abs/2605.24022)
-CacheTune does an offline FFT of each independently-encoded KV chunk to pick the ~15% of tokens whose recomputation restores the missing cross-chunk attention, reusing the rest — and the same indices tell the system which KV *not* to load from the cache tier. Result: 3.72–4.86× TTFT speedup and 3.93–6.21× throughput over full recompute at ~95% quality, beating CacheBlend/EPIC/ProphetKV, and still 2.34–2.36× when caches sit on SSD/HDD. RAG and multi-doc prefill is now the dominant serving cost and plain prefix caching does nothing for non-prefix chunks, so this is directly useful today. Score: 91 (was 92).
+Sparse attention, KV-cache compression, and serving infrastructure dominate this batch — the three levers that matter most as frontier models push toward million-token context.
 
-### [DLoop: Looped Speculative Decoding](https://arxiv.org/abs/2610.07659)
-A confidence gate lets the draft model run several drafting stages before a single verification, with loop-aware training keeping it reliable on its own hidden states. It drops onto EAGLE-3, DFlash, Domino, DSpark and MTP modules with no extra parameters, improving wall-clock speedup 5–41% while staying lossless and composing on top of tree verification. The key win: it raises speedup for *parallel* draft models, where adaptive draft-length methods don't help. Score: 89 (was 92).
+## [SPIN: Shadow Predictive Indexer for Sparse Attention](https://arxiv.org/abs/2610.09025)
+NVIDIA targets the next bottleneck in DeepSeek Sparse Attention: the indexer that must still score the *entire* KV cache every decode step. SPIN predicts important KV blocks from exponential moving averages of prior-iteration scores (vertical + diagonal patterns), stays training-free at 30–40% block sparsity with no quality loss, and adds random exploration to refresh stale blocks. In vLLM on 8× B300 it lifts output throughput up to 14.9% and cuts median ITL up to 13.2% on DeepSeek-V4 — immediately relevant to anyone serving DSA-class models (DeepSeek-V4, GLM-5.2, MiniMax-M3, LongCat-2.0). Score: 91 (was 92)
 
-### [Nucleus Speculative Decoding](https://arxiv.org/abs/2610.07822)
-NSD relaxes verification — accept a draft token if it passes the standard rule *or* lands in the target's top-p nucleus — reusing probabilities already computed during the pass. Up to 5.16× over autoregressive and 3.15× over standard SD, with ~48% fewer verification calls and a clean bound (the extra acceptance equals the draft's excess mass inside the nucleus). A drop-in, drafting-agnostic verifier change with theory and released code, though it trades exactness for throughput. Score: 89 (was 92).
+## [Democratizing MoE inference on commodity GPUs with CoMoE](https://arxiv.org/abs/2610.09424)
+A communication-efficient MoE system that turns the host into an active routing hub on consumer GPUs with no NVLink/P2P: host-backed token multicast kills dispatch redundancy, and a fine-grained host-staged combine replaces rigid All-to-All barriers. On RTX 5090 it hits up to 1.46× throughput over SGLang and reaches 85–90% of an A800+DeepEP node at ~23.4% of the hardware cost. Shipped as a drop-in SGLang backend — a compelling cost story for private, local MoE serving. Score: 91 (was 92)
 
-### [ECO: Energy-Oriented Configuration Optimization for Attention–FFN Disaggregated LLM Serving](https://arxiv.org/abs/2610.08373)
-A calibrated stage-and-pipeline energy prior plus cost-aware constrained Bayesian optimization searches GPU allocation, parallelism, frequency and power caps under just 16 measured trials. On A6000/A100 with Qwen and DeepSeek it cuts serving energy 40.5% and lifts output-token rate 20.7% versus default while meeting SLOs, landing 25–33% below generic BO and genetic search. Real NVML-measured energy wins and a reusable recipe make this matter for anyone running AFD deployments. Score: 88 (was 93).
+## [Dual-QK: Sharp Queries and Flat Keys for Prunable 2-bit KV Caches](https://arxiv.org/abs/2610.09827)
+Resolves the conflict between key quantization (wants flat distributions) and query-channel pruning (wants sharp ones) via paired non-orthogonal Q/K transforms, plus channel-0 BF16 protection and bucket-relative RoPE. At 40% channel sparsity and INT2 it crushes OSCAR on long-context retrieval (Qwen3-4B RULER@64K: 81.5% vs 32.7%), delivers 6.8× KV compression at 128K, and its SGLang kernel reaches up to 3.75× decode throughput over BF16. Combines quantization *and* pruning into one deployable win. Score: 90 (was 90)
 
-### [LatentIndex: Cross-Layer Sharing with Layer-Specific Selection for Sparse Attention](https://arxiv.org/abs/2610.04635)
-It brings MLA's latent-sharing to sparse-attention indexers: each layer group caches one shared latent from its anchor, and layer-specific decoders absorbed into queries let every layer still select its own tokens. On DeepSeek-V3.2/GLM-5 it cuts indexer-cache storage 61.1% and beats IndexCache recall by up to 3.28pp, while the hierarchical-selection variant delivers 2.30–2.72× decode indexer speedups over DSA. With DSA-style sparse attention now the long-context frontier, reclaiming cross-layer redundancy without forcing layers onto one token set is the right lever. Score: 86 (was 90).
+## [vLLM-Omni: A Unified Serving Runtime for Omni-Modality Generation](https://arxiv.org/abs/2610.09307)
+The vLLM project's answer to heterogeneous multimodal serving: a single orchestrator over multi-stage pipelines (thinker→talker→vocoder, DiT, world-model, robot) with stage replicas, a control/data-split connector, and session control for duplex workloads. Concrete wins include async-chunk slashing Qwen3-Omni TTFT from 3420ms to 508ms at C=32, an MRv2 path halving E2EL, and a fused single-GPU Qwen3-TTS hitting 1.2–2.2× the two-stage throughput. If you're building speech/vision/action serving, this is the infrastructure to watch. Score: 89 (was 90)
+
+## [Self-Indexing Attention for Compression-Compatible Sparse Long-Context Inference](https://arxiv.org/abs/2609.13205)
+A training-free scheme that reuses randomized-Hadamard *key signs* as a 1-bit token-level index shared across prefill and decode — no separate indexer metadata, and compatible with external KV compressors like TurboQuant. At 5% attention density it stays near dense on LongBench/RULER while delivering up to 6.1× prefill and 10.3× decode attention-operator speedups. Swapping DeepSeek-V4-Flash's FP8 indexer for packed signs frees memory for +34% decode-pool capacity and +16.2% throughput. Score: 88 (was 90)
 
 ---
 
 ## Surge Watch
 
-[DFlash](https://arxiv.org/abs/2602.06036) is the scholarly breakout this cycle — the block-diffusion speculative-decoding paper is compounding faster than anything on the board, **citations 98→121 (09-25→10-07), influentials 38→49**. Its speculative-decoding cousins are surfing the same wave: [Domino](https://arxiv.org/abs/2605.29707) ran **19→30** and [DSpark](https://arxiv.org/abs/2607.05147) **30→40 (influentials 9→17)** over the same window — speculative decoding is where the citation energy is right now.
+[DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) is the breakout this cycle — the KV-cache-compression report is compounding on both axes at once: **HF upvotes 191→224 in three days (10-03→10-06)**, one of the highest counts on the board, while citations tore **7→35 in ten days (09-25→10-04)** — the fastest cold-start-to-impact we've tracked.
 
-On HuggingFace, a fresh attention-architecture cluster from the Jingze Shi group cold-started hot on 10-03: [MassAlloc Attention](https://arxiv.org/abs/2609.32712) debuted at **74 upvotes + 766 GitHub stars**, sibling [CoWindow Attention](https://arxiv.org/abs/2609.32704) at **66** — sharpest launch since DeepSeek-V4.1-Flash, though worth watching whether it holds past day one.
+The speculative-decoding complex that led last cycle is cooling as it matures: [DFlash](https://arxiv.org/abs/2602.06036) cleared **50 influential citations (123 total)** but its daily pace has flattened, and [DSpark](https://arxiv.org/abs/2607.05147) (40→41) and [Domino](https://arxiv.org/abs/2605.29707) (30→31) barely budged this week — the citation energy is rotating toward KV compression.
 
-[TraceLab](https://arxiv.org/abs/2606.30560)'s coding-agent workload trace nearly doubled citations **13→25 (09-26→10-07)**, the fastest-moving serving-characterization paper.
-
-Among last cycle's heavyweights the attention race has split: [Mamba-3](https://arxiv.org/abs/2603.15569) cleared **100 citations (99→102, influentials 18)** while [FlashAttention-4](https://arxiv.org/abs/2603.05451) stalled at **75→76** — momentum has rotated to the SSM side.
+Steady climbers elsewhere: [Continuum](https://arxiv.org/abs/2511.02230)'s agentic KV-cache-TTL work ran **56→69 citations in ten days**, [MiniMax Sparse Attention](https://arxiv.org/abs/2606.13392) reached **32 (up from 17 in early September)**, and on HuggingFace [Disaggregated Quantization](https://arxiv.org/abs/2609.26333) roughly doubled its upvotes to **92 (45→92, 09-29→10-06)** — a clean community breakout for the prefill/decode-specialized quant paper.
