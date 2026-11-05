@@ -11,7 +11,7 @@ This repo is an automated agent that discovers new arXiv papers about LLM infere
 3. `src/merge_papers.py` merges scores into `data/papers.json`.
 4. `src/fetch_hype_signals.py` queries Semantic Scholar and HuggingFace for external signals (citations, upvotes, GitHub stars) on all relevant papers.
 5. `src/rescore_hype.py` appends today's signals to `hype_signal_history` (rolling window of 30 entries). Does **not** overwrite Claude's predicted `hype`/`hype_justification`.
-6. `src/build_hype_prompt.py` builds a prompt with full signal timelines for papers that have history. Claude analyzes trends and decides what's noteworthy (or outputs `NO_HYPE`).
+6. `src/build_hype_prompt.py` builds a prompt with the signal timelines of the papers whose signals grew the most, cut at a fixed size (`MAX_PAPERS_CHARS`). Claude analyzes trends and decides what's noteworthy (or outputs `NO_HYPE`).
 7. If new papers: `src/generate_news.py` downloads PDFs for top papers, invokes Claude with `--allowedTools "Read"` to read them, qualitatively rescores relevance, and generates flash news.
 8. Surge Watch section is always appended to `news.md` — Claude's hype analysis if noteworthy, or a "nothing to report" message.
 9. `scan.sh` commits, pushes, and posts `news.md` to Discord via OpenClaw.
@@ -49,9 +49,10 @@ The fetch step uses arXiv's **OAI-PMH** endpoint (`https://export.arxiv.org/oai2
 - `src/merge_papers.py` — Merges Claude's scores (relevance + hype) into the paper database
 - `src/fetch_hype_signals.py` — Queries Semantic Scholar + HuggingFace for external hype signals
 - `src/rescore_hype.py` — Appends today's signals to `hype_signal_history` (rolling window of 30), keeps `hype_signals` as latest snapshot
-- `src/build_hype_prompt.py` — Builds prompt with signal history timelines for Claude to analyze trends
+- `src/build_hype_prompt.py` — Builds a size-capped prompt with the signal timelines of the fastest-growing papers for Claude to analyze trends
 - `src/generate_news.py` — Downloads PDFs, rescores relevance via Claude (`--allowedTools "Read"`), generates flash news
 - `src/parse_scores.py` — Shared helper: strips markdown fences, parses and validates score JSON
+- `tests/` — Unit tests, run with `python3 -m unittest discover -s tests`
 - `score-prompt.md` — The prompt used when invoking Claude Code for scoring (JSON output only)
 - `news-prompt.md` — The prompt used for PDF rescore + news generation
 - `surge-prompt.md` — The prompt used for "Surge Watch" — Claude analyzes signal timelines and decides what's noteworthy
