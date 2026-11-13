@@ -6,9 +6,9 @@ This repo is an automated agent that discovers new arXiv papers about LLM infere
 
 ### Pipeline (scan.sh)
 
-1. `src/fetch_papers.py` queries arXiv for recent papers, skipping IDs already in `data/papers.json`. Lookback window is adaptive: based on last `scored_date` + 1-day overlap, minimum 3 days.
+1. `src/fetch_papers.py` queries arXiv for recent papers, skipping IDs already in `data/papers/`. Lookback window is adaptive: based on last `scored_date` + 1-day overlap, minimum 3 days.
 2. If new papers found: Claude Code (`claude --print`) scores each paper 0–100 for relevance **and** 0–100 for predicted hype.
-3. `src/merge_papers.py` merges scores into `data/papers.json`.
+3. `src/merge_papers.py` merges scores into `data/papers/`.
 4. `src/fetch_hype_signals.py` queries Semantic Scholar and HuggingFace for external signals (citations, upvotes, GitHub stars) on all relevant papers.
 5. `src/rescore_hype.py` appends today's signals to `hype_signal_history` (rolling window of 30 entries). Does **not** overwrite Claude's predicted `hype`/`hype_justification`.
 6. `src/build_hype_prompt.py` builds a prompt with the signal timelines of the papers whose signals grew the most, cut at a fixed size (`MAX_PAPERS_CHARS`). Claude analyzes trends and decides what's noteworthy (or outputs `NO_HYPE`).
@@ -57,5 +57,6 @@ The fetch step uses arXiv's **OAI-PMH** endpoint (`https://export.arxiv.org/oai2
 - `news-prompt.md` — The prompt used for PDF rescore + news generation
 - `surge-prompt.md` — The prompt used for "Surge Watch" — Claude analyzes signal timelines and decides what's noteworthy
 - `scan.sh` — Entry point that orchestrates the full pipeline
-- `data/papers.json` — Source of truth: all scored papers across runs
+- `src/papers_store.py` — Loads and saves the paper database; every script goes through it
+- `data/papers/<YYYY-MM>.json` — Source of truth: all scored papers across runs, one file per publication month (GitHub rejects a file over 100 MB)
 - `news.md` — Generated output: flash-news bulletin posted to Discord (always includes Surge Watch section)

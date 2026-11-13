@@ -57,7 +57,7 @@ trap 'on_error $LINENO' ERR
 #
 # The scoring step is rate-limited by claude's daily/per-minute quota, so we
 # decouple discovery from scoring. fetch_papers.py finds new papers (deduping
-# against papers.json and the queue); they get split into 100-paper batches
+# against the paper database and the queue); they get split into 100-paper batches
 # under data/queue/. Each run drains up to MAX_DRAIN of the oldest batches
 # sequentially; whatever doesn't fit waits until tomorrow.
 
@@ -130,14 +130,14 @@ sys.exit(0 if try_parse_scores('$out') else 1)
     echo "Merging scores..."
     python src/merge_papers.py /tmp/inf-eco-papers-scored.json /tmp/inf-eco-scores.json
 
-    # Drop processed queue files (the scores are now in papers.json).
+    # Drop processed queue files (the scores are now in data/papers/).
     for batch in "${processed[@]}"; do
       rm -f "$batch"
     done
 
     # Commit scoring progress before downstream steps so a hype/news failure
     # doesn't roll back the day's actual work.
-    git add data/papers.json data/queue/
+    git add data/papers/ data/queue/
     if ! git diff --cached --quiet; then
       git -c commit.gpgsign=false commit -s --quiet \
         -m "[Scan] Score ${#processed[@]} batch(es) — $(date +%Y-%m-%d)"
@@ -214,10 +214,10 @@ else
 fi
 
 if [ "$HAS_NEWS" = "1" ]; then
-  git add data/papers.json news.md
+  git add data/papers/ news.md
 else
   echo "Nothing newsworthy, skipping news generation."
-  git add data/papers.json
+  git add data/papers/
 fi
 
 # Always stage persisted hype watch (even if NO_HYPE — next run needs it)

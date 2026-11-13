@@ -11,7 +11,7 @@ fetch_papers.py → Claude scores → merge_papers.py → fetch_hype_signals.py 
 
 1. `src/fetch_papers.py` queries arXiv for recent papers, skipping papers already scored. Lookback window adapts to time since last run (minimum 3 days).
 2. Claude Code scores each paper 0–100 for relevance and 0–100 for predicted hype.
-3. `src/merge_papers.py` merges scores into `data/papers.json`.
+3. `src/merge_papers.py` merges scores into `data/papers/`.
 4. `src/fetch_hype_signals.py` queries Semantic Scholar + HuggingFace for citations, upvotes, and GitHub stars.
 5. `src/rescore_hype.py` updates signal snapshots and detects notable activity (new traction or signal surges).
 6. If notable hype activity: Claude generates a "Surge Watch" blurb from signal trends.
@@ -63,14 +63,15 @@ Edit `config.json` to change the topic, arXiv categories, keywords, or relevance
 ```
 ├── src/
 │   ├── fetch_papers.py        # Fetch from arXiv, adaptive lookback, dedup
-│   ├── merge_papers.py        # Merge Claude's scores into data/papers.json
+│   ├── merge_papers.py        # Merge Claude's scores into data/papers/
 │   ├── fetch_hype_signals.py  # Query Semantic Scholar + HuggingFace
 │   ├── rescore_hype.py        # Update signals, detect notable activity
 │   ├── build_hype_prompt.py   # Build prompt for Surge Watch blurb
 │   ├── generate_news.py       # PDF rescore + flash news in one Claude call
-│   └── parse_scores.py        # Shared JSON parsing with error handling
+│   ├── parse_scores.py        # Shared JSON parsing with error handling
+│   └── papers_store.py        # Load and save the paper database
 ├── data/
-│   └── papers.json            # Source of truth: all scored papers
+│   └── papers/                # Source of truth: all scored papers, one file per month
 ├── news.md                    # Generated: flash-news bulletin (+ Surge Watch)
 ├── scan.sh                    # Orchestrates the full pipeline
 ├── score-prompt.md            # Claude prompt for scoring (JSON output)

@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 """Build the hype-watch prompt from signal history.
 
-Reads data/papers.json, picks the papers whose signals grew the most, and
+Reads the paper database, picks the papers whose signals grew the most, and
 outputs the complete prompt to stdout. Exits non-zero if no papers qualify.
 """
 
-import json
 import sys
 from pathlib import Path
 
+from papers_store import load_papers
 from rescore_hype import HISTORY_CAP
 
 ROOT = Path(__file__).resolve().parent.parent
-PAPERS_PATH = ROOT / "data" / "papers.json"
 PROMPT_PATH = ROOT / "surge-prompt.md"
 LAST_HYPE_PATH = ROOT / "data" / "last-hype-watch.md"
 
@@ -102,12 +101,10 @@ def select_papers(papers: list[dict], max_chars: int) -> tuple[list[str], int]:
 
 
 def main():
-    if not PAPERS_PATH.exists():
-        print("No papers.json found.", file=sys.stderr)
+    papers = load_papers()
+    if not papers:
+        print("No papers found.", file=sys.stderr)
         sys.exit(1)
-
-    with open(PAPERS_PATH) as f:
-        papers = json.load(f)
 
     blocks, grew = select_papers(papers, MAX_PAPERS_CHARS)
 

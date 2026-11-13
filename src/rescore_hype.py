@@ -10,8 +10,8 @@ import sys
 from datetime import date
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-PAPERS_PATH = ROOT / "data" / "papers.json"
+from papers_store import load_papers, save_papers
+
 SIGNALS_PATH = Path("/tmp/inf-eco-hype-signals.json")
 
 HISTORY_CAP = 30
@@ -19,16 +19,14 @@ SIGNAL_KEYS = ["citations", "influential_citations", "hf_upvotes", "github_stars
 
 
 def main():
-    if not PAPERS_PATH.exists():
-        print("No papers.json found.", file=sys.stderr)
-        sys.exit(1)
-
     if not SIGNALS_PATH.exists():
         print("No signals file found. Run fetch_hype_signals.py first.", file=sys.stderr)
         sys.exit(1)
 
-    with open(PAPERS_PATH) as f:
-        papers = json.load(f)
+    papers = load_papers()
+    if not papers:
+        print("No papers found.", file=sys.stderr)
+        sys.exit(1)
 
     with open(SIGNALS_PATH) as f:
         signals_list = json.load(f)
@@ -75,9 +73,7 @@ def main():
 
         updated_count += 1
 
-    with open(PAPERS_PATH, "w") as f:
-        json.dump(papers, f, indent=2)
-        f.write("\n")
+    save_papers(papers)
 
     print(f"Updated signals for {updated_count} papers (of {len(signals_list)} with signals).")
 

@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
-"""Merge Claude's scores with fetched paper metadata into data/papers.json."""
+"""Merge Claude's scores with fetched paper metadata into the paper database."""
 
 import json
 import sys
 from datetime import date
-from pathlib import Path
 
+from papers_store import load_papers, save_papers
 from parse_scores import parse_scores
-
-ROOT = Path(__file__).resolve().parent.parent
-PAPERS_PATH = ROOT / "data" / "papers.json"
 
 
 def main():
@@ -28,12 +25,7 @@ def main():
     # Build lookup: id → score info
     score_by_id = {s["id"]: s for s in scores}
 
-    # Load existing papers
-    if PAPERS_PATH.exists():
-        with open(PAPERS_PATH) as f:
-            all_papers = json.load(f)
-    else:
-        all_papers = []
+    all_papers = load_papers()
 
     today = date.today().isoformat()
     existing_ids = {p["id"] for p in all_papers}
@@ -64,10 +56,7 @@ def main():
             "scored_date": today,
         })
 
-    PAPERS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(PAPERS_PATH, "w") as f:
-        json.dump(all_papers, f, indent=2)
-        f.write("\n")
+    save_papers(all_papers)
 
     skipped = len(new_papers) - added
     if skipped:

@@ -18,6 +18,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlencode
 
+from papers_store import load_papers
+
 logging.basicConfig(
     level=logging.INFO,
     stream=sys.stderr,
@@ -45,14 +47,6 @@ def normalize_arxiv_id(entry_id: str) -> str:
     """Strip version suffix and URL prefix to get bare arXiv ID for comparison."""
     bare = entry_id.rsplit("/", 1)[-1]
     return re.sub(r"v\d+$", "", bare)
-
-
-def load_paper_db() -> list[dict]:
-    papers_path = ROOT / "data" / "papers.json"
-    if not papers_path.exists():
-        return []
-    with open(papers_path) as f:
-        return json.load(f)
 
 
 def load_queued_ids() -> set[str]:
@@ -185,7 +179,7 @@ def fetch_papers(config: dict) -> list[dict]:
     categories = set(config["arxiv_categories"])
     keywords = config["keywords"]
 
-    paper_db = load_paper_db()
+    paper_db = load_papers()
     seen_ids = {normalize_arxiv_id(p["id"]) for p in paper_db}
     seen_ids |= load_queued_ids()
     cutoff = get_cutoff(paper_db)
