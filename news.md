@@ -1,29 +1,32 @@
-All 8 PDFs read. After rescoring on full text, here is the bulletin:
+All eight PDFs are read. Final full-text rescore, then the bulletin.
+
+Rescore summary (abstract → full-text): Cairn 92→92, MegaOps 90→90, GC-MoE 90→88 (niche hardware + batch-256 HBM-bound caveat), Batch Makespan 85→87 (production-validated, timely), DRAMA 85→85, LazyWeights 85→80 (ASIC speedups are projections), Olifant 86→78 (consumer HW/bs=1/domain-matched only), OBM 90→72 (80k-accelerator custom-optics research horizon). Top 5 ≥85 selected.
 
 # Inference Ecosystem — Flash News
-**2026-11-13 · 5 papers**
 
-Agentic KV tiering, batched early-exit, and intra-GPU parallelism lead today's drop.
+**2026-11-14** · 174 papers scanned · top 5 after full-text rescore
 
-### [Idleness is Relative: Exploiting Tool-Call Idle Windows for Offloading in Agentic Systems with MORI](https://arxiv.org/abs/2606.00866)
-MORI (Stoica group) ranks agent programs by "idleness" — their recent fraction of time spent in tool calls — and uses that one relative metric to place KV caches across HBM, DRAM, and a drop tier, with admission control at both tiers plus proactive promotion. On real Claude Code and Codex traces (Qwen2.5-7B, gpt-oss-120b, Qwen3-235B), it delivers 64% higher throughput and 72% lower p90 TTFT than the best offloading baseline, and keeps 24% more throughput even at a 1:4 GPU:CPU split. With agentic loops now the dominant serving pattern, this is the KV-tiering policy to copy. Score: 92 (was 90)
+### [Fast Serverless LLM Cold Starts by Sharing and Prewarming Startup Work](https://arxiv.org/abs/2611.16180)
+Cairn dissects the serverless cold start and finds weight loading is only 5–11% of a 57–85s startup — the rest is compilation, engine init, and KV profiling. It publishes the compile cache and engine artifacts to a shared CXL memory pool and prewarms model-agnostic setup in zygote containers, cutting cold starts 4.1–5.2× (to 11–21s), median TTFT 64%, and timeout rate from 15.6% to 2.1% at 3.2 req/s on ServerlessLLM+vLLM. If you autoscale LLMs, this reframes what "cold start" even means. Score: 92 (was 92)
 
-### [Batched Early-Exit LLM Inference Done Right with DREX](https://arxiv.org/abs/2512.15705)
-DREX introduces cross-iteration batching: continuing tokens wait at the exit layer and one deep pass every k steps amortizes the deep-weight read across many tokens, with a "speculative holding" variant that keeps held tokens decoding from the exit layer's own guess. Built on vLLM with a calibrated cost-model controller, it hits 2.22–2.24× decode speedup on Llama-2-70B and 1.58–1.91× on real LayerSkip CNN/DM within 1.4 ROUGE-2 points — 9–63% ahead of EAGLE — and never forces an exit, so it adds no quality loss of its own. Score: 90 (was 92)
+### [MegaOps: A Kernel Overlapping Framework with PyTorch-like Modularity and Megakernel Performance](https://arxiv.org/abs/2611.16248)
+The key insight: you can kill kernel-launch barriers without fusing everything into a megakernel — just run dependent kernels on separate CUDA streams and synchronize on data tiles instead of whole tensors. MegaOps matches hand-tuned ThunderKittens megakernels (0.89–1.15×) and beats vLLM by 1.27× on short-context decode (H100), at only 2.09× the LoC of plain PyTorch while reusing Triton/cuBLAS/cuDNN. Megakernel-class latency without the megakernel maintenance tax. Score: 90 (was 90)
 
-### [SubGPU Pipelining: Intra-GPU Fine-Grained Spatial Parallelism for LLM Inference](https://arxiv.org/abs/2611.14904)
-NVIDIA cuts a decode layer's operator graph into contiguous segments bound to disjoint SM pools via CUDA Green Contexts and streams microbatches through them, overlapping the memory- and compute-bound kernels that temporal execution serializes. Simulation of GPT-OSS 120B on 32×B200 shows up to 2.2× higher per-user throughput at matched per-GPU throughput; a real two-stage Blackwell prototype raises mean DRAM utilization from 71.8% to 83.6% and cuts iteration time 10.33% with zero kernel changes. A credible glimpse of the next axis of serving parallelism. Score: 90 (was 93)
+### [GC-MoE: Expert-Parallel MoE Decoding on Consumer Blackwell](https://arxiv.org/abs/2611.16219)
+A hand-engineered expert-parallel MoE decode kernel for SM120 (RTX PRO 5000) over PCIe, using block-scaled FP8×FP4 QMMA, a swap-AB mainloop, and expert-granular streaming dispatch. It wins 18/18 configs: 1.52× over FlashInfer's W4A8 MegaMoE and 1.39× over Cake, with cosine ≥0.99999976 numerics on GLM5.2 and DSV4.1-Flash. The catch is honest — at batch 256 it goes HBM-bound and the margin collapses to 1.02× — but for workstation-class MoE serving this is the new bar. Score: 88 (was 90)
 
-### [Read Once, Answer Many: Parallel Prompting for Shared-Context LLM Inference](https://arxiv.org/abs/2611.15130)
-For workloads asking many questions about one long document (doc QA, labeling, LLM-as-judge), Parallel Prompting decodes P questions as P independent streams of a single request, reading the shared KV once per step instead of once per question via an in-kernel stream-id mask. In ~80 lines on SGLang (CUDA-graph compatible), it is 3.7× faster than stock SGLang+FlashInfer on an A100 and wins all 144 paired runs; gains shrink to 1.3–1.9× on GQA models and with long answers. Dead-simple to adopt for offline shared-context batches. Score: 87 (was 92)
+### [Reducing Batch Makespan for LLM Agent Workloads through Inference–Environment Coordination](https://arxiv.org/abs/2611.16661)
+Ant's Ling team targets a bottleneck everyone doing RL rollouts and agent evals feels: batch makespan, not per-request latency. They add workload-aware KV/recurrent-state cache partitioning for hybrid models, trajectory-affinity routing (LBCH), and Chain-Advancing Action Scheduling that advances long tool-use chains to shorten the tail — 10.4–65.0% makespan cuts on BFCL/SWE-bench/WideSearch/MCP-Atlas, already shipping in Ling-3.x development. Built on SGLang and production-validated. Score: 87 (was 85)
 
-### [Fewer Expert Transfers Without Changing Routing: Expert Eviction for MoE Offloading](https://arxiv.org/abs/2611.15842)
-Measuring real CPU→GPU copies for OLMoE-1B-7B, this paper shows the eviction rule, not the router, is the lever that matters: evicting the expert whose next use lies farthest in the future (Belady) copies 2.1× fewer experts than LRU at zero quality loss, within 3.5% of optimal. Sixteen tokens of lookahead recover 96% of the gain, while learned temporally-extended routing and GRPO router fine-tuning fail to beat plain LRU. A clean, immediately actionable result for anyone running MoE offloading. Score: 86 (was 90)
+### [DRAMA: Dissecting Attention Redundancy for Accelerating Multimodal Diffusion Large Language Models](https://arxiv.org/abs/2611.16345)
+A measurement-first, training-free accelerator for multimodal diffusion LLMs: spatial visual-token pruning (attention concentrates on ~1–2 patches) plus sufficiency-guided adaptive stopping (denoising plateaus early). On LLaDA-V the balanced variants hit ~9.5× at −1.9pp accuracy, while aggressive FG Uni pushes 18.67× avg across six VL benchmarks, lifting throughput from an unusable 2.6 to 51.9 tok/s. No retraining, no architecture change — if you serve dLLMs, it's a drop-in. Score: 85 (was 85)
 
 ---
 
 ## Surge Watch
 
-**[The Other Half of the Memory Wall](https://arxiv.org/abs/2609.18063) just crossed 10k GitHub stars** — 9,170 → 10,434 (Nov 9 → Nov 13), still ~300 stars/day on top of the tripling I flagged last week. The SSD-MoE-serving repo remains the one signal with real staying power — stars don't backfill, and this one hasn't flinched. But HF upvotes have gone flat (29 → 30): the pull is now entirely on the code side, not the paper side.
+**[Flide](https://arxiv.org/abs/2610.42148) looks like the first fresh breakout since REAP/Continuum.** The exact-state-forking decode paper (relevance 88) went from nothing in our tracking to **486 GitHub stars + 36 HF upvotes** by Nov 14. Caveat: a star count that large appearing in one shot usually means we just linked an already-popular repo rather than two-day growth, so I'd want a second reading to confirm it's live traction — but it's easily the liveliest debut on the board.
 
-Otherwise it's quiet. The eye-catching citation jumps topping the gain list (DFlash, DSpark, Domino, etc.) are the same Semantic Scholar backfill from yesterday's note — synchronized across unrelated topics, not momentum. And HF upvotes remain depressed across the board from the early-November bookkeeping reset, with no fresh breakout stepping in to replace REAP or Continuum.
+Ignore the top of the citation gain list: it's a *second* synchronized Semantic Scholar backfill, bigger than the Nov 12 one. [FlashAttention-4](https://arxiv.org/abs/2603.05451) leapt 77→111 and [Mamba-3](https://arxiv.org/abs/2603.15569) 105→133 overnight, with a couple dozen unrelated papers (Qwen3-Coder, IndexCache, Nemotron 3 Super…) all jumping citations in lockstep on the same day. Bookkeeping, not momentum.
+
+Organic HF upvotes stay flat-to-down from the early-November reset — [D3D](https://arxiv.org/abs/2611.06425) doubling 10→20 is the only flicker, and off too small a base to count. The Memory Wall SSD-MoE repo has no new reading since Nov 13, so nothing to add there this round.
