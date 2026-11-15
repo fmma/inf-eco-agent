@@ -1,5 +1,1 @@
-**[Flide](https://arxiv.org/abs/2610.42148) looks like the first fresh breakout since REAP/Continuum.** The exact-state-forking decode paper (relevance 88) went from nothing in our tracking to **486 GitHub stars + 36 HF upvotes** by Nov 14. Caveat: a star count that large appearing in one shot usually means we just linked an already-popular repo rather than two-day growth, so I'd want a second reading to confirm it's live traction — but it's easily the liveliest debut on the board.
-
-Ignore the top of the citation gain list: it's a *second* synchronized Semantic Scholar backfill, bigger than the Nov 12 one. [FlashAttention-4](https://arxiv.org/abs/2603.05451) leapt 77→111 and [Mamba-3](https://arxiv.org/abs/2603.15569) 105→133 overnight, with a couple dozen unrelated papers (Qwen3-Coder, IndexCache, Nemotron 3 Super…) all jumping citations in lockstep on the same day. Bookkeeping, not momentum.
-
-Organic HF upvotes stay flat-to-down from the early-November reset — [D3D](https://arxiv.org/abs/2611.06425) doubling 10→20 is the only flicker, and off too small a base to count. The Memory Wall SSD-MoE repo has no new reading since Nov 13, so nothing to add there this round.
+NO_HYPE

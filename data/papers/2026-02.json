@@ -1442,19 +1442,12 @@
     "abstract": "Long-context LLMs demand accurate inference at low latency, yet decoding becomes primarily constrained by KV cache as context grows. Prior pruning methods are largely context-agnostic: their token selection ignores step-wise relevance and local semantics, which undermines quality. Moreover, their irregular accesses and selection overheads yield only limited wall-clock speedups. To address this, we propose \\textbf{CHESS}, an \\textit{algorithm-system co-design} KV-cache management system. Algorithmically, CHESS introduces a context-aware, hierarchical selection policy that dynamically reconstructs a coherent context for the current decoding. System-wise, coarse granularity selection eliminates expensive data movement, fully realizing practical acceleration from theoretical sparsity. Extensive evaluations demonstrate that CHESS surpasses Full-KV quality using only \\textbf{1\\%} of the KV cache, delivers low-latency stable inference with up to \\textbf{4.56$\\times$} higher throughput, and consistently outperforms other strong baselines. Code is available at \\href{https://anonymous.4open.science/r/CHESS-9958/}{https://anonymous.4open.science/r/CHESS/}.",
     "scored_date": "2026-02-25",
     "hype_signals": {
-      "citations": 1,
+      "citations": 0,
       "influential_citations": 0,
       "hf_upvotes": 1,
       "github_stars": 0
     },
     "hype_signal_history": [
-      {
-        "date": "2026-09-08",
-        "citations": 1,
-        "influential_citations": 0,
-        "hf_upvotes": 1,
-        "github_stars": 0
-      },
       {
         "date": "2026-09-09",
         "citations": 0,
@@ -1654,6 +1647,13 @@
       {
         "date": "2026-11-14",
         "citations": 1,
+        "influential_citations": 0,
+        "hf_upvotes": 1,
+        "github_stars": 0
+      },
+      {
+        "date": "2026-11-15",
+        "citations": 0,
         "influential_citations": 0,
         "hf_upvotes": 1,
         "github_stars": 0
@@ -5276,19 +5276,12 @@
     "abstract": "We introduce ISO-Bench, a benchmark for coding agents to test their capabilities on real-world inference optimization tasks. These tasks were taken from vLLM and SGLang, two of the most popular LLM serving frameworks. Each task provides an agent with a codebase and bottleneck description, whereby the agent must produce an optimization patch evaluated against expert human solutions. We curated 54 tasks from merged pull requests with measurable performance improvements. While existing benchmarks heavily use runtime-based metrics, such approaches can be gamed to pass tests without capturing the actual intent of the code changes. Therefore, we combine both hard (execution-based) and soft (LLM-based) metrics to show that both are necessary for complete evaluation. While evaluating both closed and open-source coding agents, we find no single agent dominates across codebases. Surprisingly, agents often identify correct bottlenecks but fail to execute working solutions. We also show that agents with identical underlying models differ substantially, suggesting scaffolding is as important as the model.",
     "scored_date": "2026-02-25",
     "hype_signals": {
-      "citations": 9,
-      "influential_citations": 2,
+      "citations": 0,
+      "influential_citations": 0,
       "hf_upvotes": 3,
       "github_stars": 0
     },
     "hype_signal_history": [
-      {
-        "date": "2026-09-08",
-        "citations": 3,
-        "influential_citations": 1,
-        "hf_upvotes": 3,
-        "github_stars": 0
-      },
       {
         "date": "2026-09-09",
         "citations": 0,
@@ -5489,6 +5482,13 @@
         "date": "2026-11-14",
         "citations": 9,
         "influential_citations": 2,
+        "hf_upvotes": 3,
+        "github_stars": 0
+      },
+      {
+        "date": "2026-11-15",
+        "citations": 0,
+        "influential_citations": 0,
         "hf_upvotes": 3,
         "github_stars": 0
       }
@@ -7181,19 +7181,12 @@
     "abstract": "Understanding and reasoning over long contexts is a crucial capability for language models (LMs). Although recent models support increasingly long context windows, their accuracy often deteriorates as input length grows. In practice, models often struggle to keep attention aligned with the most relevant context throughout decoding. In this work, we propose DySCO, a novel decoding algorithm for improving long-context reasoning. DySCO leverages retrieval heads--a subset of attention heads specialized for long-context retrieval--to identify task-relevant tokens at each decoding step and explicitly up-weight them. By doing so, DySCO dynamically adjusts attention during generation to better utilize relevant context. The method is training-free and can be applied directly to any off-the-shelf LMs. Across multiple instruction-tuned and reasoning models, DySCO consistently improves performance on challenging long-context reasoning benchmarks, yielding relative gains of up to 25% on MRCR and LongBenchV2 at 128K context length with modest additional compute. Further analysis highlights the importance of both dynamic attention rescaling and retrieval-head-guided selection for the effectiveness of the method, while providing interpretability insights into decoding-time attention behavior. Our code is available at https://github.com/princeton-pli/DySCO.",
     "scored_date": "2026-02-26",
     "hype_signals": {
-      "citations": 5,
-      "influential_citations": 1,
+      "citations": 0,
+      "influential_citations": 0,
       "hf_upvotes": 1,
       "github_stars": 0
     },
     "hype_signal_history": [
-      {
-        "date": "2026-09-08",
-        "citations": 2,
-        "influential_citations": 1,
-        "hf_upvotes": 1,
-        "github_stars": 0
-      },
       {
         "date": "2026-09-09",
         "citations": 0,
@@ -7394,6 +7387,13 @@
         "date": "2026-11-14",
         "citations": 5,
         "influential_citations": 1,
+        "hf_upvotes": 1,
+        "github_stars": 0
+      },
+      {
+        "date": "2026-11-15",
+        "citations": 0,
+        "influential_citations": 0,
         "hf_upvotes": 1,
         "github_stars": 0
       }
@@ -9434,19 +9434,12 @@
     "abstract": "The performance of multi-turn, agentic LLM inference is increasingly dominated by KV-Cache storage I/O rather than computation. In prevalent disaggregated architectures, loading the massive KV-Cache from external storage creates a fundamental imbalance: storage NICs on prefill engines become bandwidth-saturated, while those on decoding engines remain idle. This asymmetry severely constrains overall system throughput. We present DualPath, an inference system that breaks this bottleneck by introducing dual-path KV-Cache loading. Beyond the traditional storage-to-prefill path, DualPath enables a novel storage-to-decode path, in which the KV-Cache is loaded into decoding engines and then efficiently transferred to prefill engines via RDMA over the compute network. DualPath combines this optimized data path -- which inherently avoids network congestion and avoids interference with latency-critical model execution communications -- with a global scheduler that dynamically balances load across prefill and decode engines. Our evaluation on three models with production agentic workloads demonstrates that DualPath improves offline inference throughput by up to 1.87$\\times$ on our in-house inference system. It can also improve online serving throughput by an average factor of 1.96$\\times$ without violating SLO.",
     "scored_date": "2026-02-26",
     "hype_signals": {
-      "citations": 22,
-      "influential_citations": 2,
+      "citations": 0,
+      "influential_citations": 0,
       "hf_upvotes": 58,
       "github_stars": 0
     },
     "hype_signal_history": [
-      {
-        "date": "2026-09-08",
-        "citations": 14,
-        "influential_citations": 0,
-        "hf_upvotes": 56,
-        "github_stars": 0
-      },
       {
         "date": "2026-09-09",
         "citations": 0,
@@ -9647,6 +9640,13 @@
         "date": "2026-11-14",
         "citations": 22,
         "influential_citations": 2,
+        "hf_upvotes": 58,
+        "github_stars": 0
+      },
+      {
+        "date": "2026-11-15",
+        "citations": 0,
+        "influential_citations": 0,
         "hf_upvotes": 58,
         "github_stars": 0
       }
@@ -10196,19 +10196,12 @@
     "abstract": "Multi-Head Attention (MHA) is the core computational primitive underlying modern Large Language Models (LLMs). However, MHA suffers from a fundamental linear scaling limitation: $H$ attention heads produce exactly $H$ independent attention matrices, with no communication between heads during attention computation. This becomes problematic for multi-step reasoning, where correct answers depend on aggregating evidence from multiple parts of the context and composing latent token-to-token relations over a chain of intermediate inferences. To address this, we propose Interleaved Head Attention (IHA), which enables cross-head mixing by constructing $P$ pseudo-heads per head (typically $P=H$), where each pseudo query/key/value is a learned linear combination of all $H$ original queries, keys and values respectively. Interactions between pseudo-query and pseudo-key heads induce up to $P^2$ attention patterns per head with modest parameter overhead $\\mathcal{O}(H^2P)$. We provide theory showing improved efficiency in terms of number of parameters on the synthetic Polynomial task (IHA uses $\u0398(\\sqrt{k}n^2)$ parameters vs. $\u0398(kn^2)$ for MHA) and on the synthetic order-sensitive CPM-3 task (IHA uses $\\lceil\\sqrt{N_{\\max}}\\rceil$ heads vs. $N_{\\max}$ for MHA). On real-world benchmarks, IHA improves Multi-Key retrieval on RULER by 10-20% (4k-16k) and, after fine-tuning for reasoning on OpenThoughts, improves GSM8K by 5.8% and MATH-500 by 2.8% (Majority Vote) over full attention.",
     "scored_date": "2026-02-26",
     "hype_signals": {
-      "citations": 1,
+      "citations": 0,
       "influential_citations": 0,
       "hf_upvotes": 2,
       "github_stars": 0
     },
     "hype_signal_history": [
-      {
-        "date": "2026-09-08",
-        "citations": 0,
-        "influential_citations": 0,
-        "hf_upvotes": 1,
-        "github_stars": 0
-      },
       {
         "date": "2026-09-09",
         "citations": 0,
@@ -10408,6 +10401,13 @@
       {
         "date": "2026-11-14",
         "citations": 1,
+        "influential_citations": 0,
+        "hf_upvotes": 2,
+        "github_stars": 0
+      },
+      {
+        "date": "2026-11-15",
+        "citations": 0,
         "influential_citations": 0,
         "hf_upvotes": 2,
         "github_stars": 0
@@ -11090,19 +11090,12 @@
     "abstract": "Diffusion Language Models (DLMs) are often advertised as enabling parallel token generation, yet practical fast DLMs frequently converge to left-to-right, autoregressive (AR)-like decoding dynamics. In contrast, genuinely non-AR generation is promising because it removes AR's sequential bottleneck, better exploiting parallel hardware to reduce synchronization/communication overhead and improve latency scaling with output length. We argue that a primary driver of AR-like decoding is a mismatch between DLM objectives and the highly sequential structure of widely used training data, including standard pretraining corpora and long chain-of-thought (CoT) supervision. Motivated by this diagnosis, we propose NAP (Non-Autoregressive Parallel DLMs), a proof-of-concept, data-centric approach that better aligns supervision with non-AR parallel decoding. NAP curates examples as multiple independent reasoning trajectories and couples them with a parallel-forced decoding strategy that encourages multi-token parallel updates. Across math reasoning benchmarks, NAP yields stronger performance under parallel decoding than DLMs trained on standard long CoT data, with gains growing as parallelism increases. Our results suggest that revisiting data and supervision is a principled direction for mitigating AR-like behavior and moving toward genuinely non-autoregressive parallel generation in DLMs. Our code is available at https://github.com/pixeli99/NAP.",
     "scored_date": "2026-02-27",
     "hype_signals": {
-      "citations": 16,
-      "influential_citations": 3,
+      "citations": 0,
+      "influential_citations": 0,
       "hf_upvotes": 1,
       "github_stars": 0
     },
     "hype_signal_history": [
-      {
-        "date": "2026-09-08",
-        "citations": 10,
-        "influential_citations": 1,
-        "hf_upvotes": 1,
-        "github_stars": 0
-      },
       {
         "date": "2026-09-09",
         "citations": 0,
@@ -11303,6 +11296,13 @@
         "date": "2026-11-14",
         "citations": 16,
         "influential_citations": 3,
+        "hf_upvotes": 1,
+        "github_stars": 0
+      },
+      {
+        "date": "2026-11-15",
+        "citations": 0,
+        "influential_citations": 0,
         "hf_upvotes": 1,
         "github_stars": 0
       }
@@ -12020,19 +12020,12 @@
     "abstract": "Large language model (LLM) serving infrastructures are undergoing a shift toward heterogeneity and disaggregation. Modern deployments increasingly integrate diverse accelerators and near-memory processing technologies, introducing significant hardware heterogeneity, while system software increasingly separates computation, memory, and model components across distributed resources to improve scalability and efficiency. As a result, LLM serving performance is no longer determined by hardware or software choices in isolation, but by their runtime interaction through scheduling, data movement, and interconnect behavior. However, understanding these interactions remains challenging, as existing simulators lack the ability to jointly model heterogeneous hardware and disaggregated serving techniques within a unified, runtime-driven framework. This paper presents LLMServingSim 2.0, a unified system-level simulator designed to make runtime-driven hardware-software interactions in heterogeneous and disaggregated LLM serving infrastructures explicit and analyzable. LLMServingSim 2.0 embeds serving decisions and hardware behavior into a single runtime loop, enabling interaction-aware modeling of batching, routing, offloading, memory, and power. The simulator supports extensible integration of emerging accelerators and memory systems through profile-based modeling, while capturing dynamic serving behavior and system-level effects. We validate LLMServingSim 2.0 against real deployments, showing that it reproduces key performance, memory, and power metrics with an average error of 0.97%, while maintaining simulation times of around 10 minutes even for complex configurations. These results demonstrate that LLMServingSim 2.0 provides a practical bridge between hardware innovation and serving-system design, enabling systematic exploration and co-design for next-generation LLM serving infrastructures.",
     "scored_date": "2026-02-27",
     "hype_signals": {
-      "citations": 26,
-      "influential_citations": 9,
+      "citations": 0,
+      "influential_citations": 0,
       "hf_upvotes": 0,
       "github_stars": 0
     },
     "hype_signal_history": [
-      {
-        "date": "2026-09-08",
-        "citations": 10,
-        "influential_citations": 3,
-        "hf_upvotes": 0,
-        "github_stars": 0
-      },
       {
         "date": "2026-09-09",
         "citations": 0,
@@ -12233,6 +12226,13 @@
         "date": "2026-11-14",
         "citations": 26,
         "influential_citations": 9,
+        "hf_upvotes": 0,
+        "github_stars": 0
+      },
+      {
+        "date": "2026-11-15",
+        "citations": 0,
+        "influential_citations": 0,
         "hf_upvotes": 0,
         "github_stars": 0
       }
@@ -14066,19 +14066,12 @@
     "abstract": "Generative retrieval has emerged as a powerful paradigm for LLM-based recommendation. However, industrial recommender systems often benefit from restricting the output space to a constrained subset of items based on business logic (e.g. enforcing content freshness or product category), which standard autoregressive decoding cannot natively support. Moreover, existing constrained decoding methods that make use of prefix trees (Tries) incur severe latency penalties on hardware accelerators (TPUs/GPUs). In this work, we introduce STATIC (Sparse Transition Matrix-Accelerated Trie Index for Constrained Decoding), an efficient and scalable constrained decoding technique designed specifically for high-throughput LLM-based generative retrieval on TPUs/GPUs. By flattening the prefix tree into a static Compressed Sparse Row (CSR) matrix, we transform irregular tree traversals into fully vectorized sparse matrix operations, unlocking massive efficiency gains on hardware accelerators. We deploy STATIC on a large-scale industrial video recommendation platform serving billions of users. STATIC produces significant product metric impact with minimal latency overhead (0.033 ms per step and 0.25% of inference time), achieving a 948x speedup over a CPU trie implementation and a 47-1033x speedup over a hardware-accelerated binary-search baseline. Furthermore, the runtime overhead of STATIC remains extremely low across a wide range of practical configurations. To the best of our knowledge, STATIC enables the first production-scale deployment of strictly constrained generative retrieval. In addition, evaluation on academic benchmarks demonstrates that STATIC can considerably improve cold-start performance for generative retrieval. Our code is available at https://github.com/youtube/static-constraint-decoding.",
     "scored_date": "2026-02-27",
     "hype_signals": {
-      "citations": 25,
-      "influential_citations": 4,
+      "citations": 0,
+      "influential_citations": 0,
       "hf_upvotes": 4,
       "github_stars": 235
     },
     "hype_signal_history": [
-      {
-        "date": "2026-09-08",
-        "citations": 10,
-        "influential_citations": 1,
-        "hf_upvotes": 4,
-        "github_stars": 233
-      },
       {
         "date": "2026-09-09",
         "citations": 0,
@@ -14279,6 +14272,13 @@
         "date": "2026-11-14",
         "citations": 25,
         "influential_citations": 4,
+        "hf_upvotes": 4,
+        "github_stars": 235
+      },
+      {
+        "date": "2026-11-15",
+        "citations": 0,
+        "influential_citations": 0,
         "hf_upvotes": 4,
         "github_stars": 235
       }
@@ -15232,19 +15232,12 @@
     "abstract": "Attention scales quadratically with sequence length, fundamentally limiting long-context inference. Existing block-granularity sparsification can reduce latency, but coarse blocks impose an intrinsic sparsity ceiling, making further improvements difficult even with carefully engineered designs. We present S2O, which performs early stopping for sparse attention via online permutation. Inspired by virtual-to-physical address mapping in memory systems, S2O revisits and factorizes FlashAttention execution, enabling inference to load non-contiguous tokens rather than a contiguous span in the original order. Motivated by fine-grained structures in attention heatmaps, we transform explicit permutation into an online, index-guided, discrete loading policy; with extremely lightweight preprocessing and index-remapping overhead, it concentrates importance on a small set of high-priority blocks. Building on this importance-guided online permutation for loading, S2O further introduces an early-stopping rule: computation proceeds from high to low importance; once the current block score falls below a threshold, S2O terminates early and skips the remaining low-contribution blocks, thereby increasing effective sparsity and reducing computation under a controlled error budget. As a result, S2O substantially raises the practical sparsity ceiling. On Llama-3.1-8B under a 128K context, S2O reduces single-operator MSE by 3.82$\\times$ at matched sparsity, and reduces prefill compute density by 3.31$\\times$ at matched MSE; meanwhile, it preserves end-to-end accuracy and achieves 7.51$\\times$ attention and 3.81$\\times$ end-to-end speedups.",
     "scored_date": "2026-02-27",
     "hype_signals": {
-      "citations": 2,
-      "influential_citations": 1,
+      "citations": 0,
+      "influential_citations": 0,
       "hf_upvotes": 0,
       "github_stars": 0
     },
     "hype_signal_history": [
-      {
-        "date": "2026-09-08",
-        "citations": 0,
-        "influential_citations": 0,
-        "hf_upvotes": 0,
-        "github_stars": 0
-      },
       {
         "date": "2026-09-09",
         "citations": 0,
@@ -15445,6 +15438,13 @@
         "date": "2026-11-14",
         "citations": 2,
         "influential_citations": 1,
+        "hf_upvotes": 0,
+        "github_stars": 0
+      },
+      {
+        "date": "2026-11-15",
+        "citations": 0,
+        "influential_citations": 0,
         "hf_upvotes": 0,
         "github_stars": 0
       }
@@ -15569,19 +15569,12 @@
     "abstract": "Large Language Models (LLMs) face significant challenges regarding deployment costs and latency, necessitating adaptive computing strategies. Building upon the AI Flow framework, we introduce Ruyi2 as an evolution of our adaptive model series designed for efficient variable-depth computation. While early-exit architectures offer a viable efficiency-performance balance, the Ruyi model and existing methods often struggle with optimization complexity and compatibility with large-scale distributed training. To bridge this gap, Ruyi2 introduces a stable \"Familial Model\" based on Megatron-LM. By using 3D parallel training, it achieves a 2-3 times speedup over Ruyi, while performing comparably to same-sized Qwen3 models. These results confirm that family-based parameter sharing is a highly effective strategy, establishing a new \"Train Once, Deploy Many\" paradigm and providing a key reference for balancing architectural efficiency with high-performance capabilities.",
     "scored_date": "2026-02-27",
     "hype_signals": {
-      "citations": 2,
+      "citations": 0,
       "influential_citations": 0,
       "hf_upvotes": 0,
       "github_stars": 0
     },
     "hype_signal_history": [
-      {
-        "date": "2026-09-08",
-        "citations": 2,
-        "influential_citations": 0,
-        "hf_upvotes": 0,
-        "github_stars": 0
-      },
       {
         "date": "2026-09-09",
         "citations": 0,
@@ -15781,6 +15774,13 @@
       {
         "date": "2026-11-14",
         "citations": 2,
+        "influential_citations": 0,
+        "hf_upvotes": 0,
+        "github_stars": 0
+      },
+      {
+        "date": "2026-11-15",
+        "citations": 0,
         "influential_citations": 0,
         "hf_upvotes": 0,
         "github_stars": 0
@@ -17057,13 +17057,6 @@
     },
     "hype_signal_history": [
       {
-        "date": "2026-09-08",
-        "citations": 0,
-        "influential_citations": 0,
-        "hf_upvotes": 0,
-        "github_stars": 0
-      },
-      {
         "date": "2026-09-09",
         "citations": 0,
         "influential_citations": 0,
@@ -17261,6 +17254,13 @@
       },
       {
         "date": "2026-11-14",
+        "citations": 0,
+        "influential_citations": 0,
+        "hf_upvotes": 0,
+        "github_stars": 0
+      },
+      {
+        "date": "2026-11-15",
         "citations": 0,
         "influential_citations": 0,
         "hf_upvotes": 0,
@@ -18839,19 +18839,12 @@
     "description": "Proposes LK losses \u2014 a likelihood-based loss and a hybrid KL+TV loss with adaptive blending \u2014 for training speculative decoding draft models to directly maximize token acceptance rate instead of using KL divergence as a proxy. Experiments across four draft architectures (EAGLE-3, MEDUSA, MLP speculator, DeepSeek MTP) and six target models (8B\u2013685B) show consistent gains of up to 8\u201310% in average acceptance length, with larger improvements for capacity-constrained drafters and stochastic sampling (T=1). The method is a drop-in replacement requiring no extra compute.",
     "fulltext_rescored": true,
     "hype_signals": {
-      "citations": 28,
-      "influential_citations": 3,
+      "citations": 0,
+      "influential_citations": 0,
       "hf_upvotes": 18,
       "github_stars": 0
     },
     "hype_signal_history": [
-      {
-        "date": "2026-09-08",
-        "citations": 12,
-        "influential_citations": 0,
-        "hf_upvotes": 18,
-        "github_stars": 0
-      },
       {
         "date": "2026-09-09",
         "citations": 0,
@@ -19052,6 +19045,13 @@
         "date": "2026-11-14",
         "citations": 28,
         "influential_citations": 3,
+        "hf_upvotes": 18,
+        "github_stars": 0
+      },
+      {
+        "date": "2026-11-15",
+        "citations": 0,
+        "influential_citations": 0,
         "hf_upvotes": 18,
         "github_stars": 0
       }
@@ -20033,19 +20033,12 @@
     "description": "KEEP is a KV-cache-centric memory management system that accelerates LLM inference for embodied planning agents. It introduces three techniques: (1) static-dynamic memory construction that groups memory segments by update frequency to minimize KV cache invalidation, (2) multi-hop memory recomputation that uses attention-based importance propagation to selectively recompute KV states for critical memory segments, and (3) layer-balanced memory loading that redistributes KV loading across transformer layers to eliminate pipeline bubbles. Evaluated on ALFRED and WAH-NL benchmarks using Qwen-2.5 models atop vLLM, KEEP achieves up to 2.68x TTFT speedup over full recomputation and 1.90x TTFT reduction over CacheBlend with negligible accuracy loss.",
     "fulltext_rescored": true,
     "hype_signals": {
-      "citations": 6,
-      "influential_citations": 1,
+      "citations": 0,
+      "influential_citations": 0,
       "hf_upvotes": 0,
       "github_stars": 0
     },
     "hype_signal_history": [
-      {
-        "date": "2026-09-08",
-        "citations": 4,
-        "influential_citations": 1,
-        "hf_upvotes": 0,
-        "github_stars": 0
-      },
       {
         "date": "2026-09-09",
         "citations": 0,
@@ -20246,6 +20239,13 @@
         "date": "2026-11-14",
         "citations": 6,
         "influential_citations": 1,
+        "hf_upvotes": 0,
+        "github_stars": 0
+      },
+      {
+        "date": "2026-11-15",
+        "citations": 0,
+        "influential_citations": 0,
         "hf_upvotes": 0,
         "github_stars": 0
       }
@@ -20806,13 +20806,6 @@
     "scored_date": "2026-03-03",
     "hype_signal_history": [
       {
-        "date": "2026-09-08",
-        "citations": 67,
-        "influential_citations": 4,
-        "hf_upvotes": 66,
-        "github_stars": 16832
-      },
-      {
         "date": "2026-09-09",
         "citations": 0,
         "influential_citations": 0,
@@ -21014,11 +21007,18 @@
         "influential_citations": 9,
         "hf_upvotes": 60,
         "github_stars": 16853
+      },
+      {
+        "date": "2026-11-15",
+        "citations": 0,
+        "influential_citations": 0,
+        "hf_upvotes": 60,
+        "github_stars": 16853
       }
     ],
     "hype_signals": {
-      "citations": 97,
-      "influential_citations": 9,
+      "citations": 0,
+      "influential_citations": 0,
       "hf_upvotes": 60,
       "github_stars": 16853
     }
