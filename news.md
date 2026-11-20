@@ -1,29 +1,64 @@
+Writing to the repo is denied too. Let me confirm that's a blanket permission state and not just one path, so I can tell you exactly what's blocking.
+
+The situation is clear now, so let me report it rather than keep probing.
+
+## I can't read the PDFs in this environment
+
+Here's what I tried and what happened:
+
+| Approach | Result |
+|---|---|
+| **Read tool** on each PDF | ❌ `pdftoppm is not installed` — the Read tool renders PDF pages to images, which needs **poppler** |
+| **Ghostscript** (`gs`, which *is* installed) → text | ❌ blocked by permission mode ("requires approval") |
+| **`python3`** stdlib extractor (zlib/FlateDecode) | ❌ `python3` blocked by permission mode |
+| **Write** a scratch script (repo or `/tmp`) | ❌ Write blocked by permission mode |
+
+Only read-only commands (`ls`, `which`) and `Read` on text files are permitted here, and `Read` can't decode PDFs without poppler. So I **cannot** do the full-text read + rescore that `news-prompt.md` requires. I won't fake it — any bulletin I produce right now is **abstract-only**, and the "(was X)" rescores the prompt asks for would be meaningless without the actual papers.
+
+## How to unblock (pick one)
+
+1. **Install poppler** (best — makes the `Read` tool work exactly as the pipeline expects). On NixOS: add `pkgs.poppler_utils` to `environment.systemPackages` in `fmma/nixos-webserver:configuration.nix`, or for a one-off `nix-shell -p poppler_utils` and launch `claude` from that shell. Then re-run.
+2. **Approve a fallback** — allow `gs` (already installed) or `python3` for this session and I'll extract the text myself and do the real full-text rescore.
+3. **Accept an abstract-only draft** — I write the bulletin from the (detailed) abstracts now, clearly labeled, no full-text rescore.
+
+## ⚠️ This probably affects the production pipeline too
+
+`generate_news.py` invokes `claude --print --allowedTools "Read"` to read these same PDFs. If the host running the daily scan is missing poppler, that step **silently degrades** — Claude falls back to the abstracts embedded in the prompt and still emits a bulletin, so `scan.sh`'s `ERR` trap never fires and you'd never see it fail. Worth confirming `pdftoppm` exists on whatever host runs the cron scan (`which pdftoppm`), not just here.
+
+---
+
+Since you clearly want the bulletin, here's an **abstract-based draft** so you're not empty-handed. **This is NOT the full-text rescore** — scores are the existing abstract-pass scores, and I've picked the 5 strongest for inference engineers. Don't ship this as the full-text edition:
+
+```markdown
 # Inference Ecosystem — Flash News
-**2026-11-19 · 5 papers · 247 scanned**
+**2026-11-20 · 301 papers scanned · 5 featured** _(abstract-only draft — PDFs could not be opened)_
 
-Serving systems and speculative decoding own today's batch — with production-scale receipts from Meta and NVIDIA, and looped-transformer decoding maturing fast.
+[TideCache: Efficient Hybrid LLM Serving with Transparent Cache Management and Layer-Wise Streaming](https://arxiv.org/abs/2611.26619)
+Song Han's group tackles the KV-cache heterogeneity of hybrid (global-attention + bounded-state) models on CPU–GPU superchips: a Transparent Cache Pool reshuffles physical pages behind fixed virtual addresses, and a Cache Streamer prefetches the next global-attention layer's prefix during bounded-state compute. Built on SGLang, evaluated on GB300/GH200 across 7 configs — up to 2.04× agent turns, 20–59% lower P50 per-token latency, and 1.40–3.05× better agent TTFT vs SGLang+HiCache. Relevance: 96 (abstract-based).
 
-## [Cap-and-Track: Optimizing LLM Inference Request Dispatch Across Shifting Capacity](https://arxiv.org/abs/2611.24891)
-Meta's production traffic shaper ports congestion control to inference dispatch: a fail-fast CAP refuses work at the saturated replica (HTTP 429), and the TRACK dispatcher probes the ceiling from refusals alone — no output-length prediction, no fleet-rate retuning. In same-traffic A/Bs it served a classifier on **43% fewer H100s** than its fixed-rate precursor and kept vLLM batches a median 124/128 full vs 41; the system carries 300M+ requests/day (1.1B in its busiest 24h). If you operate a serving fleet, this is the most actionable systems paper of the day. Score: 91 (was 90)
+[FrontierReplay: Split-Free Exact Prefix Caching for Hybrid Language Models](https://arxiv.org/abs/2611.26020)
+Exact prefix reuse in hybrid models normally forces the prefill pass to be cut at each checkpoint; FrontierReplay instead materializes exact checkpoints at structural boundaries (turn ends, branch points) without cutting prefill, using a state-only replay kernel that rebuilds state 6–37× cheaper per token than recomputation. Result: 16–89% lower median TTFT (up to 8.9×), up to 1.73× SLO capacity, 4.26× goodput — and it avoids the ~17% long-context accuracy drop of approximate replay. Relevance: 95 (abstract-based).
 
-## [NarrowSpec: Draft Hidden Width Need Not Match the Target in Speculative Decoding](https://arxiv.org/abs/2611.23835)
-NVIDIA shows a feature-conditioned draft's entire residual stream can run at half or quarter of the target width while largely preserving acceptance (≤3% loss at half) — and for DFlash the trained output adapter folds into the borrowed LM head, leaving logits exact up to rounding. Tested on DFlash/EAGLE-3 × Qwen3-8B/GPT-OSS-20B in SGLang: **1.06–1.12× end-to-end on B200, 1.13–1.44× on GB10** at batch 1, holding at or above parity through batch 512. Draft width is now a first-class knob — tune it for your GPU instead of inheriting it from the target. Score: 89 (was 90)
+[Aggron: Aggressive Compression of Agentic KV Caches during Head-of-Line Stalls](https://arxiv.org/abs/2611.26435)
+Instead of waiting for the KV cache to cross a threshold and summarizing huge spans, Aggron summarizes agentic requests every turn, selectively, and fires those summarization jobs from a separate queue that scavenges the compute/memory freed by head-of-line stalls — only when it predicts they'll finish before the stalled request resumes. At high load: 27–31% lower P99 program latency and 1.34–1.40× throughput over SOTA async summarization. Relevance: 95 (abstract-based).
 
-## [Towards Fair Resource Sharing in Agentic LLM Serving](https://arxiv.org/abs/2611.23558)
-Duru defines agent-level fairness as slowdown relative to standalone execution and coordinates slowdown-aware routing, starvation admission exceptions, and SLO-driven autoscaling across the full stack. On Qwen3-Coder-30B, Llama-3.3-70B and DeepSeek-V4-Flash (NVIDIA + AMD, real Azure/TraceLab/AgentX traces) it cuts p99 normalized slowdown by a geomean **44.4% (up to 79.5%)** at 91.8–127.4% of baseline throughput, beating NVIDIA Dynamo and llm-d. Agentic serving fairness is heating up, and this is the most complete cross-layer treatment yet. Score: 87 (was 90)
+[TripleKV: Predict, Prefetch, Protect — KV Cache Management for AI Agents](https://arxiv.org/abs/2611.25112)
+A three-tier (GPU/DRAM/SSD) KV manager that exploits the fact that an agent's next KV blocks are known in advance — a tool-aware latency predictor prefetches them SSD→DRAM during tool execution, with dedup and a victim cache to stretch DRAM. Cuts critical-path SSD reads from 45–76% to under 10%, drops P95 TTFT up to 49% vs a DRAM/SSD-tiered vLLM, and 1.5–7× lower P95 TTFT than recent agent-aware systems. Relevance: 92 (abstract-based).
 
-## [Late Entry in Looped Language Models](https://arxiv.org/abs/2611.24576)
-A rigorous answer to "which passes should a token run?" in looped LMs: skip the early passes and enter the final K<T passes over a deep context cache, completing true 1→T KV states as piggybacked batch rows at zero extra serial calls. "Wake verification" unifies greedy-exact (τ=0), margin-gated, and lossy decoding in one static CUDA graph — **5.2× on Ouro-2.6B and up to 8.4× greedy-exact / 12.5× lossy on Huginn-3.5B**, with rollbacks dropping 21.5× as recurrence deepens. Proves cached-context depth beats token-local early passes and backs it with a calibrated Roofline law. Score: 84 (was 88)
+[AscMLA: Unlocking FP4 Efficiency for Long-Context MLA Decoding through Asymmetric Scaling](https://arxiv.org/abs/2611.26106)
+Applying FP4 to multi-head latent attention is hard because K and V need different scaling on a shared latent; AscMLA uses asymmetric K/V scaling plus pipelined scale delivery to process a single FP4 payload directly, no dequant detour. 38.2% less cache memory than FP8, with 1.35× geomean speedup over TRT-LLM's FP8 and 1.26× over CAKE's NVFP4 MLA kernels. Relevance: 93 (abstract-based).
+```
 
-## [LoopCache: Accelerating Long-Context Self-Speculative Decoding for Looped Transformers](https://arxiv.org/abs/2611.24301)
-LoopCache kills the R× KV-traffic blowup of wave-style loop decoders via cyclic loop KV scheduling (one loop's cache per step) plus confidence-guided dynamic draft updating, keeping independent KV only for a few loop-sensitive shallow layers. Across six looped models and long-context benchmarks it reaches **10.25× / 14.56× over WFD / LoopSpec** and 5.12× / 2.52× over AR / DtV — losslessly. The practical fix that makes looped-transformer speculation viable past a few thousand tokens. Score: 82 (was 88)
+Tell me which unblock option you want (or just install poppler and re-run) and I'll produce the real full-text bulletin.
 
 ---
 
 ## Surge Watch
 
-**Speculative decoding is this cycle's citation magnet.** [DFlash](https://arxiv.org/abs/2602.06036) vaulted 127→202 citations in a single week (influential 53→80), the biggest move on the board outside the DeepSeek flagship — and [DSpark](https://arxiv.org/abs/2607.05147) flat-out doubled right alongside it (42→84 citations, 19→41 influential). The block-diffusion speculative-draft line is compounding hard.
+**FlashAttention-4 and Mamba-3 break out on the same day.** Both marquee March-2026 papers sat flat for a month, then jumped Nov 14: [FlashAttention-4](https://arxiv.org/abs/2603.05451) ran 77→120 citations with influential cites doubling (11→22), and [Mamba-3](https://arxiv.org/abs/2603.15569) went 105→140 (influential 18→27). Foundational kernel/architecture work is compounding now — not just this autumn's speculative-decoding cohort.
 
-**FreeToken graduates from GitHub darling to cited work.** [FreeToken](https://arxiv.org/abs/2608.16157) has stacked ~7.3K→17K stars since August and just logged its first real academic pickup — citations 3→13 with influential citations finally appearing (0→5). Bandwidth-adaptive edge MoE serving is now the adoption story to watch alongside the SSD-served MoEs.
+**DeepSeek-V4.1-Flash is pulling away.** The KV-cache-compression flagship [DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) climbed 191→234 citations in under two weeks and is still rising — the highest count of any recent paper on the board.
 
-**First-traction alert:** [Evolving Infra](https://arxiv.org/abs/2611.12304) (agent-adaptive serving, from the Continuum/ThunderAgent crowd) went 0→106 GitHub stars and 0→13 HF upvotes in barely two days — worth a bookmark if the curve holds.
+**First-traction alert:** [Multi-Branch Transformer](https://arxiv.org/abs/2611.19800) leapt 17→44 HF upvotes and 3→13 stars in two days — real heat in a cycle where HF counts have mostly gone flat or backward.
+
+**The curve held:** [Evolving Infra](https://arxiv.org/abs/2611.12304) kept running after last week's bookmark — 106→162 GitHub stars in two more days. Agent-adaptive serving has legs.
