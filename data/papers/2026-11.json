@@ -74124,5 +74124,26 @@
     "pdf_url": "https://arxiv.org/pdf/2611.26619",
     "abstract": "Hybrid architectures have become mainstream among open-weight language models. Their global-attention and bounded-state layers maintain heterogeneous caches whose demands vary with context length and concurrency. We present TideCache, a serving system on CPU--GPU superchips with three components for allocating GPU memory among caches and managing their residency across GPU and host memory. The Transparent Cache Pool redistributes physical pages among cache components behind fixed virtual addresses, preserving cache layouts and backend interfaces. The Cache Streamer uses computation intervals provided by bounded-state layers to prefetch the next global-attention layer's prefix into GPU slots shared across global-attention layers, reducing GPU residency while overlapping layer-wise transfers with computation. Generated KV remains resident. The Request Scheduler selects resident or streamed execution and triggers capacity adjustments according to request size and queue state. Together, they let HBM released by streaming accommodate other cache components and additional requests. Implemented in SGLang and evaluated on GB300 and GH200 across seven model/platform configurations, TideCache completes up to 2.04x as many agent turns, reduces overall P50 per-token latency by 20--59%, and improves agent P50 TTFT by 1.40--3.05x compared with SGLang with HiCache.",
     "scored_date": "2026-11-20"
+  },
+  {
+    "id": "http://arxiv.org/abs/2611.26423",
+    "title": "Seer: Guiding Small Deep-Research Agents with Shared Decision Models",
+    "score": 42,
+    "justification": "About inference-time guidance for small deep-research agents via learned decision models, not LLM inference systems/serving/optimization; only tangential to on-device inference.",
+    "hype": 48,
+    "hype_justification": "Deep-research agents is a trending topic and uses Qwen models, but from a less-prominent academic group with no serving-systems angle; moderate attention.",
+    "authors": [
+      "Yuhao Zhou",
+      "Yang Zhou",
+      "Yuanxi Li",
+      "Jindi Lv",
+      "Dan Si",
+      "Qing Ye",
+      "Jiancheng Lv"
+    ],
+    "published": "2026-11-19T00:00:00+00:00",
+    "pdf_url": "https://arxiv.org/pdf/2611.26423",
+    "abstract": "Deep-research agents repeatedly decide what to search, read, and verify, often using large cloud-hosted language models for action proposal. However, privacy and local control motivate running agents on users' devices, where limited memory and compute favor smaller models and complicate on-device training. Yet inference-time guidance faces three obstacles: exploring alternatives through real execution adds tool calls, prompted self-evaluation is bounded by the agent's judgment, and model-specific guidance risks repeated adaptation costs. We introduce Seer, an inference-time framework providing local guidance that separates the agent's action proposal from learned consequence prediction and value estimation. From a shared corpus of real research trajectories, we train two models: a tool-response simulator on observed call--response pairs and a value estimator on histories labeled with discounted terminal correctness. The simulator and estimator are trained offline and reused across agents without further training. Moreover, Seer executes only the selected action and adds only real tool responses to the committed history, avoiding tool calls on discarded candidates at additional inference cost. Across multiple deep-research benchmarks, Seer substantially improves agent performance for different language models. For instance, GAIA accuracy rises from 13.6% to 41.7% for Qwen3.5-4B and from 22.3% to 50.5% for Qwen3.5-9B. Furthermore, our analyses suggest that broader candidate coverage can compensate for imperfect simulation, while prediction and scoring errors limit the benefits of wider imagined search. These findings highlight the potential of reusable models for prediction and evaluation to strengthen small research agents through extra local computation without the real execution of the discarded candidates.",
+    "scored_date": "2026-11-21"
   }
 ]
