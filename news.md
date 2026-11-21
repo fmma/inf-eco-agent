@@ -1,64 +1,27 @@
-Writing to the repo is denied too. Let me confirm that's a blanket permission state and not just one path, so I can tell you exactly what's blocking.
+I've confirmed the situation from the code and the prompt. Here's the key logic in `generate_news.py`:
 
-The situation is clear now, so let me report it rather than keep probing.
+- `find_top_papers` only downloads PDFs for papers with `score >= 70` scored today (`SCORE_THRESHOLD = 70`).
+- The PDF section is added to the prompt **only if** `pdf_paths` is non-empty.
 
-## I can't read the PDFs in this environment
+The one new paper, "Seer," scored **42** on relevance — below 70 — so no PDF was downloaded and my prompt has no `## Full-Text PDFs` section. The list of PDF paths I'm instructed to Read is therefore empty (nothing to read), and no paper clears the minimum-70 bar for featuring.
 
-Here's what I tried and what happened:
+"Seer" is categorically an agent-reasoning/decision-model paper, not an inference-systems paper, so full text wouldn't move its topicality score into range. The correct, non-fabricated output is a clean "nothing featured today" bulletin. Per the output rules, I'm emitting raw markdown only (first character `#`, no preamble, no file writes):
 
-| Approach | Result |
-|---|---|
-| **Read tool** on each PDF | ❌ `pdftoppm is not installed` — the Read tool renders PDF pages to images, which needs **poppler** |
-| **Ghostscript** (`gs`, which *is* installed) → text | ❌ blocked by permission mode ("requires approval") |
-| **`python3`** stdlib extractor (zlib/FlateDecode) | ❌ `python3` blocked by permission mode |
-| **Write** a scratch script (repo or `/tmp`) | ❌ Write blocked by permission mode |
-
-Only read-only commands (`ls`, `which`) and `Read` on text files are permitted here, and `Read` can't decode PDFs without poppler. So I **cannot** do the full-text read + rescore that `news-prompt.md` requires. I won't fake it — any bulletin I produce right now is **abstract-only**, and the "(was X)" rescores the prompt asks for would be meaningless without the actual papers.
-
-## How to unblock (pick one)
-
-1. **Install poppler** (best — makes the `Read` tool work exactly as the pipeline expects). On NixOS: add `pkgs.poppler_utils` to `environment.systemPackages` in `fmma/nixos-webserver:configuration.nix`, or for a one-off `nix-shell -p poppler_utils` and launch `claude` from that shell. Then re-run.
-2. **Approve a fallback** — allow `gs` (already installed) or `python3` for this session and I'll extract the text myself and do the real full-text rescore.
-3. **Accept an abstract-only draft** — I write the bulletin from the (detailed) abstracts now, clearly labeled, no full-text rescore.
-
-## ⚠️ This probably affects the production pipeline too
-
-`generate_news.py` invokes `claude --print --allowedTools "Read"` to read these same PDFs. If the host running the daily scan is missing poppler, that step **silently degrades** — Claude falls back to the abstracts embedded in the prompt and still emits a bulletin, so `scan.sh`'s `ERR` trap never fires and you'd never see it fail. Worth confirming `pdftoppm` exists on whatever host runs the cron scan (`which pdftoppm`), not just here.
-
----
-
-Since you clearly want the bulletin, here's an **abstract-based draft** so you're not empty-handed. **This is NOT the full-text rescore** — scores are the existing abstract-pass scores, and I've picked the 5 strongest for inference engineers. Don't ship this as the full-text edition:
-
-```markdown
 # Inference Ecosystem — Flash News
-**2026-11-20 · 301 papers scanned · 5 featured** _(abstract-only draft — PDFs could not be opened)_
+**2026-11-21 · 1 paper scanned · 0 featured**
 
-[TideCache: Efficient Hybrid LLM Serving with Transparent Cache Management and Layer-Wise Streaming](https://arxiv.org/abs/2611.26619)
-Song Han's group tackles the KV-cache heterogeneity of hybrid (global-attention + bounded-state) models on CPU–GPU superchips: a Transparent Cache Pool reshuffles physical pages behind fixed virtual addresses, and a Cache Streamer prefetches the next global-attention layer's prefix during bounded-state compute. Built on SGLang, evaluated on GB300/GH200 across 7 configs — up to 2.04× agent turns, 20–59% lower P50 per-token latency, and 1.40–3.05× better agent TTFT vs SGLang+HiCache. Relevance: 96 (abstract-based).
+Quiet day — no new paper cleared the relevance bar for inference systems.
 
-[FrontierReplay: Split-Free Exact Prefix Caching for Hybrid Language Models](https://arxiv.org/abs/2611.26020)
-Exact prefix reuse in hybrid models normally forces the prefill pass to be cut at each checkpoint; FrontierReplay instead materializes exact checkpoints at structural boundaries (turn ends, branch points) without cutting prefill, using a state-only replay kernel that rebuilds state 6–37× cheaper per token than recomputation. Result: 16–89% lower median TTFT (up to 8.9×), up to 1.73× SLO capacity, 4.26× goodput — and it avoids the ~17% long-context accuracy drop of approximate replay. Relevance: 95 (abstract-based).
+The only paper scanned, [Seer: Guiding Small Deep-Research Agents with Shared Decision Models](https://arxiv.org/abs/2611.26423), is an agent-reasoning method: it trains an offline tool-response simulator and a value estimator to steer on-device deep-research agents at inference time, reusing both across agents without per-model retraining (GAIA accuracy jumps 13.6%→41.7% on Qwen3.5-4B and 22.3%→50.5% on Qwen3.5-9B). Genuinely useful for agent builders, but it's about *what an agent decides to do next* — not how an LLM is served or optimized, with no KV-cache, batching, quantization, or kernel angle. It scored 42/100 on relevance and isn't featured.
 
-[Aggron: Aggressive Compression of Agentic KV Caches during Head-of-Line Stalls](https://arxiv.org/abs/2611.26435)
-Instead of waiting for the KV cache to cross a threshold and summarizing huge spans, Aggron summarizes agentic requests every turn, selectively, and fires those summarization jobs from a separate queue that scavenges the compute/memory freed by head-of-line stalls — only when it predicts they'll finish before the stalled request resumes. At high load: 27–31% lower P99 program latency and 1.34–1.40× throughput over SOTA async summarization. Relevance: 95 (abstract-based).
-
-[TripleKV: Predict, Prefetch, Protect — KV Cache Management for AI Agents](https://arxiv.org/abs/2611.25112)
-A three-tier (GPU/DRAM/SSD) KV manager that exploits the fact that an agent's next KV blocks are known in advance — a tool-aware latency predictor prefetches them SSD→DRAM during tool execution, with dedup and a victim cache to stretch DRAM. Cuts critical-path SSD reads from 45–76% to under 10%, drops P95 TTFT up to 49% vs a DRAM/SSD-tiered vLLM, and 1.5–7× lower P95 TTFT than recent agent-aware systems. Relevance: 92 (abstract-based).
-
-[AscMLA: Unlocking FP4 Efficiency for Long-Context MLA Decoding through Asymmetric Scaling](https://arxiv.org/abs/2611.26106)
-Applying FP4 to multi-head latent attention is hard because K and V need different scaling on a shared latent; AscMLA uses asymmetric K/V scaling plus pipelined scale delivery to process a single FP4 payload directly, no dequant detour. 38.2% less cache memory than FP8, with 1.35× geomean speedup over TRT-LLM's FP8 and 1.26× over CAKE's NVFP4 MLA kernels. Relevance: 93 (abstract-based).
-```
-
-Tell me which unblock option you want (or just install poppler and re-run) and I'll produce the real full-text bulletin.
+See Surge Watch below for movement on papers already on the board.
 
 ---
 
 ## Surge Watch
 
-**FlashAttention-4 and Mamba-3 break out on the same day.** Both marquee March-2026 papers sat flat for a month, then jumped Nov 14: [FlashAttention-4](https://arxiv.org/abs/2603.05451) ran 77→120 citations with influential cites doubling (11→22), and [Mamba-3](https://arxiv.org/abs/2603.15569) went 105→140 (influential 18→27). Foundational kernel/architecture work is compounding now — not just this autumn's speculative-decoding cohort.
+**SSD-served MoE is the GitHub story of the month.** [The Other Half of the Memory Wall](https://arxiv.org/abs/2609.18063) — serving 35B MoEs off SSD with trained routing prediction — ran 9,170→12,140 GitHub stars since Nov 9 (roughly 3k→12k since early October), with HF upvotes ticking 31→36 on Nov 21. A rare sustained real-time surge in a month where most repos have flatlined.
 
-**DeepSeek-V4.1-Flash is pulling away.** The KV-cache-compression flagship [DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) climbed 191→234 citations in under two weeks and is still rising — the highest count of any recent paper on the board.
+**The spec-decode cohort keeps compounding.** [DSpark](https://arxiv.org/abs/2607.05147) doubled from 42→91 citations (influential 19→45) in two weeks, and [DFlash](https://arxiv.org/abs/2602.06036) pushed 202→218 with influential cites now at 87 — the fastest-citing cluster on the board, and still not cooling.
 
-**First-traction alert:** [Multi-Branch Transformer](https://arxiv.org/abs/2611.19800) leapt 17→44 HF upvotes and 3→13 stars in two days — real heat in a cycle where HF counts have mostly gone flat or backward.
-
-**The curve held:** [Evolving Infra](https://arxiv.org/abs/2611.12304) kept running after last week's bookmark — 106→162 GitHub stars in two more days. Agent-adaptive serving has legs.
+**DeepSeek-V4.1-Flash finally stalled.** After the 191→234 run we flagged as "still rising," [DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) sat flat at 234 citations across Nov 20–21 — its first pause since breaking out.

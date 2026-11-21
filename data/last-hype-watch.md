@@ -1,7 +1,5 @@
-**FlashAttention-4 and Mamba-3 break out on the same day.** Both marquee March-2026 papers sat flat for a month, then jumped Nov 14: [FlashAttention-4](https://arxiv.org/abs/2603.05451) ran 77→120 citations with influential cites doubling (11→22), and [Mamba-3](https://arxiv.org/abs/2603.15569) went 105→140 (influential 18→27). Foundational kernel/architecture work is compounding now — not just this autumn's speculative-decoding cohort.
+**SSD-served MoE is the GitHub story of the month.** [The Other Half of the Memory Wall](https://arxiv.org/abs/2609.18063) — serving 35B MoEs off SSD with trained routing prediction — ran 9,170→12,140 GitHub stars since Nov 9 (roughly 3k→12k since early October), with HF upvotes ticking 31→36 on Nov 21. A rare sustained real-time surge in a month where most repos have flatlined.
 
-**DeepSeek-V4.1-Flash is pulling away.** The KV-cache-compression flagship [DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) climbed 191→234 citations in under two weeks and is still rising — the highest count of any recent paper on the board.
+**The spec-decode cohort keeps compounding.** [DSpark](https://arxiv.org/abs/2607.05147) doubled from 42→91 citations (influential 19→45) in two weeks, and [DFlash](https://arxiv.org/abs/2602.06036) pushed 202→218 with influential cites now at 87 — the fastest-citing cluster on the board, and still not cooling.
 
-**First-traction alert:** [Multi-Branch Transformer](https://arxiv.org/abs/2611.19800) leapt 17→44 HF upvotes and 3→13 stars in two days — real heat in a cycle where HF counts have mostly gone flat or backward.
-
-**The curve held:** [Evolving Infra](https://arxiv.org/abs/2611.12304) kept running after last week's bookmark — 106→162 GitHub stars in two more days. Agent-adaptive serving has legs.
+**DeepSeek-V4.1-Flash finally stalled.** After the 191→234 run we flagged as "still rising," [DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) sat flat at 234 citations across Nov 20–21 — its first pause since breaking out.
