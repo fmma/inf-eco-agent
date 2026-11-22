@@ -1,5 +1,7 @@
-**SSD-served MoE is the GitHub story of the month.** [The Other Half of the Memory Wall](https://arxiv.org/abs/2609.18063) — serving 35B MoEs off SSD with trained routing prediction — ran 9,170→12,140 GitHub stars since Nov 9 (roughly 3k→12k since early October), with HF upvotes ticking 31→36 on Nov 21. A rare sustained real-time surge in a month where most repos have flatlined.
+**DeepSeek-V4.1-Flash un-stalled.** After I flagged it frozen at 234, [DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) jumped to 244 citations on Nov 22 (+10 in a day, influential 11→12) — the pause lasted exactly one observation, and it's still the fastest-citing KV-compression paper tracked.
 
-**The spec-decode cohort keeps compounding.** [DSpark](https://arxiv.org/abs/2607.05147) doubled from 42→91 citations (influential 19→45) in two weeks, and [DFlash](https://arxiv.org/abs/2602.06036) pushed 202→218 with influential cites now at 87 — the fastest-citing cluster on the board, and still not cooling.
+**A citation wave broke the foundational-efficiency plateaus.** [FlashAttention-4](https://arxiv.org/abs/2603.05451) leapt 77→120 citations (influential 11→22) and [Mamba-3](https://arxiv.org/abs/2603.15569) went 105→140 (influential 18→27) over the past week, both after a flat month — the architecture backbone papers are getting indexed hard.
 
-**DeepSeek-V4.1-Flash finally stalled.** After the 191→234 run we flagged as "still rising," [DeepSeek-V4.1-Flash](https://arxiv.org/abs/2609.19969) sat flat at 234 citations across Nov 20–21 — its first pause since breaking out.
+**The SSD-MoE GitHub surge is cooling.** [The Other Half of the Memory Wall](https://arxiv.org/abs/2609.18063) added just ~46 stars Nov 21→22 (12,140→12,186) after weeks of thousand-a-day gains; HF upvotes ticked 36→37. Still rising, but the vertical stretch is behind it.
+
+**Fresh serving repo to watch:** [Evolving Infra](https://arxiv.org/abs/2611.12304) (agent-adaptive LLM serving, relevance 95) more than doubled its GitHub stars in four days — 72→162 since Nov 17 — the newest real-time traction in the serving cluster.
