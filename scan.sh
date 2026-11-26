@@ -13,6 +13,12 @@ if [ -d .venv ]; then
   source .venv/bin/activate
 fi
 
+# Secrets kept out of git, such as CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`
+if [ -f .env ]; then
+  # shellcheck source=/dev/null
+  source .env
+fi
+
 # Allow running from within a Claude Code session or hook
 unset CLAUDECODE
 export CLAUDE_CODE_DISABLE_1M_CONTEXT=1

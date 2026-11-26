@@ -38,6 +38,8 @@ The agent runs on the remote host `foadell` at `~/inf-eco-agent`. Code is deploy
 
 Avoid rsyncing files to foadell. It creates unstaged changes that break `git pull --rebase`.
 
+Secrets live in `~/inf-eco-agent/.env` on foadell (gitignored, mode 600), which `scan.sh` sources when present. It holds `CLAUDE_CODE_OAUTH_TOKEN`, a one-year token from `claude setup-token` that bills the Claude subscription. The browser login (`claude auth login`) reaches a time limit that use does not extend, so the scan must not depend on it.
+
 ### Harvesting from arXiv
 
 The fetch step uses arXiv's **OAI-PMH** endpoint (`https://export.arxiv.org/oai2`), not the relevance-search API (`/api/query`). The search API turned out to be too fragile for bulk harvesting — 429s and 503s under any pagination pattern, even with curl, custom UA, and 5-minute spacing. OAI-PMH is the interface arXiv built for exactly this use case: documented 1-request-per-4-seconds rate limit, server-side `from`/`until` date filtering, resumption tokens for paging through bounded sets. We pass `set=cs` to scope to all CS records and filter categories + keywords client-side. Bulk requests via `curl(1)` (kept from the prior search-API attempt) with a descriptive User-Agent. Non-2xx and OAI `<error>` responses propagate as exceptions — scan.sh's ERR trap decides how to react.
