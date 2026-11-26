@@ -29,16 +29,16 @@ This repo is an automated agent that discovers new arXiv papers about LLM infere
 
 ### Deployment
 
-The agent runs on the remote host `foadell` at `~/inf-eco-agent`. Code is deployed via git, not rsync.
+The agent runs on a remote host at `~/inf-eco-agent`. Its SSH alias is not in the repository; `deploy.sh` reads it from `DEPLOY_HOST`, set in the local gitignored `.env`. Code is deployed via git, not rsync.
 
-- `scan.sh` runs `git pull --rebase` at startup, so foadell always gets the latest code before each scan.
-- `deploy.sh` triggers a `git pull --ff-only` on foadell for immediate deploys. It refuses to run if the local repo has uncommitted or unpushed changes.
+- `scan.sh` runs `git pull --rebase` at startup, so the host always gets the latest code before each scan.
+- `deploy.sh` triggers a `git pull --ff-only` on the host for immediate deploys. It refuses to run if the local repo has uncommitted or unpushed changes.
 - To deploy: commit and push changes, then run `bash deploy.sh`. Or just push and let the next scheduled scan pick it up.
 - If a previous scan crashed mid-run, `git checkout -- .` at the top of `scan.sh` discards uncommitted changes. Unpushed commits (scored data) are preserved via rebase.
 
-Avoid rsyncing files to foadell. It creates unstaged changes that break `git pull --rebase`.
+Avoid rsyncing files to the host. It creates unstaged changes that break `git pull --rebase`.
 
-Secrets live in `~/inf-eco-agent/.env` on foadell (gitignored, mode 600), which `scan.sh` sources when present. It holds `CLAUDE_CODE_OAUTH_TOKEN`, a one-year token from `claude setup-token` that bills the Claude subscription. The browser login (`claude auth login`) reaches a time limit that use does not extend, so the scan must not depend on it.
+Secrets live in `~/inf-eco-agent/.env` on the host (gitignored, mode 600), which `scan.sh` sources when present. It holds `CLAUDE_CODE_OAUTH_TOKEN`, a one-year token from `claude setup-token` that bills the Claude subscription. The browser login (`claude auth login`) reaches a time limit that use does not extend, so the scan must not depend on it.
 
 ### Harvesting from arXiv
 
